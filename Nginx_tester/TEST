@@ -1,0 +1,5 @@
+BLOC		|		MISSING_ERROR		|		DEFAULT_VALUE		|		WRONG_VALUE_ERROR 
+listen		|			no				|			80				|			YES (0 < port < 65536)
+server_name |			no				|			localhost		|			NO						
+location	|			no				|	root : 	/etc/nginx/html/| 
+			|							|	index : index.html		|
