@@ -1,37 +1,50 @@
+NAME		=	a.out
+CC			=	clang++
+CFLAGS		=	-Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
+RM			=	rm -rf
+SRC_DIR 	= 	srcs
+SRC		 	=	$(notdir $(shell find $(SRC_DIR) -type f -name *.cpp))
+OBJ_DIR		=	obj
+OBJ 		= 	$(addprefix $(OBJ_DIR)/,$(SRC:.cpp=.o))
+COMP_LINUX	=
+INC_DIR		=	includes
+INC			=	$(shell find $(INC_DIR) -type f -name "*.hpp")
+IFLAGS 		=	-I $(INC_DIR)
+vpath			%.cpp $(shell find $(SRC_DIR) -type d)
+.SUFFIXES: 		.cpp .o .hpp
 
-SRCS = 	Cluster.cpp \
-		Location.cpp \
-		Server.cpp 
+_YELLOW		=	\033[38;5;184m
+_GREEN		=	\033[38;5;46m
+_RESET		=	\033[0m
+_INFO		=	[$(_YELLOW)INFO$(_RESET)]
+_SUCCESS	=	[$(_GREEN)SUCCESS$(_RESET)]
+_CLEAR		=	\033[2K\c
 
-SERVER	= server
+all				:	init $(NAME)
+					@ echo "$(_SUCCESS) Compilation done"
 
-CXX		= clang++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+init			:
+					@ mkdir -p $(OBJ_DIR)
 
-RM		= rm -rf
+bonus			:	all
+					
+$(NAME)			:	$(OBJ) $(INC)
+					@ echo "$(_INFO) Initialize $(NAME)"
+				 	@ $(CC) $(CFLAGS) $(IFLAGS) -o $(NAME) $(OBJ) $(COMP_LINUX) 
 
-SRCS_PATH			=	./srcs/
-OBJS_PATH			=	.objs/
-INC					= -I includes/
+$(OBJ_DIR)/%.o	:	%.cpp
+					@ echo "\t$(_YELLOW)Compiling$(_RESET) $*.cpp\r\c"
+					@ $(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+					@ echo "$(_CLEAR)"
 
+clean			:
+					@ echo "$(_INFO) Deleted object files and directories"
+					@ $(RM) $(OBJ_DIR)
+					@ echo "$(_SUCCESS) Working directory clean"
 
-OBJS	= $(addprefix $(OBJS_PATH),$(SRCS.cpp=.o))
+fclean			:	clean
+					@ $(RM) $(NAME)
 
-all: $(SERVER)
+re				: 	fclean all
 
-$(OBJS_PATH)%.o: $(SRCS_PATH)%.cpp
-	@ mkdir -p $(OBJS_PATH)
-	$(CXX) $(INC) $(CXXFLAGS) -c $< -o $@
-
-$(SERVER): $(OBJS)
-	$(CXX) $(OBJS) $(INC) -o $(SERVER)
-
-clean: 
-	$(RM) $(OBJS)
-
-fclean: clean
-	$(RM) $(SERVER)
-
-re: clean all
-
-.PHONY: all clean fclean re
+.PHONY: 		all fclean clean re
