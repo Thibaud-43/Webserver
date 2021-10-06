@@ -10,6 +10,8 @@ Server::Server()
 	m_port = "80";
 	m_name = "localhost";
 
+	// THIB GROS PD
+
 }
 
 Server::Server( const Server & src )
