@@ -17,6 +17,7 @@
 # include <arpa/inet.h>
 # include <sys/wait.h>
 # include <signal.h>
+
 class Server
 {
 
@@ -36,5 +37,7 @@ class Server
 		std::vector<Location>			m_locations;
 
 };
+
+std::ostream &			operator<<( std::ostream & o, Server const & i );
 
 #endif /* ********************************************************** SERVER_H */

@@ -23,4 +23,6 @@ class Cluster
 
 };
 
+std::ostream &			operator<<( std::ostream & o, Cluster const & i );
+
 #endif /* ********************************************************* CLUSTER_H */
