@@ -10,12 +10,11 @@ class Request
 {
 
 	public:
-
 		Request();
-		Request( Request const & src );
+		Request(Request const & src);
 		Request(std::string const request);
 		~Request();
-		Request &		operator=( Request const & rhs );
+		Request &		operator=(Request const & rhs);
 
 		std::string		execute(Server const & server) const;
 
@@ -25,6 +24,6 @@ class Request
 
 };
 
-std::ostream &			operator<<( std::ostream & o, Request const & i );
+std::ostream &			operator<<(std::ostream & o, Request const & i);
 
 #endif /* ********************************************************* REQUEST_H */
