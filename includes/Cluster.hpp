@@ -21,6 +21,9 @@ class Cluster
 	private:
 		std::vector<Server>	m_servers;
 
+    	struct sockaddr_in 				m_their_addr;
+		int								m_newsocket_fd;
+
 };
 
 std::ostream &			operator<<( std::ostream & o, Cluster const & i );

@@ -28,6 +28,7 @@ class Server
 		~Server();
 
 		Server &		operator=( Server const & rhs );
+		int				getSocketFd(void) const;
 		int				run(void);
 
 	private:
@@ -35,6 +36,10 @@ class Server
 		std::string						m_port;
 		std::string						m_name;
 		std::vector<Location>			m_locations;
+		
+		// POTENTIAL SOCKET CLASS
+		int								m_socket_fd;
+		struct sockaddr_in 				m_my_addr;
 
 };
 
