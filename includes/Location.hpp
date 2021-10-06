@@ -20,7 +20,6 @@ class Location
 		Location( Location const & src );
 		~Location();
 
-		Location &		operator=( Location const & rhs );
 
 	private:
 		std::map<err_code_t, path_t>	m_error_pages; // DEFAULT ?
@@ -30,10 +29,10 @@ class Location
 		std::vector<std::string>		m_methods; // DEFAULT GET POST DELETE
 		redirect_t						m_redirect; // DEFAULT 0
 		bool							m_autoindex; // DEFAULT true
-
-		// SEE LATER
 		file_t							m_cgi_pass; // DEFAULT NONE
 		path_t							m_upload_path; // DEFAULT ?
+		
+		Location &		operator=( Location const & rhs );
 
 
 };
