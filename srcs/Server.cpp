@@ -9,7 +9,6 @@ Server::Server()
     m_ip = "0.0.0.0";
 	m_port =     "80";
 	m_name = "localhost";
-	m_name = "localhost";
 }
 
 Server::Server( const Server & src )
