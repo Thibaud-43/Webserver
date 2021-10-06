@@ -7,9 +7,9 @@
 Server::Server()
 {
     m_ip = "0.0.0.0";
-	m_port = "80";
+	m_port =     "80";
 	m_name = "localhost";
-
+	m_name = "localhost";
 }
 
 Server::Server( const Server & src )
@@ -53,9 +53,9 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 
 int				Server::run(void)
 {
-    int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
-    struct sockaddr_in my_addr;    // my address information
-    struct sockaddr_in their_addr; // connector's address information
+    int sockfd, new_fd;             // listen on sock_fd, new connection on new_fd
+    struct sockaddr_in my_addr;     // my address information
+    struct sockaddr_in their_addr;  // connector's address information
     socklen_t sin_size;
     struct sigaction sa;
     int yes=1;
