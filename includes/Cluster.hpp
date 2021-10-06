@@ -16,6 +16,7 @@ class Cluster
 		~Cluster();
 
 		Cluster &		operator=( Cluster const & rhs );
+		int				run(void);
 
 	private:
 		std::vector<Server>	m_servers;
