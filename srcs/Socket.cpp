@@ -195,5 +195,29 @@ Socket const *       Socket::getSocketFromFd(fd_type fd)
 	return NULL;
 }
 
+Server const *        Socket::getServer(void)
+{
+	return m_server;
+}
+
+Server const *        Socket::getType(void)
+{
+	return m_type;
+}
+
+Server const *        Socket::getFd(void)
+{
+	return m_fd;
+}
+
+Server const *        Socket::getAddr(void)
+{
+	return m_addr;
+}
+
+Server const *        Socket::getList(void)
+{
+	return m_list;
+}
 
 /* ************************************************************************** */

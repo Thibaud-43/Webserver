@@ -27,6 +27,11 @@ class Socket
 
 		Socket &		               operator=( Socket const & rhs );
         static Socket const *          getSocketFromFd(fd_type fd);
+        Server const *                 getServer(void);
+        Server const *                 getType(void);
+        Server const *                 getFd(void);
+        Server const *                 getAddr(void);
+        Server const *                 getList(void);
         static  void                   closeFd(fd_type fd);
         void                           sendResponse(char *response);
 
