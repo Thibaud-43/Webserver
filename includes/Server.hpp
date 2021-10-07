@@ -4,8 +4,6 @@
 # include <iostream>
 # include <string>
 # include <map>
-# include "Location.hpp"
-
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -17,12 +15,14 @@
 # include <arpa/inet.h>
 # include <sys/wait.h>
 # include <signal.h>
+# include "Location.hpp"
+
+# define PROTOCOL "HTTP/1.1"
 
 class Server
 {
 
 	public:
-
 		Server();
 		Server( Server const & src );
 		~Server();
@@ -34,6 +34,7 @@ class Server
 		std::string						m_ip;
 		std::string						m_port;
 		std::string						m_name;
+		Location				m_params;
 		std::vector<Location>			m_locations;
 
 };
