@@ -1,17 +1,18 @@
-#include "Server.hpp"
+#include "Listener.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server()
+Listener::Listener()
 {
-    m_ip = "0.0.0.0";
-	m_port = "80";
-	m_name = "localhost";
 }
 
-Server::Server( const Server & src )
+Listener::Listener( const Listener & src )
+{
+}
+
+Listener::Listener(Server * server)
 {
 
 }
@@ -21,7 +22,7 @@ Server::Server( const Server & src )
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Server::~Server()
+Listener::~Listener()
 {
 }
 
@@ -30,7 +31,7 @@ Server::~Server()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Server &				Server::operator=( Server const & rhs )
+Listener &				Listener::operator=( Listener const & rhs )
 {
 	//if ( this != &rhs )
 	//{
@@ -39,7 +40,7 @@ Server &				Server::operator=( Server const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Server const & i )
+std::ostream &			operator<<( std::ostream & o, Listener const & i )
 {
 	//o << "Value = " << i.getValue();
 	return o;
@@ -50,22 +51,10 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-int				Server::run(void)
-{
-    ASocket	*socket = new Listener(this);
-
-    return 1;
-}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-	std::string				Server::getIp(void) const
-    {
-        return m_ip;
-    }
-	std::string				Server::getPort(void) const
-    {
-        return m_port;
-    }
+
+
 /* ************************************************************************** */

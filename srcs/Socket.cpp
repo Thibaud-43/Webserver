@@ -1,22 +1,24 @@
-#include "Socket.hpp"
+#include "ASocket.hpp"
 
-Socket::list_type Socket::m_list = list_type();
+ASocket::list_type ASocket::m_list = list_type();
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Socket::Socket()
+ASocket::ASocket()
 {
 
 }
 
-Socket::Socket( const Socket & src ): m_server(src.m_server), m_type(src.m_type), m_fd(src.m_fd), m_addr(src.m_addr)
+ASocket::ASocket( const ASocket & src ): m_server(src.m_server), m_fd(src.m_fd), m_addr(src.m_addr)
 {
 
 }
 
-Socket::Socket(Server * server, socket_type type): m_server(server), m_type(type)
+
+// CLIENT & LISTENER
+/*ASocket::ASocket(Server * server, socket_type type): m_server(server), m_type(type)
 {
 	if (m_type == listener)
 	{
@@ -27,27 +29,25 @@ Socket::Socket(Server * server, socket_type type): m_server(server), m_type(type
 	}
 	m_list.insert(*this);
 }
-
+*/
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Socket::~Socket()
+ASocket::~ASocket()
 {
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Socket &				Socket::operator=( Socket const & rhs )
+ASocket &				ASocket::operator=( ASocket const & rhs )
 {
 	if ( this != &rhs )
 	{
 		m_server = rhs.m_server;
-        m_type = rhs.m_type;
         m_fd = rhs.m_fd;
 		m_addr = rhs.m_addr;
         m_list = rhs.m_list;
@@ -56,37 +56,37 @@ Socket &				Socket::operator=( Socket const & rhs )
 	return *this;
 }
 
-bool                    operator<(Socket & lhs, Socket & rhs)
+bool                    operator<(ASocket & lhs, ASocket & rhs)
 {
 	return lhs.m_fd < rhs.m_fd;
 }
 
-bool                    operator<=(Socket & lhs, Socket & rhs)
+bool                    operator<=(ASocket & lhs, ASocket & rhs)
 {
 	return lhs.m_fd <= rhs.m_fd;
 }
 
-bool                    operator>(Socket & lhs, Socket & rhs)
+bool                    operator>(ASocket & lhs, ASocket & rhs)
 {
 	return lhs.m_fd > rhs.m_fd;
 }
 
-bool                    operator>=(Socket & lhs, Socket & rhs)
+bool                    operator>=(ASocket & lhs, ASocket & rhs)
 {
 	return lhs.m_fd >= rhs.m_fd;
 }
 
-bool                    operator==(Socket & lhs, Socket & rhs)
+bool                    operator==(ASocket & lhs, ASocket & rhs)
 {
 	return lhs.m_fd == rhs.m_fd;
 }
 
-bool                    operator!=(Socket & lhs, Socket & rhs)
+bool                    operator!=(ASocket & lhs, ASocket & rhs)
 {
 	return lhs.m_fd != rhs.m_fd;
 }
 
-Socket::operator fd_type(void) const
+ASocket::operator fd_type(void) const
 {
 	return m_fd;
 }
@@ -95,7 +95,7 @@ Socket::operator fd_type(void) const
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void            Socket::_create(void)
+void            ASocket::_create(void)
 {
     int yes=1;
 
@@ -111,7 +111,7 @@ void            Socket::_create(void)
     }
 }
 
-void            Socket::_bind(void)
+void            ASocket::_bind(void)
 {
     if (bind(m_fd, (struct sockaddr *)&m_addr, sizeof(address_type)) == -1) 
 	{
@@ -120,7 +120,7 @@ void            Socket::_bind(void)
     }
 }
 
-void            Socket::_initAddr(std::string const & port, std::string const & ip)
+void            ASocket::_initAddr(std::string const & port, std::string const & ip)
 {
 
     m_addr.sin_family = AF_INET;         	
@@ -129,7 +129,7 @@ void            Socket::_initAddr(std::string const & port, std::string const & 
     memset(&(m_addr.sin_zero), '\0', 8); 	
 }
 
-void            Socket::_listen(void)
+void            ASocket::_listen(void)
 {
     if (listen(m_fd, 10) == -1) 
 	{
@@ -138,7 +138,7 @@ void            Socket::_listen(void)
     }
 }
 
-void			Socket::_makeFdNonBlocking(void)
+void			ASocket::_makeFdNonBlocking(void)
 {
 	int flags, s;
 
@@ -160,17 +160,18 @@ void			Socket::_makeFdNonBlocking(void)
 	return ;
 }
 
-void                   Socket::closeFd(fd_type fd)
+void	ASocket::destroy(void)
 {
-	if(close(fd))
+	if(close(m_fd))
     {
         std::cerr << "Failed to close epoll file descriptor" << std::endl;
         return ;
     }
-	m_list.erase(*getSocketFromFd(fd));
+	m_list.erase(this);
+	delete (this);
 }
 
-void                   Socket::sendResponse(char *response)
+void                   ASocket::sendResponse(char *response)
 {
     if((send(m_fd, response, strlen(response), 0)) == -1)
 	{
@@ -183,41 +184,29 @@ void                   Socket::sendResponse(char *response)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-Socket const *       Socket::getSocketFromFd(fd_type fd)
+ASocket *       ASocket::getASocketFromFd(fd_type fd)
 {
 	for (list_type::iterator it = m_list.begin(); it != m_list.end(); it++)
 	{
-		if ((*it).m_fd == fd)
-		{
-			return &(*it);
-		}
+		if ((*it)->m_fd == fd)
+			return (*it);
 	}
-	return NULL;
+	return (NULL);
 }
 
-Server const *        Socket::getServer(void)
+Server const *        ASocket::getServer(void)
 {
-	return m_server;
+	return (m_server);
 }
 
-Server const *        Socket::getType(void)
+ASocket::fd_type	ASocket::getFd(void)
 {
-	return m_type;
+	return (m_fd);
 }
 
-Server const *        Socket::getFd(void)
+ASocket::address_type	ASocket::getAddr(void)
 {
-	return m_fd;
-}
-
-Server const *        Socket::getAddr(void)
-{
-	return m_addr;
-}
-
-Server const *        Socket::getList(void)
-{
-	return m_list;
+	return (m_addr);
 }
 
 /* ************************************************************************** */

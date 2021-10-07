@@ -4,9 +4,6 @@
 # include <iostream>
 # include <string>
 # include <map>
-# include "Location.hpp"
-# include "Socket.hpp"
-
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -18,9 +15,10 @@
 # include <arpa/inet.h>
 # include <sys/wait.h>
 # include <signal.h>
+# include "Location.hpp"
 
-class Socket;
-enum    socket_type;
+class ASocket;
+class Listener;
 
 class Server
 {
