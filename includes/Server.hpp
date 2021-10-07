@@ -5,6 +5,7 @@
 # include <string>
 # include <map>
 # include "Location.hpp"
+# include "Socket.hpp"
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -17,6 +18,9 @@
 # include <arpa/inet.h>
 # include <sys/wait.h>
 # include <signal.h>
+
+class Socket;
+enum    socket_type;
 
 class Server
 {
@@ -31,16 +35,16 @@ class Server
 		int				getSocketFd(void) const;
 		int				run(void);
 
+		std::string		Server::getIp(void) const;
+		std::string		Server::getPort(void) const;
+
+
+
 	private:
 		std::string						m_ip;
 		std::string						m_port;
 		std::string						m_name;
 		std::vector<Location>			m_locations;
-		
-		// POTENTIAL SOCKET CLASS
-		int								m_socket_fd;
-		struct sockaddr_in 				m_my_addr;
-
 };
 
 std::ostream &			operator<<( std::ostream & o, Server const & i );

@@ -59,22 +59,6 @@ int				Cluster::run(void)
 		(*i).run();
 		sockfd = (*i).getSocketFd();
 	}
-    while(1) {  // main accept() loop
-        sin_size = sizeof(struct sockaddr_in);
-        if ((m_newsocket_fd = accept(sockfd, (struct sockaddr *)&m_their_addr,
-                                                       &sin_size)) == -1) {
-            perror("accept");
-            continue;
-        }
-        printf("server: got connection from %s\n",
-                                           inet_ntoa(m_their_addr.sin_addr));
-        /*if (send(m_newsocket_fd, "Hello, world!\n", 14, 0) == -1)
-            perror("send");*/
-		if (recv(m_newsocket_fd, buff, sizeof(buff), 0) == -1)
-            perror("send");
-		std::cout << 
-        close(m_newsocket_fd);
-    }
 }
 
 
