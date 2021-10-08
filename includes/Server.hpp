@@ -16,9 +16,8 @@
 # include <sys/wait.h>
 # include <signal.h>
 # include "Location.hpp"
-
-class ASocket;
-class Listener;
+# include "Listener.hpp"
+# include "ASocket.hpp"
 
 class Server
 {
