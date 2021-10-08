@@ -12,7 +12,7 @@ class Client: public ASocket
 
 		Client();
 		Client( Client const & src );
-		Client(Server * server);
+		Client(fd_type client_fd, address_type & theirAddr, Server const * server);
 		~Client();
         void					sendResponse(char *response);
 

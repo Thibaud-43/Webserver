@@ -5,6 +5,9 @@
 # include <string>
 # include <vector>
 # include "Server.hpp"
+# include "ASocket.hpp"
+# include "Client.hpp"
+
 
 # include <stdio.h>     // for fprintf()
 # include <unistd.h>    // for close(), read()

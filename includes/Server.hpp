@@ -17,8 +17,8 @@
 # include <signal.h>
 # include "Location.hpp"
 # include "Listener.hpp"
-# include "ASocket.hpp"
 
+class ASocket;
 class Server
 {
 
@@ -32,8 +32,8 @@ class Server
 		int				getSocketFd(void) const;
 		int				run(void);
 
-		std::string		Server::getIp(void) const;
-		std::string		Server::getPort(void) const;
+		std::string		getIp(void) const;
+		std::string		getPort(void) const;
 
 
 

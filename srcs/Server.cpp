@@ -53,7 +53,6 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 int				Server::run(void)
 {
     ASocket	*socket = new Listener(this);
-
     return 1;
 }
 

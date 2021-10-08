@@ -7,7 +7,7 @@
 # include <fcntl.h>
 # include "Server.hpp"
 
-class   Server;
+class Server;
 class ASocket
 {
 	public:

@@ -12,10 +12,15 @@ Client::Client( const Client & src )
 {
 }
 
-Client::Client(Server * server): Client()
+Client::Client(fd_type client_fd, address_type & theirAddr, Server const * server): ASocket()
 {
-
+	m_fd = client_fd;
+	m_addr = theirAddr;
+	m_server = server;
+	_makeFdNonBlocking();
+	m_list.insert(this);
 }
+
 
 
 /*

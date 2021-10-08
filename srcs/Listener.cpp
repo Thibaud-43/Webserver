@@ -12,9 +12,15 @@ Listener::Listener( const Listener & src )
 {
 }
 
-Listener::Listener(Server * server): Listener()
+Listener::Listener(Server * server)
 {
-
+    _initAddr("80", "0.0.0.0");
+    _create();
+    _bind();
+    _listen();
+    _makeFdNonBlocking();
+    m_server = server;
+    m_list.insert(this);
 }
 
 

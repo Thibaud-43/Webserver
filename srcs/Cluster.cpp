@@ -87,7 +87,7 @@ int				Cluster::run(void)
     }
 
 
-
+    struct sockaddr_in their_addr;
     while(running)
     {
         printf("\nPolling for input...\n");
@@ -100,8 +100,7 @@ int				Cluster::run(void)
             {
 
                 int new_fd = accept(server_fd, (struct sockaddr*)&their_addr, &size);
-				Socket	socket(new_fd, their_addr, Socket::getSocketFromFd(server_fd).);
-
+				Client	socket(new_fd, their_addr, (ASocket::getASocketFromFd(server_fd))->getServer());
                 event.data.fd = new_fd;
                 event.events = EPOLLIN | EPOLLET;
                 epoll_ctl (epoll_fd, EPOLL_CTL_ADD, new_fd, &event);
