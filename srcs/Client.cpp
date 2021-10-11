@@ -56,7 +56,7 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void                   Client::sendResponse(char *response)
+void                   Client::sendResponse(char const *response) const
 {
     if((send(m_fd, response, strlen(response), 0)) == -1)
 	{

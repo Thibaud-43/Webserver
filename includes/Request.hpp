@@ -5,7 +5,7 @@
 # include <string>
 # include <map>
 # include "Server.hpp"
-# include "Socket.hpp"
+# include "Client.hpp"
 
 class Request
 {
@@ -17,7 +17,7 @@ class Request
 		~Request();
 		Request &		operator=(Request const & rhs);
 
-		std::string		execute(Socket const & socket) const;
+		void	execute(Client const & client) const;
 
 	private:
 		std::map<std::string, std::string>	m_header;

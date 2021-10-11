@@ -28,16 +28,18 @@ Request::~Request()
 
 Request &				Request::operator=( Request const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+		m_header = rhs.m_header;
+		m_body = rhs.m_body;
+	}
 	return *this;
 }
 
 std::ostream &			operator<<( std::ostream & o, Request const & i )
 {
-	//o << "Value = " << i.getValue();
+	(void)o;
+	(void)i;
 	return o;
 }
 
@@ -46,6 +48,12 @@ std::ostream &			operator<<( std::ostream & o, Request const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void	Request::execute(Client const & client) const
+{
+	Server const & serv = *client.getServer();
+
+	
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

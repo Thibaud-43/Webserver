@@ -95,49 +95,6 @@ ASocket::operator fd_type(void) const
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void            ASocket::_create(void)
-{
-    int yes=1;
-
-	if ((m_fd = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
-	{
-        perror("socket");
-        exit(1);
-    }
-    if (setsockopt(m_fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) 
-	{
-        perror("setsockopt");
-        exit(1);
-    }
-}
-
-void            ASocket::_bind(void)
-{
-    if (bind(m_fd, (struct sockaddr *)&m_addr, sizeof(address_type)) == -1) 
-	{
-        perror("bind");
-        exit(1);
-    }
-}
-
-void            ASocket::_initAddr(std::string const & port, std::string const & ip)
-{
-
-    m_addr.sin_family = AF_INET;         	
-    m_addr.sin_port = htons(80);     		// a changer
-    m_addr.sin_addr.s_addr = INADDR_ANY; 	// a changer
-    memset(&(m_addr.sin_zero), '\0', 8); 	
-}
-
-void            ASocket::_listen(void)
-{
-    if (listen(m_fd, 10) == -1) 
-	{
-        perror("listen");
-        exit(1);
-    }
-}
-
 void			ASocket::_makeFdNonBlocking(void)
 {
 	int flags, s;
@@ -171,15 +128,6 @@ void	ASocket::destroy(void)
 	delete (this);
 }
 
-void                   ASocket::sendResponse(char *response)
-{
-    if((send(m_fd, response, strlen(response), 0)) == -1)
-	{
-		perror ("send");
-		exit(1);
-	}
-}
-
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
@@ -194,17 +142,17 @@ ASocket *       ASocket::getASocketFromFd(fd_type fd)
 	return (NULL);
 }
 
-Server const *        ASocket::getServer(void)
+Server const *        ASocket::getServer(void) const
 {
 	return (m_server);
 }
 
-ASocket::fd_type	ASocket::getFd(void)
+ASocket::fd_type	ASocket::getFd(void) const
 {
 	return (m_fd);
 }
 
-ASocket::address_type	ASocket::getAddr(void)
+ASocket::address_type	ASocket::getAddr(void) const
 {
 	return (m_addr);
 }

@@ -16,9 +16,9 @@ class ASocket
 		virtual ~ASocket() = 0;
 
 		ASocket &				operator=(ASocket const & rhs);
-        Server const *			getServer(void);
-        fd_type					getFd(void);
-        address_type			getAddr(void);
+        Server const *			getServer(void) const;
+        fd_type					getFd(void) const;
+        address_type			getAddr(void) const;
         static ASocket *		getASocketFromFd(fd_type fd);
         void					destroy(void);
 
