@@ -16,6 +16,7 @@ class Cluster
 {
 
 	public:
+        typedef int						fd_type;
 
 		Cluster();
 		Cluster( Cluster const & src );
@@ -28,7 +29,10 @@ class Cluster
 		std::vector<Server>	m_servers;
 
     	struct sockaddr_in 				m_their_addr;
-		int								m_newsocket_fd;
+		fd_type							m_newsocket_fd;
+		fd_type							m_epoll_fd;
+
+		void							_createEpoll(void);
 
 };
 
