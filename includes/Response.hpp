@@ -22,12 +22,12 @@ class Response
 		Response(Response const & src);
 		~Response();
 
-		std::string	const &	getContent(void) const;
-		void				start_header(status_code_t const & status);
-		void				append_to_header(std::string const & str);
-		void				append_to_body(std::string const & str);
-		void				send_to_client(Client const & client) const;
-		void				clear(void);
+		std::string	getContent(void) const;
+		void		start_header(status_code_t const & status);
+		void		append_to_header(std::string const & str);
+		void		append_to_body(std::string const & str);
+		void		send_to_client(Client const & client) const;
+		void		clear(void);
 
 		Response &		operator=(Response const & rhs);
 

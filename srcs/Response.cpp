@@ -105,9 +105,9 @@ void	Response::send_to_client(Client const & client) const
 	client.sendResponse(getContent().data());
 }
 
-std::string const & Response::getContent(void) const
+std::string Response::getContent(void) const
 {
-	return (std::string(m_header + "\r\n" + m_body));
+	return (m_header + "\r\n" + m_body);
 }
 
 void	Response::start_header(Response::status_code_t const & status)
