@@ -13,7 +13,7 @@ class Request
 {
 
 	public:
-		Request(Client client = Client());
+		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
 		~Request();

@@ -7,8 +7,6 @@
 # include "Client.hpp"
 
 # define PROTOCOL "HTTP/1.1"
-class ASocket;
-class Listener;
 class Server
 {
 

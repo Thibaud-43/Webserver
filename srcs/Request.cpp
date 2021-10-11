@@ -4,10 +4,10 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(Client client = Client()): m_client(client)
+/*Request::Request(): m_client(Client())
 {
 
-}
+}*/
 
 Request::Request(std::string buffer, Client & client): m_buffer(buffer), m_client(client)
 {
