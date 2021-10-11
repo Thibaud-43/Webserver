@@ -1,8 +1,6 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include <iostream>
-# include <string>
 # include "ASocket.hpp"
 
 class Client: public ASocket

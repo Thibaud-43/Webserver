@@ -1,7 +1,6 @@
 #ifndef LISTENER_HPP
 # define LISTENER_HPP
 
-# include "Server.hpp"
 # include "ASocket.hpp"
 
 
@@ -24,6 +23,7 @@ class Listener: public ASocket
         void	_listen(void);
 
 };
+
 std::ostream &			operator<<( std::ostream & o, Listener const & i );
 
 #endif /* ******************************************************** LISTENER_H */

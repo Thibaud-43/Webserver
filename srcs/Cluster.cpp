@@ -55,6 +55,14 @@ int				Cluster::run(void)
 	char		buff[4096];
 
 	m_servers.push_back(test);
+    
+    int epoll_fd = epoll_create1(0);                                                // create a file descriptor to a new epoll instance
+    if(epoll_fd == -1)
+    {
+        fprintf(stderr, "Failed to create epoll file descriptor\n");
+        return 1;
+    }
+
 	for (std::vector<Server>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
 	{
 		(*i).run();
@@ -68,13 +76,8 @@ int				Cluster::run(void)
     char read_buffer[READ_SIZE + 1];
     struct epoll_event event, events[MAX_EVENTS];
 
-    int epoll_fd = epoll_create1(0);                                                // create a file descriptor to a new epoll instance
+
     int server_fd = sockfd;
-    if(epoll_fd == -1)
-    {
-        fprintf(stderr, "Failed to create epoll file descriptor\n");
-        return 1;
-    }
 
     event.events = EPOLLIN | EPOLLET;                                               // The associated file is available for read(2) operations.
     event.data.fd = server_fd;

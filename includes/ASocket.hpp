@@ -1,11 +1,7 @@
 #ifndef ASOCKET_HPP
 # define ASOCKET_HPP
 
-# include <iostream>
-# include <string>
-# include <set>
-# include <fcntl.h>
-# include "Server.hpp"
+#include "Headers.hpp"
 
 class Server;
 class ASocket
@@ -43,5 +39,4 @@ class ASocket
         void					_makeFdNonBlocking(void);
 
 };
-
 #endif /* ********************************************************* ASocket_H */
