@@ -1,42 +1,40 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <iostream>
-# include <string>
-# include <map>
+# include "Headers.hpp"
 # include "Location.hpp"
+# include "Listener.hpp"
+# include "Client.hpp"
 
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <errno.h>
-# include <string.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/wait.h>
-# include <signal.h>
-
+# define PROTOCOL "HTTP/1.1"
 class Server
 {
 
 	public:
+        typedef int						fd_type;
 
 		Server();
 		Server( Server const & src );
+		Server(std::string port, std::string ip);
 		~Server();
 
 		Server &		operator=( Server const & rhs );
-		int				run(void);
+		int				getSocketFd(void) const;
+		int				run(fd_type epoll);
+
+		std::string		getIp(void) const;
+		std::string		getPort(void) const;
+
+		static bool		isServerFd(fd_type fd);
 
 	private:
-		std::string						m_ip;
-		std::string						m_port;
-		std::string						m_name;
-		std::vector<Location>			m_locations;
-
+		std::string					m_ip;
+		std::string					m_port;
+		std::vector<std::string>	m_names;
+		Location					m_params;
+		std::vector<Location>		m_locations;
 };
+class Listener;
 
 std::ostream &			operator<<( std::ostream & o, Server const & i );
 
