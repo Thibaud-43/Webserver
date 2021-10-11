@@ -18,7 +18,8 @@
 # include "Location.hpp"
 
 # define PROTOCOL "HTTP/1.1"
-
+class ASocket;
+class Listener;
 class Server
 {
 
@@ -28,7 +29,13 @@ class Server
 		~Server();
 
 		Server &		operator=( Server const & rhs );
+		int				getSocketFd(void) const;
 		int				run(void);
+
+		std::string		Server::getIp(void) const;
+		std::string		Server::getPort(void) const;
+
+
 
 	private:
 		std::string						m_ip;
@@ -36,7 +43,6 @@ class Server
 		std::string						m_name;
 		Location				m_params;
 		std::vector<Location>			m_locations;
-
 };
 
 std::ostream &			operator<<( std::ostream & o, Server const & i );
