@@ -1,24 +1,11 @@
 #ifndef CLUSTER_HPP
 # define CLUSTER_HPP
 
-# include <iostream>
-# include <string>
-# include <vector>
-# include "Server.hpp"
+# include "Headers.hpp"
 
-# include <stdio.h>     // for fprintf()
-# include <unistd.h>    // for close(), read()
-# include <sys/epoll.h> // for epoll_create1(), epoll_ctl(), struct epoll_event
-# include <string.h>    // for strncmp
-# include <stdlib.h>
-# include <errno.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/wait.h>
-# include <signal.h>
-# include <fcntl.h>
+# include "Server.hpp"
+# include "ASocket.hpp"
+# include "Client.hpp"
 
 #define MAX_EVENTS 5
 #define READ_SIZE 4096
@@ -29,6 +16,7 @@ class Cluster
 {
 
 	public:
+        typedef int						fd_type;
 
 		Cluster();
 		Cluster( Cluster const & src );
@@ -41,7 +29,10 @@ class Cluster
 		std::vector<Server>	m_servers;
 
     	struct sockaddr_in 				m_their_addr;
-		int								m_newsocket_fd;
+		fd_type							m_newsocket_fd;
+		fd_type							m_epoll_fd;
+
+		void							_createEpoll(void);
 
 };
 

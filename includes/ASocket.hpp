@@ -1,12 +1,9 @@
 #ifndef ASOCKET_HPP
 # define ASOCKET_HPP
 
-# include <iostream>
-# include <string>
-# include <set>
-# include <fcntl.h>
-# include "Server.hpp"
+#include "Headers.hpp"
 
+class Server;
 class ASocket
 {
 	public:
@@ -25,10 +22,6 @@ class ASocket
         static ASocket *		getASocketFromFd(fd_type fd);
         void					destroy(void);
 
-
-		// CLIENT_SOCKET
-        void					sendResponse(char *response);
-
         operator				fd_type(void) const;
         friend bool				operator<(ASocket & lhs, ASocket & rhs);
         friend bool				operator<=(ASocket & lhs, ASocket & rhs);
@@ -44,9 +37,6 @@ class ASocket
         static list_type		m_list;
 
         void					_makeFdNonBlocking(void);
-	
-	private:
-		virtual	void abstract(void) = 0;
-};
 
+};
 #endif /* ********************************************************* ASocket_H */

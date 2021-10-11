@@ -1,21 +1,10 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <iostream>
-# include <string>
-# include <map>
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <errno.h>
-# include <string.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/wait.h>
-# include <signal.h>
+# include "Headers.hpp"
 # include "Location.hpp"
+# include "Listener.hpp"
+# include "Client.hpp"
 
 # define PROTOCOL "HTTP/1.1"
 class ASocket;
@@ -32,8 +21,8 @@ class Server
 		int				getSocketFd(void) const;
 		int				run(void);
 
-		std::string		Server::getIp(void) const;
-		std::string		Server::getPort(void) const;
+		std::string		getIp(void) const;
+		std::string		getPort(void) const;
 
 
 
@@ -44,6 +33,7 @@ class Server
 		Location				m_params;
 		std::vector<Location>			m_locations;
 };
+class Listener;
 
 std::ostream &			operator<<( std::ostream & o, Server const & i );
 

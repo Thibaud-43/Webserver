@@ -55,6 +55,14 @@ int				Cluster::run(void)
 	char		buff[4096];
 
 	m_servers.push_back(test);
+    
+    int epoll_fd = epoll_create1(0);                                                // create a file descriptor to a new epoll instance
+    if(epoll_fd == -1)
+    {
+        fprintf(stderr, "Failed to create epoll file descriptor\n");
+        return 1;
+    }
+
 	for (std::vector<Server>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
 	{
 		(*i).run();
@@ -68,13 +76,8 @@ int				Cluster::run(void)
     char read_buffer[READ_SIZE + 1];
     struct epoll_event event, events[MAX_EVENTS];
 
-    int epoll_fd = epoll_create1(0);                                                // create a file descriptor to a new epoll instance
+
     int server_fd = sockfd;
-    if(epoll_fd == -1)
-    {
-        fprintf(stderr, "Failed to create epoll file descriptor\n");
-        return 1;
-    }
 
     event.events = EPOLLIN | EPOLLET;                                               // The associated file is available for read(2) operations.
     event.data.fd = server_fd;
@@ -87,7 +90,7 @@ int				Cluster::run(void)
     }
 
 
-
+    struct sockaddr_in their_addr;
     while(running)
     {
         printf("\nPolling for input...\n");
@@ -100,8 +103,7 @@ int				Cluster::run(void)
             {
 
                 int new_fd = accept(server_fd, (struct sockaddr*)&their_addr, &size);
-				Socket	socket(new_fd, their_addr, Socket::getSocketFromFd(server_fd).);
-
+				Client	socket(new_fd, their_addr, (ASocket::getASocketFromFd(server_fd))->getServer());
                 event.data.fd = new_fd;
                 event.events = EPOLLIN | EPOLLET;
                 epoll_ctl (epoll_fd, EPOLL_CTL_ADD, new_fd, &event);
