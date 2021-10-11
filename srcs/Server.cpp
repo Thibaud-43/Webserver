@@ -4,16 +4,17 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server(): m_port("80"), m_ip("0.0.0.0"), m_name("localhost")
+Server::Server(): m_port("80"), m_ip("0.0.0.0")
 {
+	m_names.push_back("localhost");
 }
 
-Server::Server( const Server & src ): m_port(src.m_port), m_ip(src.m_ip), m_name(src.m_name)
+Server::Server( const Server & src ): m_port(src.m_port), m_ip(src.m_ip), m_names(src.m_names)
 {
 
 }
 
-Server::Server(std::string port, std::string ip, std::string name ): m_port(port), m_ip(ip), m_name(name)
+Server::Server(std::string port, std::string ip): m_port(port), m_ip(ip)
 {
 
 }

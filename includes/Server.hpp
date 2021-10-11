@@ -15,7 +15,7 @@ class Server
 
 		Server();
 		Server( Server const & src );
-		Server(std::string port, std::string ip, std::string name );
+		Server(std::string port, std::string ip);
 		~Server();
 
 		Server &		operator=( Server const & rhs );
@@ -28,11 +28,11 @@ class Server
 		static bool		isServerFd(fd_type fd);
 
 	private:
-		std::string						m_ip;
-		std::string						m_port;
-		std::string						m_name;
-		Location				m_params;
-		std::vector<Location>			m_locations;
+		std::string					m_ip;
+		std::string					m_port;
+		std::vector<std::string>	m_names;
+		Location					m_params;
+		std::vector<Location>		m_locations;
 };
 class Listener;
 
