@@ -88,7 +88,7 @@ void            Listener::_initAddr(port_type port, ip_type ip)
     std::istringstream(port) >> sport;
     m_addr.sin_family = AF_INET;         	
     m_addr.sin_port = htons(sport);    
-    m_addr.sin_addr.s_addr = inet_addr(ip.data()); 	// a changer
+    m_addr.sin_addr.s_addr = inet_addr(ip.data());
     memset(&(m_addr.sin_zero), '\0', 8); 	
 }
 
@@ -104,6 +104,7 @@ void            Listener::_listen(void)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
 
 
 /* ************************************************************************** */

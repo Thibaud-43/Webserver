@@ -76,9 +76,11 @@ void							Cluster::_createCluster(void)
 {
 	Server		test("100", "0.0.0.0", "localhost");;
     Server      test2("90", "0.0.0.0", "localhost2");
+    Server      test3("80", "0.0.0.0", "localhost3");
 
 	m_servers.push_back(test);
 	m_servers.push_back(test2);
+	m_servers.push_back(test3);
 }
 
 void							Cluster::_runServers(void)
@@ -123,8 +125,7 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
     socklen_t size = sizeof(struct sockaddr);
 
     int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
-    Client	socket(client, their_addr, m_epoll_fd);
-    std::cerr << "Add fd to pool : " << client << std::endl;
+    Client	*socket = new Client(client, their_addr, m_epoll_fd);
 }
 
 void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
@@ -136,21 +137,17 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
     std::cerr << "Reading file descriptor " << eventFd << std::endl;
     bytes_read = recvfrom(eventFd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
-    std::cerr << bytes_read << " bytes read.\n";
+    //std::cerr << bytes_read << " bytes read.\n";
     read_buffer[bytes_read] = '\0';
     std::cerr << read_buffer << std::endl;
 
-    ASocket  *client = ASocket::getASocketFromFd(eventFd);
+    Client  *client = dynamic_cast<Client *> (ASocket::getASocketFromFd(eventFd));
 
     std::string response;
-    std::cerr << client << std::endl;
 
-    response = "HTTP/1.1 200 OK\r\n\r\nHello from port: ";
-
-
-    //response = response + std::to_string(ntohs(client->getAddr().sin_port));
-    std::cerr << response;
+    response = "HTTP/1.1 200 OK\r\n\r\nHello";
     send(eventFd, response.data(), response.size(), 0);
+    delete client;
     close(eventFd);
 }
 
