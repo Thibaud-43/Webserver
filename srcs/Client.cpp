@@ -12,12 +12,12 @@ Client::Client( const Client & src )
 {
 }
 
-Client::Client(fd_type client_fd, address_type & theirAddr, Server const * server): ASocket()
+Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): ASocket()
 {
 	m_fd = client_fd;
 	m_addr = theirAddr;
-	m_server = server;
 	_makeFdNonBlocking();
+	_epollCtlAdd(epoll);
 	m_list.insert(this);
 }
 
@@ -58,6 +58,7 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 
 void                   Client::sendResponse(char const *response) const
 {
+	std:: cout << m_fd << std::endl;
     if((send(m_fd, response, strlen(response), 0)) == -1)
 	{
 		perror ("send");

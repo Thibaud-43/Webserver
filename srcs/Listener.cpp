@@ -12,14 +12,14 @@ Listener::Listener( const Listener & src )
 {
 }
 
-Listener::Listener(Server * server)
+Listener::Listener(fd_type epoll, port_type port, ip_type ip)
 {
-    _initAddr("80", "0.0.0.0");
+    _initAddr(port, ip);
     _create();
     _bind();
-    _listen();
     _makeFdNonBlocking();
-    m_server = server;
+    _listen();
+    _epollCtlAdd(epoll);
     m_list.insert(this);
 }
 
@@ -81,12 +81,14 @@ void            Listener::_bind(void)
     }
 }
 
-void            Listener::_initAddr(std::string const & port, std::string const & ip)
+void            Listener::_initAddr(port_type port, ip_type ip)
 {
+    short   sport;
 
+    std::istringstream(port) >> sport;
     m_addr.sin_family = AF_INET;         	
-    m_addr.sin_port = htons(80);     		// a changer
-    m_addr.sin_addr.s_addr = INADDR_ANY; 	// a changer
+    m_addr.sin_port = htons(sport);    
+    m_addr.sin_addr.s_addr = inet_addr(ip.data());
     memset(&(m_addr.sin_zero), '\0', 8); 	
 }
 
@@ -102,6 +104,7 @@ void            Listener::_listen(void)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
 
 
 /* ************************************************************************** */

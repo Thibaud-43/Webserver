@@ -11,7 +11,7 @@ class Listener: public ASocket
 
 		Listener();
 		Listener( Listener const & src );
-		Listener(Server * server);
+		Listener(fd_type epoll, port_type port, ip_type ip);
 		~Listener();
 
 		Listener &		operator=( Listener const & rhs );
@@ -19,7 +19,7 @@ class Listener: public ASocket
 	private:
         void	_create(void);
         void	_bind(void);
-        void	_initAddr(std::string const & port, std::string const & ip);
+        void	_initAddr(port_type port, ip_type ip);
         void	_listen(void);
 
 };

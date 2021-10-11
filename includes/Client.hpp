@@ -10,9 +10,9 @@ class Client: public ASocket
 
 		Client();
 		Client( Client const & src );
-		Client(fd_type client_fd, address_type & theirAddr, Server const * server);
+		Client(fd_type client_fd, address_type & theirAddr, fd_type epoll);
 		~Client();
-        void	sendResponse(char const *response) const;
+        void					sendResponse(char const *response) const;
 
 		Client &		operator=( Client const & rhs );
 
