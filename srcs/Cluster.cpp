@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cluster::Cluster()
+Cluster::Cluster(): m_eventCount(0)
 {
 }
 
@@ -48,90 +48,120 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & i )
 
 int				Cluster::run(void)
 {
-	Server		test;
+	int running = 1;
 
-	socklen_t 	sin_size;
-	int			sockfd;
-	char		buff[4096];
-
-	m_servers.push_back(test);
-    
-    int epoll_fd = epoll_create1(0);                                                // create a file descriptor to a new epoll instance
-    if(epoll_fd == -1)
-    {
-        fprintf(stderr, "Failed to create epoll file descriptor\n");
-        return 1;
-    }
-
-	for (std::vector<Server>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
-	{
-		(*i).run();
-		sockfd = (*i).getSocketFd();
-	}
-
-
-
-	int running = 1, event_count, i;
-    size_t bytes_read;
-    char read_buffer[READ_SIZE + 1];
-    struct epoll_event event, events[MAX_EVENTS];
-
-
-    int server_fd = sockfd;
-
-    event.events = EPOLLIN | EPOLLET;                                               // The associated file is available for read(2) operations.
-    event.data.fd = server_fd;
-    
-    if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &event))                       // add the file descriptor 0 to our epoll instance epoll_fd, EPOLL_CTL_ADD add the poll to the instance
-    {
-        fprintf(stderr, "Failed to add file descriptor to epoll\n");
-        close(epoll_fd);
-        return 1;
-    }
-
-
-    struct sockaddr_in their_addr;
+    _createCluster();
+    _createEpoll();
+    _runServers();
     while(running)
     {
-        printf("\nPolling for input...\n");
-        event_count = epoll_wait(epoll_fd, events, MAX_EVENTS, 30000);
-        printf("%d ready events\n", event_count);
-        for(i = 0; i < event_count; i++)
-        {
-            socklen_t size = sizeof(struct sockaddr);
-            if (events[i].data.fd == server_fd)
-            {
-
-                int new_fd = accept(server_fd, (struct sockaddr*)&their_addr, &size);
-				Client	socket(new_fd, their_addr, (ASocket::getASocketFromFd(server_fd))->getServer());
-                event.data.fd = new_fd;
-                event.events = EPOLLIN | EPOLLET;
-                epoll_ctl (epoll_fd, EPOLL_CTL_ADD, new_fd, &event);
-            }
-            else
-            {
-                printf("Reading file descriptor '%d' -- ", events[i].data.fd);
-                bytes_read = recvfrom(events[i].data.fd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
-                printf("%zd bytes read.\n", bytes_read);
-                read_buffer[bytes_read] = '\0';
-                printf("Read \n'%s'\n", read_buffer);
-               
-               
-                send(events[i].data.fd, "HTTP/1.1 200 OK\r\n\r\nHello", 24, 0);
-
-
-                close(events[i].data.fd);
-            }
-        }
+        _epollWait();
+        _epollExecute();
     }
-    if(close(epoll_fd))
-    {
-        fprintf(stderr, "Failed to close epoll file descriptor\n");
-        return 1;
-    }
+    _closeEpoll();
     return 0;
 }
 
+void							Cluster::_createEpoll(void)
+{
+    m_epoll_fd = epoll_create1(0);
+    if(m_epoll_fd < 0)
+    {
+        std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
+        return ;
+    }
+}
+
+void							Cluster::_createCluster(void)
+{
+	Server		test("100", "0.0.0.0", "localhost");;
+    Server      test2("90", "0.0.0.0", "localhost2");
+
+	m_servers.push_back(test);
+	m_servers.push_back(test2);
+}
+
+void							Cluster::_runServers(void)
+{
+	for (std::vector<Server>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
+	{
+		(*i).run(m_epoll_fd);
+	}
+}
+
+void							Cluster::_epollWait(void)
+{
+    printf("\nPolling for input...\n");
+    m_eventCount = epoll_wait(m_epoll_fd, m_events, MAX_EVENTS, 30000);
+    if (m_eventCount == -1)
+    {
+        std::cerr <<  "Failed epoll_wait\n";
+        return ;
+    }
+    std::cerr << m_eventCount << " ready events\n";
+
+}
+
+void							Cluster::_epollExecute(void)
+{
+    for( int i = 0; i < m_eventCount; i++)
+    {
+        if (Server::isServerFd(m_events[i].data.fd))
+        {
+            _epollExecuteOnListenerConnection(m_events[i].data.fd);
+        }
+        else
+        {
+            _epollExecuteOnClientConnection(m_events[i].data.fd);
+        }
+    }
+}
+
+void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
+{
+    struct sockaddr_in their_addr;
+    socklen_t size = sizeof(struct sockaddr);
+
+    int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
+    Client	socket(client, their_addr, m_epoll_fd);
+    std::cerr << "Add fd to pool : " << client << std::endl;
+}
+
+void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
+{
+    struct sockaddr_in their_addr;
+    socklen_t size = sizeof(struct sockaddr);
+    size_t bytes_read;
+    char read_buffer[READ_SIZE + 1];
+
+    std::cerr << "Reading file descriptor " << eventFd << std::endl;
+    bytes_read = recvfrom(eventFd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
+    std::cerr << bytes_read << " bytes read.\n";
+    read_buffer[bytes_read] = '\0';
+    std::cerr << read_buffer << std::endl;
+
+    ASocket  *client = ASocket::getASocketFromFd(eventFd);
+
+    std::string response;
+    std::cerr << client << std::endl;
+
+    response = "HTTP/1.1 200 OK\r\n\r\nHello from port: ";
+
+
+    //response = response + std::to_string(ntohs(client->getAddr().sin_port));
+    std::cerr << response;
+    send(eventFd, response.data(), response.size(), 0);
+    close(eventFd);
+}
+
+void							Cluster::_closeEpoll(void)
+{
+    if(close(m_epoll_fd))
+    {
+        std::cerr << "Failed to close epoll file descriptor\n" << std::endl;
+        return ;
+    }
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

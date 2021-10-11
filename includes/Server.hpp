@@ -11,19 +11,21 @@ class Server
 {
 
 	public:
+        typedef int						fd_type;
 
 		Server();
 		Server( Server const & src );
+		Server(std::string port, std::string ip, std::string name );
 		~Server();
 
 		Server &		operator=( Server const & rhs );
 		int				getSocketFd(void) const;
-		int				run(void);
+		int				run(fd_type epoll);
 
 		std::string		getIp(void) const;
 		std::string		getPort(void) const;
 
-
+		static bool		isServerFd(fd_type fd);
 
 	private:
 		std::string						m_ip;

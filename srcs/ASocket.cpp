@@ -11,7 +11,7 @@ ASocket::ASocket()
 
 }
 
-ASocket::ASocket( const ASocket & src ): m_server(src.m_server), m_fd(src.m_fd), m_addr(src.m_addr)
+ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr)
 {
 
 }
@@ -47,7 +47,6 @@ ASocket &				ASocket::operator=( ASocket const & rhs )
 {
 	if ( this != &rhs )
 	{
-		m_server = rhs.m_server;
         m_fd = rhs.m_fd;
 		m_addr = rhs.m_addr;
         m_list = rhs.m_list;
@@ -130,6 +129,19 @@ void	ASocket::destroy(void)
 	delete (this);
 }
 
+void					ASocket::_epollCtlAdd(fd_type epoll)
+{
+    m_event.events = EPOLLIN | EPOLLET;                                               // The associated file is available for read(2) operations.
+    m_event.data.fd = m_fd;
+    
+    if(epoll_ctl(epoll, EPOLL_CTL_ADD, m_fd, &m_event))                       // add the file descriptor 0 to our epoll instance epoll_fd, EPOLL_CTL_ADD add the poll to the instance
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(epoll);
+        return ;
+    }
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
@@ -143,11 +155,6 @@ ASocket *       ASocket::getASocketFromFd(fd_type fd)
 			return (*it);
 	}
 	return (NULL);
-}
-
-Server const *        ASocket::getServer(void)
-{
-	return (m_server);
 }
 
 ASocket::fd_type	ASocket::getFd(void)
