@@ -4,11 +4,11 @@
 # include "Headers.hpp"
 
 # include "Server.hpp"
+# include "Request.hpp"
 # include "ASocket.hpp"
 # include "Client.hpp"
 
 #define MAX_EVENTS 5
-#define READ_SIZE 4096
 #define MYPORT 3490                                                             // the port users will be connecting to
 #define BACKLOG 10                                                              // how many pending connections queue will hold
 

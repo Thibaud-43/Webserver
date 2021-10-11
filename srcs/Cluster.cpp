@@ -130,24 +130,23 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 
 void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 {
-    struct sockaddr_in their_addr;
-    socklen_t size = sizeof(struct sockaddr);
-    size_t bytes_read;
-    char read_buffer[READ_SIZE + 1];
+    struct sockaddr_in  their_addr;
+    socklen_t           size = sizeof(struct sockaddr);
+    size_t              bytes_read;
+    char                read_buffer[READ_SIZE + 1];
 
     std::cerr << "Reading file descriptor " << eventFd << std::endl;
     bytes_read = recvfrom(eventFd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
-    //std::cerr << bytes_read << " bytes read.\n";
     read_buffer[bytes_read] = '\0';
-    std::cerr << read_buffer << std::endl;
 
     Client  *client = dynamic_cast<Client *> (ASocket::getASocketFromFd(eventFd));
 
-    std::string response;
+    Request             request(read_buffer, *client);
+    request.parse();
+    request.execute();
 
-    response = "HTTP/1.1 200 OK\r\n\r\nHello";
-    send(eventFd, response.data(), response.size(), 0);
-    delete client;
+    //send(eventFd, response.data(), response.size(), 0);
+	delete client;
     close(eventFd);
 }
 
