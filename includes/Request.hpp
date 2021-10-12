@@ -30,12 +30,16 @@ class Request
 		Server								m_server;
 
 		void								_parseRequestLine(void);				
-		void								_parseRequestHeaders(void);
+		void								_parseHeaders(void);
+		void								_parseBody(void);
 		void								_parseLine(std::string & token);
 
 		// DEBUG
 
 		void								_printHeader(void);
+		void								_printBody(void);
+		void								_printHex(std::string & token);
+
 };
 
 std::ostream &			operator<<(std::ostream & o, Request const & i);

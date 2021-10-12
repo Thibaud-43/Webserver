@@ -78,28 +78,37 @@ void			Request::_parseRequestLine(void)
 		s.erase(0, pos + delimiter2.length());
 	}
 	m_header["protocol"] = s;
+	m_buffer.erase(0, m_buffer.find(delimiter1) + delimiter1.length());
 
 }		
 
 void			Request::_parseLine(std::string & token)
 {
 	std::string delimiter = ": ";
-	m_header[m_buffer.substr(0, m_buffer.find(delimiter))] = m_buffer.substr(m_buffer.find(delimiter), token.size());
+	size_t		pos = token.find(delimiter);
+	m_header[token.substr(0, pos)] = token.substr(pos + delimiter.length(), token.length() - 1);
 }
 
-void			Request::_parseRequestHeaders(void)
+void			Request::_parseHeaders(void)
 {
 	std::string delimiter = "\r\n";
-	std::string s = m_buffer.substr(0, m_buffer.find(delimiter));
-	
+	std::string delimiter2 = "\r\n\r\n";
 	size_t pos = 0;
 	std::string	token;
-	while ((pos = s.find(delimiter)) != std::string::npos) 
+	while ((pos = m_buffer.find(delimiter)) != std::string::npos && pos != m_buffer.find(delimiter2)) 
 	{
-		token = s.substr(0, pos);
+		token = m_buffer.substr(0, pos);
 		_parseLine(token);
-		s.erase(0, pos + delimiter.length());
+		m_buffer.erase(0, pos + delimiter.length());
 	}
+	token = m_buffer.substr(0, pos);
+	_parseLine(token);
+	m_buffer.erase(0, pos + delimiter2.length());
+}
+
+void			Request::_parseBody(void)
+{
+	m_body = m_buffer;
 }
 
 void			Request::_printHeader(void)
@@ -107,16 +116,32 @@ void			Request::_printHeader(void)
 	std::cout << std::endl << std::endl << "MAP REQUEST HEADER" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m_header.begin(); it != m_header.end(); it++)
 	{
-		std::cout << "[" << it->first << "] = " << it->second << std::endl; 
+		std::cout << "[" << it->first << "]=" << it->second << std::endl; 
 	}
-	
+}
+
+void			Request::_printBody(void)
+{
+	std::cout << std::endl << std::endl << "MAP REQUEST BODY" << m_body << std::endl;
+
+}
+
+void			Request::_printHex(std::string & token)
+{
+	std::cout << std::endl << std::endl << "HEX: " << token << std::endl;
+	for (std::string::iterator it = token.begin(); it != token.end(); it++)
+	{
+		std::cout << int(*it) << std::endl; 
+	}
 }
 
 void			Request::parse(void)
 {
 	_parseRequestLine();
-	_parseRequestHeaders();
+	_parseHeaders();
+	_parseBody();
 	_printHeader();
+	_printBody();
 }
 
 std::string		Request::execute(void) const
