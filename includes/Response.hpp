@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <sstream>
 # include <map>
 # include <ctime>
 # include "Client.hpp"
@@ -27,6 +28,7 @@ class Response
 		void		append_to_header(std::string const & str);
 		void		append_to_body(std::string const & str);
 		void		send_to_client(Client const & client) const;
+		void		add_content_length(void);
 		void		clear(void);
 
 		Response &		operator=(Response const & rhs);
