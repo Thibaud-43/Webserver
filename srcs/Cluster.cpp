@@ -108,7 +108,7 @@ void							Cluster::_epollExecute(void)
 {
     for( int i = 0; i < m_eventCount; i++)
     {
-        if (Server::isServerFd(m_events[i].data.fd))
+        if (Listener::isListenerFd(m_events[i].data.fd))
         {
             _epollExecuteOnListenerConnection(m_events[i].data.fd);
         }
@@ -125,7 +125,8 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
     socklen_t size = sizeof(struct sockaddr);
 
     int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
-    Client	*socket = new Client(client, their_addr, m_epoll_fd);
+    Client	socket(client, their_addr, m_epoll_fd);
+
 }
 
 void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
@@ -135,19 +136,16 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
     size_t              bytes_read;
     char                read_buffer[READ_SIZE + 1];
 
-    //std::cerr << "Reading file descriptor " << eventFd << std::endl;
     bytes_read = recvfrom(eventFd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
     read_buffer[bytes_read] = '\0';
 
-    Client  *client = dynamic_cast<Client *> (ASocket::getASocketFromFd(eventFd));
+    Client const  *client = Client::getClientFromFd(eventFd);
 
-    Request             request(read_buffer, *client);
+    Request             request(read_buffer, client);
     request.parse();
     request.linkServer(m_servers);
     request.execute();
 
-
-	delete client;
     close(eventFd);
 }
 

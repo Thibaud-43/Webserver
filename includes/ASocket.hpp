@@ -7,7 +7,6 @@ class Server;
 class ASocket
 {
 	public:
-        typedef std::set<ASocket *>		list_type;
         typedef struct sockaddr_in		address_type;
         typedef int						fd_type;
         typedef struct epoll_event      event_type;
@@ -22,7 +21,6 @@ class ASocket
         Server const *			getServer(void) const;
         fd_type					getFd(void) const;
         address_type			getAddr(void) const;
-        static ASocket *		getASocketFromFd(fd_type fd);
         void					destroy(void);
 
         operator				fd_type(void) const;
@@ -36,7 +34,6 @@ class ASocket
 	protected:
         fd_type					m_fd;
 		address_type			m_addr;
-        static list_type		m_list;
         event_type              m_event;
 
         void					_makeFdNonBlocking(void);

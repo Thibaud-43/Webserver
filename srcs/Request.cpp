@@ -9,7 +9,7 @@
 
 }*/
 
-Request::Request(std::string buffer, Client & client): m_buffer(buffer), m_client(client)
+Request::Request(std::string buffer, Client const * client): m_buffer(buffer), m_client(client)
 {
 
 }
@@ -150,7 +150,7 @@ std::string		Request::execute(void)
 
 	std::string response = "HTTP/1.1 200 OK\r\n\r\nHello from ";
 	response = response + m_header["Host"];
-	m_client.sendResponse(response.data());
+	m_client->sendResponse(response.data());
 	return "";
 }
 

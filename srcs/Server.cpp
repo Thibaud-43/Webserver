@@ -53,7 +53,7 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 
 int				Server::run(fd_type epoll)
 {
-    ASocket	*socket = new Listener(epoll, m_port, m_ip);  
+    Listener	socket(epoll, m_port, m_ip);
     return 1;
 }
 
@@ -75,13 +75,5 @@ int				Server::run(fd_type epoll)
 		return m_names;
 	}
 
-	bool		Server::isServerFd(fd_type fd)
-	{
-		Listener *socket = dynamic_cast<Listener *>(ASocket::getASocketFromFd(fd));
-		if (socket == NULL)
-			return false;
-		else
-			return true;
-		
-	}
+
 /* ************************************************************************** */

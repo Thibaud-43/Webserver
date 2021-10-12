@@ -1,4 +1,5 @@
 #include "Listener.hpp"
+Listener::list_type Listener::_list = list_type();
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -8,8 +9,9 @@ Listener::Listener()
 {
 }
 
-Listener::Listener( const Listener & src )
+Listener::Listener( const Listener & src ): ASocket(src)
 {
+    _list = src._list;
 }
 
 Listener::Listener(fd_type epoll, port_type port, ip_type ip)
@@ -20,7 +22,7 @@ Listener::Listener(fd_type epoll, port_type port, ip_type ip)
     _makeFdNonBlocking();
     _listen();
     _epollCtlAdd(epoll);
-    m_list.insert(this);
+    _list.insert(*this);
 }
 
 
@@ -30,6 +32,7 @@ Listener::Listener(fd_type epoll, port_type port, ip_type ip)
 
 Listener::~Listener()
 {
+	//_list.erase(*this);
 }
 
 
@@ -39,10 +42,11 @@ Listener::~Listener()
 
 Listener &				Listener::operator=( Listener const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+        ASocket::operator=(rhs);
+		this->_list = rhs._list;
+	}
 	return *this;
 }
 
@@ -105,6 +109,16 @@ void            Listener::_listen(void)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-
+bool		Listener::isListenerFd(fd_type fd)
+{
+    for (std::set<Listener>::iterator it = _list.begin() ; it != _list.end(); it++)
+    {
+        if ((*it).m_fd == fd)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 /* ************************************************************************** */

@@ -1,6 +1,5 @@
 #include "ASocket.hpp"
 
-ASocket::list_type ASocket::m_list = list_type();
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -42,47 +41,44 @@ ASocket::~ASocket()
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-
 ASocket &				ASocket::operator=( ASocket const & rhs )
 {
 	if ( this != &rhs )
 	{
-        m_fd = rhs.m_fd;
+        m_fd = rhs.getFd();
 		m_addr = rhs.m_addr;
-        m_list = rhs.m_list;
-
 	}
 	return *this;
 }
 
 bool                    operator<(ASocket & lhs, ASocket & rhs)
 {
-	return lhs.m_fd < rhs.m_fd;
+	return lhs.getFd() < rhs.getFd();
 }
 
 bool                    operator<=(ASocket & lhs, ASocket & rhs)
 {
-	return lhs.m_fd <= rhs.m_fd;
+	return lhs.getFd() <= rhs.getFd();
 }
 
 bool                    operator>(ASocket & lhs, ASocket & rhs)
 {
-	return lhs.m_fd > rhs.m_fd;
+	return lhs.getFd() > rhs.getFd();
 }
 
 bool                    operator>=(ASocket & lhs, ASocket & rhs)
 {
-	return lhs.m_fd >= rhs.m_fd;
+	return lhs.getFd() >= rhs.getFd();
 }
 
 bool                    operator==(ASocket & lhs, ASocket & rhs)
 {
-	return lhs.m_fd == rhs.m_fd;
+	return lhs.getFd() == rhs.getFd();
 }
 
 bool                    operator!=(ASocket & lhs, ASocket & rhs)
 {
-	return lhs.m_fd != rhs.m_fd;
+	return lhs.getFd() != rhs.getFd();
 }
 
 ASocket::operator fd_type(void) const
@@ -123,8 +119,6 @@ void	ASocket::destroy(void)
         std::cerr << "Failed to close epoll file descriptor" << std::endl;
         return ;
     }
-	m_list.erase(this);
-	delete (this);
 }
 
 void					ASocket::_epollCtlAdd(fd_type epoll)
@@ -144,16 +138,6 @@ void					ASocket::_epollCtlAdd(fd_type epoll)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
-ASocket *       ASocket::getASocketFromFd(fd_type fd)
-{
-	for (list_type::iterator it = m_list.begin(); it != m_list.end(); it++)
-	{
-		if ((*it)->m_fd == fd)
-			return (*it);
-	}
-	return (NULL);
-}
 
 ASocket::fd_type	ASocket::getFd(void) const
 {

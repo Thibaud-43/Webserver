@@ -26,8 +26,6 @@ class Server
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
 
-		static bool		isServerFd(fd_type fd);
-
 	private:
 		std::string					m_ip;
 		std::string					m_port;

@@ -2,22 +2,27 @@
 # define CLIENT_HPP
 
 # include "ASocket.hpp"
-
 class Client: public ASocket
 {
 
 	public:
 
+        typedef std::set<Client>		list_type;
+
 		Client();
 		Client( Client const & src );
 		Client(fd_type client_fd, address_type & theirAddr, fd_type epoll);
+		Client &		operator=(Client const & rhs);
+
 		~Client();
         void					sendResponse(char const *response) const;
+        static Client const *			getClientFromFd(fd_type fd);
 
-		Client &		operator=( Client const & rhs );
+
+
 
 	private:
-
+		static list_type		_list;
 
 };
 
