@@ -2,6 +2,7 @@
 # define HEADER_HPP
 
 # include <iostream>
+# include <algorithm> 
 # include <string>
 # include <vector>
 # include <map>

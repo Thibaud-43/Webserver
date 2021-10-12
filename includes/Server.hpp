@@ -22,8 +22,9 @@ class Server
 		int				getSocketFd(void) const;
 		int				run(fd_type epoll);
 
-		std::string		getIp(void) const;
-		std::string		getPort(void) const;
+		std::string						getIp(void) const;
+		std::string						getPort(void) const;
+		std::vector<std::string>		getNames(void) const;
 
 		static bool		isServerFd(fd_type fd);
 

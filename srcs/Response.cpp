@@ -107,6 +107,14 @@ void	Response::send_to_client(Client const & client) const
 	client.sendResponse(getContent().data());
 }
 
+void	Response::add_content_length(void)
+{
+	std::stringstream	sstream;
+
+	sstream << m_body.size();
+	m_header += "Content-Length: " + sstream.str() + "\r\n";
+}
+
 std::string Response::getContent(void) const
 {
 	return (m_header + "\r\n" + m_body);

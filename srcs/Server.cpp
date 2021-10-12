@@ -16,7 +16,7 @@ Server::Server( const Server & src ): m_port(src.m_port), m_ip(src.m_ip), m_name
 
 Server::Server(std::string port, std::string ip): m_port(port), m_ip(ip)
 {
-
+	m_names.push_back("localhost");
 }
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -70,6 +70,10 @@ int				Server::run(fd_type epoll)
     {
         return m_port;
     }
+	std::vector<std::string>	Server::getNames(void) const
+	{
+		return m_names;
+	}
 
 	bool		Server::isServerFd(fd_type fd)
 	{
