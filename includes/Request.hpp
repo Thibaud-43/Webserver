@@ -20,7 +20,7 @@ class Request
 		Request &		operator=(Request const & rhs);
 		Request(std::string   buffer, Client & client);
 		void			parse(void);
-		std::string		execute(void) const;
+		std::string		execute(void);
 
 	private:
 		std::string							m_buffer;

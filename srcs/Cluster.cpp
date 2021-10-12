@@ -143,9 +143,10 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
     Request             request(read_buffer, *client);
     request.parse();
+
     request.execute();
 
-    //send(eventFd, response.data(), response.size(), 0);
+
 	delete client;
     close(eventFd);
 }
