@@ -16,11 +16,11 @@ class Request
 		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
+		Request(std::string buffer, Client & client);
 		~Request();
 		Request &		operator=(Request const & rhs);
-		Request(std::string   buffer, Client & client);
 		void			parse(void);
-		std::string		execute(void);
+		void			execute(void);
 		void			linkServer(std::vector<Server> & list);
 
 	private:

@@ -7,6 +7,7 @@
 # include <map>
 # include <ctime>
 # include "Client.hpp"
+# include "Location.hpp"
 
 # define PROTOCOL "HTTP/1.1"
 # define SERV_NAME "Webserv/1.0.0"
@@ -38,7 +39,8 @@ class Response
 		std::string		m_header;
 		std::string		m_body;
 		
-		static status_t	createStatus(void);
+		static status_t	_createStatus(void);
+		static void		_send_error(status_code_t err, Client const & client, Location const & location);
 };
 
 std::string	HTTPDate(void)
