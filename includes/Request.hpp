@@ -17,11 +17,12 @@ class Request
 		Request(Request const & src);
 		Request(std::string const request);
 		~Request();
-		Request &		operator=(Request const & rhs);
 		Request(std::string   buffer, Client const * client);
-		void			parse(void);
-		std::string		execute(void);
-		void			linkServer(std::vector<Server> & list);
+
+		Request	&							operator=(Request const & rhs);
+		void								parse(void);
+		std::string							execute(void);
+		void								linkServer(std::vector<Server> & list);
 
 	private:
 		std::string							m_buffer;
@@ -43,6 +44,6 @@ class Request
 
 };
 
-std::ostream &			operator<<(std::ostream & o, Request const & i);
+std::ostream &								operator<<(std::ostream & o, Request const & i);
 
 #endif /* ********************************************************* REQUEST_H */

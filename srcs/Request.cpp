@@ -140,14 +140,12 @@ void			Request::parse(void)
 	_parseRequestLine();
 	_parseHeaders();
 	_parseBody();
-	_printHeader();
-	_printBody();
+	//_printHeader();
+	//_printBody();
 }
 
 std::string		Request::execute(void)
 {
-	std::cout << "PORT: " << m_server->getPort() << std::endl;
-
 	std::string response = "HTTP/1.1 200 OK\r\n\r\nHello from ";
 	response = response + m_header["Host"];
 	m_client->sendResponse(response.data());

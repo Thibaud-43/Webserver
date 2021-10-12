@@ -15,21 +15,6 @@ ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr)
 
 }
 
-
-// CLIENT & LISTENER
-/*ASocket::ASocket(Server * server, socket_type type): m_server(server), m_type(type)
-{
-	if (m_type == listener)
-	{
-		_initAddr(m_server->getPort(), m_server->getIp());
-		_create();
-		_bind();
-		_listen();
-	}
-	m_list.insert(*this);
-}
-*/
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */

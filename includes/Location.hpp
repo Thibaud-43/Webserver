@@ -20,7 +20,7 @@ class Location
 		Location( Location const & src );
 		~Location();
 
-		Location &		operator=( Location const & rhs );
+		Location &		                operator=( Location const & rhs );
 
 	private:
 		std::map<err_code_t, path_t>	m_error_pages; // DEFAULT ?
@@ -38,6 +38,6 @@ class Location
 
 };
 
-std::ostream &			operator<<( std::ostream & o, Location const & i );
+std::ostream &			                operator<<( std::ostream & o, Location const & i );
 
 #endif /* ******************************************************** LOCATION_H */
