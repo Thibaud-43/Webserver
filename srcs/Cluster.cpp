@@ -74,9 +74,9 @@ void							Cluster::_createEpoll(void)
 
 void							Cluster::_createCluster(void)
 {
-	Server		test("100", "0.0.0.0", "localhost");;
-    Server      test2("90", "0.0.0.0", "localhost2");
-    Server      test3("80", "0.0.0.0", "localhost3");
+	Server		test("100", "0.0.0.0");
+    Server      test2("90", "0.0.0.0");
+    Server      test3("80", "0.0.0.0");
 
 	m_servers.push_back(test);
 	m_servers.push_back(test2);
