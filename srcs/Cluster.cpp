@@ -143,7 +143,7 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
     Request             request(read_buffer, *client);
     request.parse();
-
+    request.linkServer(m_servers);
     request.execute();
 
 

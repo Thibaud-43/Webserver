@@ -21,13 +21,14 @@ class Request
 		Request(std::string   buffer, Client & client);
 		void			parse(void);
 		std::string		execute(void);
+		void			linkServer(std::vector<Server> & list);
 
 	private:
 		std::string							m_buffer;
 		std::map<std::string, std::string>	m_header;
 		std::string							m_body;
 		Client				&				m_client;							
-		Server								m_server;
+		Server				*				m_server;
 
 		void								_parseRequestLine(void);				
 		void								_parseHeaders(void);

@@ -116,7 +116,7 @@ void			Request::_printHeader(void)
 	std::cout << std::endl << std::endl << "MAP REQUEST HEADER" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m_header.begin(); it != m_header.end(); it++)
 	{
-		std::cout << "[" << it->first << "]=" << it->second << std::endl; 
+		std::cout << "[" << it->first << "]='" << it->second << "'" << std::endl; 
 	}
 }
 
@@ -146,10 +146,45 @@ void			Request::parse(void)
 
 std::string		Request::execute(void)
 {
+	std::cout << "PORT: " << m_server->getPort() << std::endl;
+
 	std::string response = "HTTP/1.1 200 OK\r\n\r\nHello from ";
 	response = response + m_header["Host"];
 	m_client.sendResponse(response.data());
 	return "";
+}
+
+void			Request::linkServer(std::vector<Server> & list)
+{
+	std::string	delimiter = ":";
+	size_t		pos;
+	std::string	server_name;
+	std::string	port;
+
+	pos = m_header["Host"].find(delimiter);
+	if (pos > m_header["Host"].length())
+	{
+		server_name = m_header["Host"];
+		port = "80";
+	}
+	else
+	{
+		server_name = m_header["Host"].substr(0, pos);
+		port = m_header["Host"].substr(pos + delimiter.length(), m_header["Host"].length());
+	}
+
+	std::vector<std::string>::iterator it2;
+	for (std::vector<Server>::iterator it = list.begin(); it != list.end(); it++)
+	{
+		it2 = std::find((*it).getNames().begin(), (*it).getNames().end(), server_name);
+		if (port == (*it).getPort() && it2 != (*it).getNames().end())
+		{
+			m_server = &(*it);
+			return ;
+		}
+	}
+	m_server = NULL;
+	return ;
 }
 
 /*
