@@ -58,7 +58,6 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 
 void                   Client::sendResponse(char const *response) const
 {
-	std:: cout << m_fd << std::endl;
     if((send(m_fd, response, strlen(response), 0)) == -1)
 	{
 		perror ("send");

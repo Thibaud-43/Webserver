@@ -93,14 +93,14 @@ void							Cluster::_runServers(void)
 
 void							Cluster::_epollWait(void)
 {
-    printf("\nPolling for input...\n");
+    //printf("\nPolling for input...\n");
     m_eventCount = epoll_wait(m_epoll_fd, m_events, MAX_EVENTS, 30000);
     if (m_eventCount == -1)
     {
         std::cerr <<  "Failed epoll_wait\n";
         return ;
     }
-    std::cerr << m_eventCount << " ready events\n";
+    //std::cerr << m_eventCount << " ready events\n";
 
 }
 
@@ -135,7 +135,7 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
     size_t              bytes_read;
     char                read_buffer[READ_SIZE + 1];
 
-    std::cerr << "Reading file descriptor " << eventFd << std::endl;
+    //std::cerr << "Reading file descriptor " << eventFd << std::endl;
     bytes_read = recvfrom(eventFd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
     read_buffer[bytes_read] = '\0';
 
@@ -143,9 +143,10 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
     Request             request(read_buffer, *client);
     request.parse();
+    request.linkServer(m_servers);
     request.execute();
 
-    //send(eventFd, response.data(), response.size(), 0);
+
 	delete client;
     close(eventFd);
 }
