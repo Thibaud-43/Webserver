@@ -29,8 +29,13 @@ class Request
 		Client				&				m_client;							
 		Server								m_server;
 
-		void								_parseFirstLine(void);					
+		void								_parseRequestLine(void);				
+		void								_parseRequestHeaders(void);
+		void								_parseLine(std::string & token);
 
+		// DEBUG
+
+		void								_printHeader(void);
 };
 
 std::ostream &			operator<<(std::ostream & o, Request const & i);
