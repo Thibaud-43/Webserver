@@ -8,28 +8,27 @@
 # include "ASocket.hpp"
 # include "Client.hpp"
 
-#define MAX_EVENTS 5
-#define MYPORT 3490                                                             // the port users will be connecting to
-#define BACKLOG 10                                                              // how many pending connections queue will hold
-
+#define READ_SIZE 10
+#define MAX_EVENTS 10
+#define MYPORT 3490
 class Cluster
 {
 
 	public:
-        typedef int						fd_type;
+		typedef int						fd_type;
 		typedef struct epoll_event		event_type;
 
 		Cluster();
 		Cluster( Cluster const & src );
 		~Cluster();
 
-		Cluster &		operator=( Cluster const & rhs );
-		int				run(void);
+		Cluster &						operator=( Cluster const & rhs );
+		int								run(void);
 
 	private:
 		std::vector<Server>	m_servers;
 
-    	struct sockaddr_in 				m_their_addr;
+		struct sockaddr_in 				m_their_addr;
 		fd_type							m_newsocket_fd;
 		fd_type							m_epoll_fd;
 		event_type						m_events[MAX_EVENTS];

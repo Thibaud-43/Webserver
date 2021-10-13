@@ -10,7 +10,7 @@ class Location
 {
 
 	public:
-		typedef short					err_code_t;
+		typedef std::string				err_code_t;
 		typedef std::string				path_t;
 		typedef std::string				file_t;
 		typedef size_t					body_size_t;
@@ -20,14 +20,25 @@ class Location
 		Location( Location const & src );
 		~Location();
 
-		Location &		operator=( Location const & rhs );
+		Location &								operator=( Location const & rhs );
+
+		std::map<err_code_t, path_t> const &	getErrPages(void) const;
+		body_size_t const &						getBodySize(void) const;
+		path_t const &							getRoot(void) const;
+		std::vector<file_t> const &				getIndexes(void) const;
+		std::vector<std::string> const &		getMethods(void) const;
+		std::string								getStrMethods(void) const;
+		redirect_t const &						getRedirect(void) const;
+		bool									autoindex(void) const;
+		file_t const &							getCGIPass(void) const;
+		path_t const &							getUploadPath(void) const;
 
 	private:
-		std::map<err_code_t, path_t>	m_error_pages; // DEFAULT ?
+		std::map<err_code_t, path_t>	m_error_pages; // DEFAULT ? + Verifier l'existence des fichiers au parsing
 		body_size_t						m_body_size; // DEFAULT ?
 		path_t							m_root; // DEFAULT .
-		file_t							m_index; // DEFAULT index.html
-		std::vector<std::string>		m_methods; // DEFAULT GET POST DELETE
+		std::vector<file_t>				m_indexes; // DEFAULT index.htm
+		std::vector<std::string>		m_methods; // DEFAULT ALL
 		redirect_t						m_redirect; // DEFAULT 0
 		bool							m_autoindex; // DEFAULT true
 
@@ -37,7 +48,5 @@ class Location
 
 
 };
-
-std::ostream &			operator<<( std::ostream & o, Location const & i );
 
 #endif /* ******************************************************** LOCATION_H */
