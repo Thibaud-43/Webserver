@@ -29,13 +29,13 @@ class Response
 		void		start_header(status_code_t const & status);
 		void		append_to_header(std::string const & str);
 		void		append_to_body(std::string const & str);
-		void		send_to_client(Client const & client) const;
+		void		send_to_client(Client const * client) const;
 		void		add_content_length(void);
 		void		fill_body(file_t const & file);
 		void		clear(void);
 
 		Response &		operator=(Response const & rhs);
-		static void		send_error(status_code_t err, Client const & client, Location const & location);
+		static void		send_error(status_code_t err, Client const * client, Location const & location);
 
 	private:
 		static status_t	_status;

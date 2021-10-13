@@ -1,14 +1,5 @@
 #include "Server.hpp"
 
-bool		Server::isServerFd(fd_type fd) // STATIC
-{
-	Listener *socket = dynamic_cast<Listener *>(ASocket::getASocketFromFd(fd));
-	if (socket == NULL)
-		return false;
-	else
-		return true;
-}
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -59,7 +50,7 @@ Server &				Server::operator=( Server const & rhs )
 
 int				Server::run(fd_type epoll)
 {
-    ASocket	*socket = new Listener(epoll, m_port, m_ip);  
+    Listener	socket(epoll, m_port, m_ip);
     return 1;
 }
 

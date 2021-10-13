@@ -93,22 +93,19 @@ void							Cluster::_runServers(void)
 
 void							Cluster::_epollWait(void)
 {
-    //printf("\nPolling for input...\n");
     m_eventCount = epoll_wait(m_epoll_fd, m_events, MAX_EVENTS, 30000);
     if (m_eventCount == -1)
     {
         std::cerr <<  "Failed epoll_wait\n";
         return ;
     }
-    //std::cerr << m_eventCount << " ready events\n";
-
 }
 
 void							Cluster::_epollExecute(void)
 {
     for( int i = 0; i < m_eventCount; i++)
     {
-        if (Server::isServerFd(m_events[i].data.fd))
+        if (Listener::isListenerFd(m_events[i].data.fd))
         {
             _epollExecuteOnListenerConnection(m_events[i].data.fd);
         }
@@ -121,34 +118,75 @@ void							Cluster::_epollExecute(void)
 
 void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 {
-    struct sockaddr_in their_addr;
-    socklen_t size = sizeof(struct sockaddr);
+    for (;;)
+    {
+        struct sockaddr_in their_addr;
+        socklen_t size = sizeof(struct sockaddr);
 
-    int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
-    Client	*socket = new Client(client, their_addr, m_epoll_fd);
+        int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
+		if (client == -1) 
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK) 
+			{
+				// we processed all of the connections
+				break;
+			} 
+			else 
+			{
+				perror("accept()");
+				return ;
+			}
+		}
+		else
+        	Client	socket(client, their_addr, m_epoll_fd);
+    }
+    
 }
 
 void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 {
-    struct sockaddr_in  their_addr;
-    socklen_t           size = sizeof(struct sockaddr);
     size_t              bytes_read;
     char                read_buffer[READ_SIZE + 1];
-
-    //std::cerr << "Reading file descriptor " << eventFd << std::endl;
-    bytes_read = recvfrom(eventFd, read_buffer, sizeof(read_buffer), 0, (struct sockaddr*)&their_addr, &size);
-    read_buffer[bytes_read] = '\0';
-
-    Client  *client = dynamic_cast<Client *> (ASocket::getASocketFromFd(eventFd));
-
-    Request             request(read_buffer, *client);
-    request.parse();
-    request.linkServer(m_servers);
-    request.execute();
+    size_t              read_buffer_size = sizeof(read_buffer);
+    std::string         buff = "";
 
 
-	delete client;
-    close(eventFd);
+    for (;;)
+    {
+        memset(read_buffer, 0, read_buffer_size);
+        bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
+        if (bytes_read < 0)
+        {
+            close(eventFd);
+            break;
+        }
+        else if (bytes_read == read_buffer_size)
+        {
+            read_buffer[bytes_read] = 0;
+            buff += read_buffer;
+        }
+        else
+        {
+            read_buffer[bytes_read] = 0;
+
+            buff += read_buffer;
+            Client const  *client = Client::getClientFromFd(eventFd);
+            Request             request(buff, client);
+            request.parse();
+            request.linkServer(m_servers);
+            request.execute();
+
+            close(eventFd);
+            break;
+        }
+    }
+    
+
+    
+    
+    //read_buffer[bytes_read] = '\0';
+
+
 }
 
 void							Cluster::_closeEpoll(void)

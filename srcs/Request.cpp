@@ -9,7 +9,7 @@
 
 }*/
 
-Request::Request(std::string buffer, Client & client): m_buffer(buffer), m_client(client)
+Request::Request(std::string buffer, Client const * client): m_buffer(buffer), m_client(client)
 {
 
 }
@@ -137,11 +137,12 @@ void			Request::_printHex(std::string & token)
 
 void			Request::parse(void)
 {
+
 	_parseRequestLine();
 	_parseHeaders();
 	_parseBody();
-	_printHeader();
-	_printBody();
+	//_printHeader();
+	//_printBody();
 }
 
 void	Request::execute(void)

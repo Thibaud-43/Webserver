@@ -50,7 +50,7 @@ Response::status_t	Response::_createStatus(void)
 	return (status);
 }
 
-void	Response::send_error(Response::status_code_t err, Client const & client, Location const & location)
+void	Response::send_error(Response::status_code_t err, Client const * client, Location const & location)
 {
 	Response	rep;
 
@@ -129,9 +129,9 @@ void	Response::append_to_body(std::string const & str)
 	m_body.append(str);
 }
 
-void	Response::send_to_client(Client const & client) const
+void	Response::send_to_client(Client const * client) const
 {
-	client.sendResponse(getContent().data());
+	client->sendResponse(getContent().data());
 }
 
 void	Response::add_content_length(void)
