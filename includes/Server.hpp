@@ -11,32 +11,29 @@ class Server
 {
 
 	public:
-        typedef int						fd_type;
+		typedef int						fd_type;
 
 		Server();
 		Server( Server const & src );
 		Server(std::string port, std::string ip);
 		~Server();
 
-		Server &		operator=( Server const & rhs );
-		int				getSocketFd(void) const;
-		int				run(fd_type epoll);
+		Server &						operator=( Server const & rhs );
+		int								getSocketFd(void) const;
+		int								run(fd_type epoll);
 
 		std::string						getIp(void) const;
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
-
-		static bool		isServerFd(fd_type fd);
+		Location						getParams(void) const;
+		std::vector<Location>			getLocations(void) const;					
 
 	private:
-		std::string					m_ip;
-		std::string					m_port;
-		std::vector<std::string>	m_names;
-		Location					m_params;
-		std::vector<Location>		m_locations;
+		std::string						m_ip;
+		std::string						m_port;
+		std::vector<std::string>		m_names;
+		Location						m_params;
+		std::vector<Location>			m_locations;
 };
-class Listener;
-
-std::ostream &			operator<<( std::ostream & o, Server const & i );
 
 #endif /* ********************************************************** SERVER_H */

@@ -1,4 +1,5 @@
 #include "Client.hpp"
+Client::list_type Client::_list = list_type();
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -8,17 +9,18 @@ Client::Client()
 {
 }
 
-Client::Client( const Client & src )
+Client::Client( const Client & src ): ASocket(src)
 {
+	_list = src._list;
 }
 
-Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): ASocket()
+Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): Client()
 {
 	m_fd = client_fd;
 	m_addr = theirAddr;
 	_makeFdNonBlocking();
 	_epollCtlAdd(epoll);
-	m_list.insert(this);
+	_list.insert(*this);
 }
 
 
@@ -29,6 +31,7 @@ Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): ASoc
 
 Client::~Client()
 {
+	//_list.erase(*this);
 }
 
 
@@ -38,17 +41,12 @@ Client::~Client()
 
 Client &				Client::operator=( Client const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+        ASocket::operator=(rhs);
+		this->_list = rhs._list;
+	}
 	return *this;
-}
-
-std::ostream &			operator<<( std::ostream & o, Client const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
 }
 
 
@@ -69,5 +67,14 @@ void                   Client::sendResponse(char const *response) const
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
+Client const	*	Client::getClientFromFd(fd_type fd)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if ((*it).m_fd == fd)
+			return (&(*it));
+	}
+	return (NULL);
+}
 
 /* ************************************************************************** */

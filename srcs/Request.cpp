@@ -9,7 +9,7 @@
 
 }*/
 
-Request::Request(std::string buffer, Client & client): m_buffer(buffer), m_client(client)
+Request::Request(std::string buffer, Client const * client): m_buffer(buffer), m_client(client)
 {
 
 }
@@ -137,21 +137,17 @@ void			Request::_printHex(std::string & token)
 
 void			Request::parse(void)
 {
+
 	_parseRequestLine();
 	_parseHeaders();
 	_parseBody();
-	_printHeader();
-	_printBody();
+	//_printHeader();
+	//_printBody();
 }
 
-std::string		Request::execute(void)
+void	Request::execute(void)
 {
-	std::cout << "PORT: " << m_server->getPort() << std::endl;
-
-	std::string response = "HTTP/1.1 200 OK\r\n\r\nHello from ";
-	response = response + m_header["Host"];
-	m_client.sendResponse(response.data());
-	return "";
+	Response::send_error("505", m_client, m_server->getParams());
 }
 
 void			Request::linkServer(std::vector<Server> & list)

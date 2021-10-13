@@ -33,19 +33,16 @@ Server::~Server()
 
 Server &				Server::operator=( Server const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+		m_ip = rhs.m_ip;
+		m_port = rhs.m_port;
+		m_names = rhs.m_names;
+		m_params = rhs.m_params;
+		m_locations = rhs.m_locations;
+	}
 	return *this;
 }
-
-std::ostream &			operator<<( std::ostream & o, Server const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-}
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -53,7 +50,7 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 
 int				Server::run(fd_type epoll)
 {
-    ASocket	*socket = new Listener(epoll, m_port, m_ip);  
+    Listener	socket(epoll, m_port, m_ip);
     return 1;
 }
 
@@ -62,26 +59,29 @@ int				Server::run(fd_type epoll)
 */
 
 
-	std::string				Server::getIp(void) const
-    {
-        return m_ip;
-    }
-	std::string				Server::getPort(void) const
-    {
-        return m_port;
-    }
-	std::vector<std::string>	Server::getNames(void) const
-	{
-		return m_names;
-	}
+std::string				Server::getIp(void) const
+{
+	return m_ip;
+}
 
-	bool		Server::isServerFd(fd_type fd)
-	{
-		Listener *socket = dynamic_cast<Listener *>(ASocket::getASocketFromFd(fd));
-		if (socket == NULL)
-			return false;
-		else
-			return true;
-		
-	}
+std::string				Server::getPort(void) const
+{
+	return m_port;
+}
+
+std::vector<std::string>	Server::getNames(void) const
+{
+	return m_names;
+}
+
+Location						Server::getParams(void) const
+{
+	return (m_params);
+}
+
+std::vector<Location>			Server::getLocations(void) const
+{
+	return (m_locations);
+}
+
 /* ************************************************************************** */

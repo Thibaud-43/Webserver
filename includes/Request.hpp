@@ -6,8 +6,8 @@
 # include <map>
 # include "Server.hpp"
 # include "Client.hpp"
+# include "Response.hpp"
 
-#define READ_SIZE 4096
 
 class Request
 {
@@ -16,18 +16,19 @@ class Request
 		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
+		Request(std::string   buffer, Client const * client);
 		~Request();
+
 		Request &		operator=(Request const & rhs);
-		Request(std::string   buffer, Client & client);
 		void			parse(void);
-		std::string		execute(void);
+		void			execute(void);
 		void			linkServer(std::vector<Server> & list);
 
 	private:
 		std::string							m_buffer;
 		std::map<std::string, std::string>	m_header;
 		std::string							m_body;
-		Client				&				m_client;							
+		Client const		*				m_client;							
 		Server				*				m_server;
 
 		void								_parseRequestLine(void);				
@@ -43,6 +44,6 @@ class Request
 
 };
 
-std::ostream &			operator<<(std::ostream & o, Request const & i);
+std::ostream &								operator<<(std::ostream & o, Request const & i);
 
 #endif /* ********************************************************* REQUEST_H */

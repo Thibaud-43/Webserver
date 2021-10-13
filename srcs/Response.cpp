@@ -1,8 +1,9 @@
 #include "Response.hpp"
+#include <fstream>
 
-Response::status_t Response::_status = createStatus();
+Response::status_t Response::_status = Response::_createStatus();
 
-Response::status_t	Response::createStatus(void)
+Response::status_t	Response::_createStatus(void)
 {
 	Response::status_t	status;
 
@@ -47,6 +48,32 @@ Response::status_t	Response::createStatus(void)
 	status["504"] = "Gateway Timeout";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
+}
+
+void	Response::send_error(Response::status_code_t err, Client const * client, Location const & location)
+{
+	Response	rep;
+
+	rep.start_header(err);
+	if (err == "405")
+		rep.append_to_header("Allow: " + location.getStrMethods());
+	// AUTRES LIGNES POUR AUTRES ERREURS ?
+	if (location.getErrPages().find(err) != location.getErrPages().end())
+		rep.fill_body(location.getErrPages().at(err));
+	else
+	{
+		rep.append_to_body("<html>\n");
+		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
+		rep.append_to_body("<body bgcolor=\"white\">\n");
+		rep.append_to_body("<center><h1>" + err + " " + Response::_status[err] + "</h1></center>\n");
+		rep.append_to_body("<hr><center>");
+		rep.append_to_body(SERV_NAME);
+		rep.append_to_body("</center>\n");
+		rep.append_to_body("</body>\n");
+		rep.append_to_body("</html>");
+	}
+	rep.add_content_length();
+	rep.send_to_client(client);
 }
 
 /*
@@ -102,9 +129,9 @@ void	Response::append_to_body(std::string const & str)
 	m_body.append(str);
 }
 
-void	Response::send_to_client(Client const & client) const
+void	Response::send_to_client(Client const * client) const
 {
-	client.sendResponse(getContent().data());
+	client->sendResponse(getContent().data());
 }
 
 void	Response::add_content_length(void)
@@ -130,6 +157,20 @@ void	Response::start_header(Response::status_code_t const & status)
 	m_header += " (" + OSName() + ")\r\n";
 }
 
+void	Response::fill_body(file_t const & file)
+{
+	std::ifstream	fstream(file);
+	std::string		line;
+
+	if (!fstream)
+	{
+		std::cerr << file << ": Not found";
+		return ;
+	}
+	while (getline(fstream, line))
+		m_body.append(line);
+}
+
 void	Response::clear(void)
 {
 	m_header.clear();
@@ -141,3 +182,30 @@ void	Response::clear(void)
 */
 
 /* ************************************************************************** */
+
+std::string	HTTPDate(void)
+{
+	char	buf[100];
+	time_t	now = time(0);
+	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
+	return (std::string(buf));
+}
+
+std::string	OSName(void)
+{
+	#ifdef _WIN32
+    return ("Windows 32-bit");
+    #elif _WIN64
+    return ("Windows 64-bit");
+    #elif __APPLE__ || __MACH__
+    return ("Mac OSX");
+    #elif __linux__
+    return ("Linux");
+    #elif __FreeBSD__
+    return ("FreeBSD");
+    #elif __unix || __unix__
+    return ("Unix");
+    #else
+    return ("Other");
+    #endif
+}
