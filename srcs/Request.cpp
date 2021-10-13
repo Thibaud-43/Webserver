@@ -145,12 +145,9 @@ void			Request::parse(void)
 	//_printBody();
 }
 
-std::string		Request::execute(void)
+void	Request::execute(void)
 {
-	std::string response = "HTTP/1.1 200 OK\r\n\r\nHello from ";
-	response = response + m_header["Host"];
-	m_client->sendResponse(response.data());
-	return "";
+	
 }
 
 void			Request::linkServer(std::vector<Server> & list)

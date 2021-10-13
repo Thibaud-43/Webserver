@@ -15,13 +15,12 @@ class Request
 		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
+		Request(std::string buffer, Client & client);
 		~Request();
-		Request(std::string   buffer, Client const * client);
-
-		Request	&							operator=(Request const & rhs);
-		void								parse(void);
-		std::string							execute(void);
-		void								linkServer(std::vector<Server> & list);
+		Request &		operator=(Request const & rhs);
+		void			parse(void);
+		void			execute(void);
+		void			linkServer(std::vector<Server> & list);
 
 	private:
 		std::string							m_buffer;

@@ -1,8 +1,8 @@
 #include "Response.hpp"
 
-Response::status_t Response::_status = createStatus();
+Response::status_t Response::_status = Response::_createStatus();
 
-Response::status_t	Response::createStatus(void)
+Response::status_t	Response::_createStatus(void)
 {
 	Response::status_t	status;
 
@@ -47,6 +47,11 @@ Response::status_t	Response::createStatus(void)
 	status["504"] = "Gateway Timeout";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
+}
+
+void	Response::_send_error(status_code_t err, Client const & client, Location const & location);
+{
+	
 }
 
 /*
