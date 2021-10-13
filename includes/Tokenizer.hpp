@@ -7,15 +7,21 @@ class Tokenizer
 {
     public:
         Tokenizer();
-        Tokenizer(std::string );
+        Tokenizer(std::string const &configFilePath);
         Tokenizer(Tokenizer const &src);
         ~Tokenizer();
 
         Tokenizer&     operator=(Tokenizer const &rhs);
 
+        int     openConfigFile(void); // NOT CONST BECAUSE CHANGING M_IFS VALUE
+
+        // std::ifstream const &       getIfs(void) const;
+        std::string const &         getConfigFilePath(void) const;
+        std::vector<std::string>    getTokens(void) const;
+
     private:
-        int                         m_fd;
-        std::string                 m_configFilePath; // DEFAULT = empty
+        std::ifstream               m_ifs;
+        std::string const           m_configFilePath; // DEFAULT = empty
         std::vector<std::string>    m_tokens;
 };
 
