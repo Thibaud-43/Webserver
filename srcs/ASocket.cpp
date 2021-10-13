@@ -10,7 +10,7 @@ ASocket::ASocket()
 
 }
 
-ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr)
+ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr), m_event(src.m_event)
 {
 
 }
@@ -106,8 +106,9 @@ void	ASocket::destroy(void)
     }
 }
 
-void					ASocket::_epollCtlAdd(fd_type epoll)
+void					ASocket::_epollCtlAdd(fd_type & epoll)
 {
+    memset(&m_event, 0, sizeof(m_event));
     m_event.events = EPOLLIN | EPOLLET;                                               // The associated file is available for read(2) operations.
     m_event.data.fd = m_fd;
     

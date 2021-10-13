@@ -8,7 +8,8 @@
 # include "ASocket.hpp"
 # include "Client.hpp"
 
-#define MAX_EVENTS 5
+#define READ_SIZE 10
+#define MAX_EVENTS 10
 #define MYPORT 3490
 class Cluster
 {

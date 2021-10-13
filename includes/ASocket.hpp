@@ -37,6 +37,6 @@ class ASocket
 		event_type						m_event;
 
 		void							_makeFdNonBlocking(void);
-		void							_epollCtlAdd(fd_type epoll);
+		void							_epollCtlAdd(fd_type & epoll);
 };
 #endif /* ********************************************************* ASocket_H */

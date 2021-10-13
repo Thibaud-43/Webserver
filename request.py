@@ -4,7 +4,6 @@ import requests
 
 r = requests.get('http://0.0.0.0')
 
-
 # check status code for response received
 # success code - 200
 

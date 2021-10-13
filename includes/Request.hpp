@@ -7,7 +7,6 @@
 # include "Server.hpp"
 # include "Client.hpp"
 
-#define READ_SIZE 4096
 
 class Request
 {

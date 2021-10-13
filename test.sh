@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for N in {1..50}
+for ((i=1;i<=$1;i++))
 do
     python3 request.py &
 done

@@ -137,6 +137,7 @@ void			Request::_printHex(std::string & token)
 
 void			Request::parse(void)
 {
+
 	_parseRequestLine();
 	_parseHeaders();
 	_parseBody();
