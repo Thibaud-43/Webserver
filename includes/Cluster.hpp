@@ -8,7 +8,7 @@
 # include "ASocket.hpp"
 # include "Client.hpp"
 
-#define READ_SIZE 10
+#define READ_SIZE 10000
 #define MAX_EVENTS 10
 #define MYPORT 3490
 class Cluster
@@ -42,8 +42,6 @@ class Cluster
 		void							_epollExecuteOnListenerConnection(fd_type & eventFd);
 		void							_epollExecuteOnClientConnection(fd_type & eventFd);
 		void							_closeEpoll(void);
-
-
 };
 
 std::ostream &			operator<<( std::ostream & o, Cluster const & i );
