@@ -5,6 +5,7 @@
 # include <arpa/inet.h>
 # include <errno.h>
 # include <fcntl.h>
+# include <fstream>
 # include <iostream>
 # include <map>
 # include <netinet/in.h>
