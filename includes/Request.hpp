@@ -6,6 +6,7 @@
 # include <map>
 # include "Server.hpp"
 # include "Client.hpp"
+# include "Response.hpp"
 
 #define READ_SIZE 4096
 

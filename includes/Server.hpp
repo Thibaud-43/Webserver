@@ -25,6 +25,8 @@ class Server
 		std::string						getIp(void) const;
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
+		Location						getParams(void) const;
+		std::vector<Location>			getLocations(void) const;					
 
 		static bool		isServerFd(fd_type fd);
 
@@ -35,8 +37,5 @@ class Server
 		Location					m_params;
 		std::vector<Location>		m_locations;
 };
-class Listener;
-
-std::ostream &			operator<<( std::ostream & o, Server const & i );
 
 #endif /* ********************************************************** SERVER_H */
