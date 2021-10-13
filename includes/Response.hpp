@@ -18,6 +18,7 @@ class Response
 	public:
 		typedef	std::string									status_code_t;
 		typedef std::string									status_phrase_t;
+		typedef std::string									file_t;
 		typedef std::map<status_code_t, status_phrase_t>	status_t;
 
 		Response();
@@ -28,11 +29,13 @@ class Response
 		void		start_header(status_code_t const & status);
 		void		append_to_header(std::string const & str);
 		void		append_to_body(std::string const & str);
-		void		send_to_client(Client const & client) const;
+		void		send_to_client(Client const * client) const;
 		void		add_content_length(void);
+		void		fill_body(file_t const & file);
 		void		clear(void);
 
 		Response &		operator=(Response const & rhs);
+		static void		send_error(status_code_t err, Client const * client, Location const & location);
 
 	private:
 		static status_t	_status;
@@ -40,36 +43,11 @@ class Response
 		std::string		m_body;
 		
 		static status_t	_createStatus(void);
-		static void		_send_error(status_code_t err, Client const & client, Location const & location);
 };
 
-std::string	HTTPDate(void)
-{
-	char	buf[100];
-	time_t	now = time(0);
-	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
-	return (std::string(buf));
-}
-
-std::string	OSName(void)
-{
-	#ifdef _WIN32
-    return ("Windows 32-bit");
-    #elif _WIN64
-    return ("Windows 64-bit");
-    #elif __APPLE__ || __MACH__
-    return ("Mac OSX");
-    #elif __linux__
-    return ("Linux");
-    #elif __FreeBSD__
-    return ("FreeBSD");
-    #elif __unix || __unix__
-    return ("Unix");
-    #else
-    return ("Other");
-    #endif
-}
 
 std::ostream &			operator<<( std::ostream & o, Response const & i );
+std::string	HTTPDate(void);
+std::string	OSName(void);
 
 #endif /* ******************************************************** RESPONSE_H */

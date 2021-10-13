@@ -6,6 +6,7 @@
 # include <map>
 # include "Server.hpp"
 # include "Client.hpp"
+# include "Response.hpp"
 
 
 class Request
@@ -15,7 +16,7 @@ class Request
 		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
-		Request(std::string buffer, Client & client);
+		Request(std::string   buffer, Client const * client);
 		~Request();
 		Request &		operator=(Request const & rhs);
 		void			parse(void);

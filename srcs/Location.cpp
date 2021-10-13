@@ -80,6 +80,19 @@ std::vector<std::string> const &		Location::getMethods(void) const
 	return (m_methods);
 }
 
+std::string								Location::getStrMethods(void) const
+{
+	std::string	str;
+
+	for (std::vector<std::string>::const_iterator it = m_methods.begin(); it != m_methods.end(); it++)
+	{
+		str += *it;
+		if (it + 1 != m_methods.end())
+			str += " ";
+	}
+	return (str);
+}
+
 Location::redirect_t const &			Location::getRedirect(void) const
 {
 	return (m_redirect);

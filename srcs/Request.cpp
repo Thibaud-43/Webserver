@@ -147,7 +147,7 @@ void			Request::parse(void)
 
 void	Request::execute(void)
 {
-	
+	Response::send_error("505", m_client, m_server->getParams());
 }
 
 void			Request::linkServer(std::vector<Server> & list)
