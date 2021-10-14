@@ -3,10 +3,8 @@ Client::list_type Client::_list = list_type();
 
 void	Client::closeConnexion(Client const & client)
 {
-	ASocket::fd_type	fd = client.getFd();
-
+	close(client.getFd());
     _list.erase(client);
-	close(fd);
 }
 
 /*
