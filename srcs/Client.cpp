@@ -63,6 +63,11 @@ void                   Client::sendResponse(char const *response) const
 	}
 }
 
+void	Client::closeConnexion(void)
+{
+    close(m_fd);
+    _list.erase(*this);
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

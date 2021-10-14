@@ -18,7 +18,6 @@ class Request
 		Request(std::string const request);
 		Request(std::string   buffer, Client const * client);
 		~Request();
-
 		Request &		operator=(Request const & rhs);
 		void			parse(void);
 		void			execute(void);

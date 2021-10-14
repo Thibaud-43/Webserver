@@ -95,6 +95,10 @@ void			Request::_parseHeaders(void)
 	std::string delimiter2 = "\r\n\r\n";
 	size_t pos = 0;
 	std::string	token;
+    if (m_buffer.empty())
+    {
+        return ;
+    }
 	while ((pos = m_buffer.find(delimiter)) != std::string::npos && pos != m_buffer.find(delimiter2)) 
 	{
 		token = m_buffer.substr(0, pos);
@@ -102,7 +106,9 @@ void			Request::_parseHeaders(void)
 		m_buffer.erase(0, pos + delimiter.length());
 	}
 	token = m_buffer.substr(0, pos);
+
 	_parseLine(token);
+
 	m_buffer.erase(0, pos + delimiter2.length());
 }
 
@@ -141,8 +147,9 @@ void			Request::parse(void)
 	_parseRequestLine();
 	_parseHeaders();
 	_parseBody();
-	//_printHeader();
+	_printHeader();
 	//_printBody();
+
 }
 
 void	Request::execute(void)
