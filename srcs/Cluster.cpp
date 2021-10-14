@@ -175,18 +175,9 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
             request.parse();
             request.linkServer(m_servers);
             request.execute();
-
-            close(eventFd);
             break;
         }
     }
-    
-
-    
-    
-    //read_buffer[bytes_read] = '\0';
-
-
 }
 
 void							Cluster::_closeEpoll(void)

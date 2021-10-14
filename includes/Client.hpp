@@ -18,6 +18,7 @@ class Client: public ASocket
 
 		void							sendResponse(char const *response) const;
 		static Client const *			getClientFromFd(fd_type fd);
+		void			                closeConnexion(void);
 
 
 
