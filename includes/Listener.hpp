@@ -24,7 +24,6 @@ class Listener: public ASocket
 		void							_initAddr(port_type port, ip_type ip);
 		void							_listen(void);
 		static list_type				_list;
-
 };
 
 std::ostream &							operator<<( std::ostream & o, Listener const & i );

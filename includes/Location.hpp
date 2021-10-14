@@ -43,10 +43,6 @@ class Location
 		bool							m_autoindex; // DEFAULT true
 		file_t							m_cgi_pass; // DEFAULT NONE
 		path_t							m_upload_path; // DEFAULT ?
-		
-		Location &		operator=( Location const & rhs );
-
-
 };
 
 #endif /* ******************************************************** LOCATION_H */
