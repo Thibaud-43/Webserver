@@ -3,10 +3,12 @@
 
 # include <algorithm> 
 # include <arpa/inet.h>
+# include <cstring>
 # include <errno.h>
 # include <fcntl.h>
 # include <fstream>
 # include <iostream>
+# include <iterator>
 # include <map>
 # include <netinet/in.h>
 # include <signal.h>
