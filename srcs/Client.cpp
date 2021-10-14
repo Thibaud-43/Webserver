@@ -1,6 +1,14 @@
 #include "Client.hpp"
 Client::list_type Client::_list = list_type();
 
+void	Client::closeConnexion(Client const & client)
+{
+	ASocket::fd_type	fd = client.getFd();
+
+    _list.erase(client);
+	close(fd);
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -31,7 +39,6 @@ Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): Clie
 
 Client::~Client()
 {
-	//_list.erase(*this);
 }
 
 
@@ -67,7 +74,7 @@ void                   Client::sendResponse(char const *response) const
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-Client const	*	Client::getClientFromFd(fd_type fd)
+Client	const *	Client::getClientFromFd(fd_type fd)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{

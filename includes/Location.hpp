@@ -41,10 +41,10 @@ class Location
 		std::vector<std::string>		m_methods; // DEFAULT ALL
 		redirect_t						m_redirect; // DEFAULT 0
 		bool							m_autoindex; // DEFAULT true
-
-		// SEE LATER
 		file_t							m_cgi_pass; // DEFAULT NONE
 		path_t							m_upload_path; // DEFAULT ?
+		
+		Location &		operator=( Location const & rhs );
 
 
 };
