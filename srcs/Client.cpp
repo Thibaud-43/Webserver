@@ -1,6 +1,11 @@
 #include "Client.hpp"
 Client::list_type Client::_list = list_type();
 
+void	Client::closeConnexion(Client const & client)
+{
+    _list.erase(client);
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -31,7 +36,7 @@ Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): Clie
 
 Client::~Client()
 {
-	//_list.erase(*this);
+	close(m_fd);
 }
 
 
@@ -63,16 +68,11 @@ void                   Client::sendResponse(char const *response) const
 	}
 }
 
-void	Client::closeConnexion(void)
-{
-    close(m_fd);
-    _list.erase(*this);
-}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-Client const	*	Client::getClientFromFd(fd_type fd)
+Client	const *	Client::getClientFromFd(fd_type fd)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{

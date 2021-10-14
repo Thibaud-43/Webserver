@@ -9,7 +9,7 @@
 
 }*/
 
-Request::Request(std::string buffer, Client * client): m_buffer(buffer), m_client(client)
+Request::Request(std::string buffer, Client const * client): m_buffer(buffer), m_client(client)
 {
 
 }
