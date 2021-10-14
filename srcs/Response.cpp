@@ -127,7 +127,7 @@ std::ostream &			operator<<( std::ostream & o, Response const & i )
 
 void	Response::append_to_header(std::string const & str)
 {
-	m_header.append(str);
+	m_header.append(str + "\r\n");
 }
 
 void	Response::append_to_body(std::string const & str)

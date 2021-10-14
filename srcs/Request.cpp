@@ -158,6 +158,7 @@ void	Request::execute(void)
 		return (Response::send_error("400", m_client, m_server->getParams()));
 	if (m_header["protocol"] != PROTOCOL)
 		return (Response::send_error("505", m_client, m_server->getParams()));
+	Response::send_error("200", m_client, m_server->getParams());
 	
 }
 

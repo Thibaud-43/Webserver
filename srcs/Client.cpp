@@ -3,7 +3,10 @@ Client::list_type Client::_list = list_type();
 
 void	Client::closeConnexion(Client const & client)
 {
+	ASocket::fd_type	fd = client.getFd();
+
     _list.erase(client);
+	close(fd);
 }
 
 /*
@@ -36,7 +39,6 @@ Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): Clie
 
 Client::~Client()
 {
-	close(m_fd);
 }
 
 
