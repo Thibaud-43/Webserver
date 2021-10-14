@@ -20,11 +20,10 @@ Response::status_t	Response::_createStatus(void)
 	status["302"] = "Found";
 	status["303"] = "See Other";
 	status["304"] = "Not Modified";
-	status["305"] = "Use Proxy";
 	status["307"] = "Temporary Redirect";
 	status["400"] = "Bad Request";
 	status["401"] = "Unauthorized";
-	status["402"] = "Bad Request";
+	status["402"] = "Payment Required";
 	status["403"] = "Forbidden";
 	status["404"] = "Not Found";
 	status["405"] = "Method Not Allowed";
@@ -58,10 +57,15 @@ void	Response::send_error(Response::status_code_t err, Client const * client, Lo
 	if (err == "405")
 		rep.append_to_header("Allow: " + location.getStrMethods());
 	// AUTRES LIGNES POUR AUTRES ERREURS ?
-	if (location.getErrPages().find(err) != location.getErrPages().end())
+	if (location.getErrPages().find(err) != location.getErrPages().end() && is_readable(location.getErrPages().at(err)))
+	{
+		// CGI ??
+		// CONTENT-type ?
 		rep.fill_body(location.getErrPages().at(err));
+	}
 	else
 	{
+		rep.append_to_header("Content-Type: text/html");
 		rep.append_to_body("<html>\n");
 		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
 		rep.append_to_body("<body bgcolor=\"white\">\n");
@@ -73,6 +77,7 @@ void	Response::send_error(Response::status_code_t err, Client const * client, Lo
 		rep.append_to_body("</html>");
 	}
 	rep.add_content_length();
+	rep.append_to_header("Connection: close");
 	rep.send_to_client(client);
 }
 
@@ -194,18 +199,42 @@ std::string	HTTPDate(void)
 std::string	OSName(void)
 {
 	#ifdef _WIN32
-    return ("Windows 32-bit");
+ 	   return ("Windows 32-bit");
     #elif _WIN64
-    return ("Windows 64-bit");
+ 	   return ("Windows 64-bit");
     #elif __APPLE__ || __MACH__
-    return ("Mac OSX");
+ 	   return ("Mac OSX");
     #elif __linux__
-    return ("Linux");
+ 	   return ("Linux");
     #elif __FreeBSD__
-    return ("FreeBSD");
+ 	   return ("FreeBSD");
     #elif __unix || __unix__
-    return ("Unix");
+ 	   return ("Unix");
     #else
-    return ("Other");
+ 	   return ("Other");
     #endif
+}
+
+bool	is_readable(std::string const & file)
+{
+	std::ifstream	fstream;
+
+	fstream.open(file, std::fstream::in);
+	return (fstream ? true : false);
+}
+
+bool	is_writable(std::string const & file)
+{
+	std::ifstream	fstream;
+
+	fstream.open(file, std::fstream::out);
+	return (fstream ? true : false);
+}
+
+bool	is_rwable(std::string const & file)
+{
+	std::ifstream	fstream;
+
+	fstream.open(file);
+	return (fstream ? true : false);
 }

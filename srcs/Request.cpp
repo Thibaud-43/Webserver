@@ -147,7 +147,11 @@ void			Request::parse(void)
 
 void	Request::execute(void)
 {
-	Response::send_error("505", m_client, m_server->getParams());
+	if (m_header.empty())
+		return (Response::send_error("400", m_client, m_server->getParams()));
+	if (m_header["protocol"] != PROTOCOL)
+		return (Response::send_error("505", m_client, m_server->getParams()));
+	
 }
 
 void			Request::linkServer(std::vector<Server> & list)
