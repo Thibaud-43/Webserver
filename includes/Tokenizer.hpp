@@ -13,21 +13,20 @@ class Tokenizer
 
         Tokenizer&     operator=(Tokenizer const &rhs);
 
-        void    openConfigFile(void); // NOT CONST BECAUSE CHANGING M_IFS VALUE
+        void    openConfigFile(void);
         void    fillBufferStr(void);
         void    searchAndReplace(std::string const &str, std::string const &toReplace);
         void    replaceAllSeparators(void);
         void    createTokensList(void);
         void    displayList(void);
 
-        // std::ifstream const &       getIfs(void) const;
         const char *                getConfigFilePath(void) const;
         std::string                 getBufferStr(void) const;
         std::vector<std::string>    getTokens(void) const;
 
     private:
-        const char *                m_configFilePath; // DEFAULT = empty
-        std::string                 m_bufferStr; // Will contain all the file
+        const char *                m_configFilePath;
+        std::string                 m_bufferStr;
         std::ifstream               m_ifs;
         std::vector<std::string>    m_list;
 
