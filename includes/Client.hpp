@@ -20,9 +20,6 @@ class Client: public ASocket
 		static Client const *			getClientFromFd(fd_type fd);
 		void			                closeConnexion(void);
 
-
-
-
 	private:
 		static list_type				_list;
 

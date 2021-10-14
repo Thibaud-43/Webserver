@@ -49,7 +49,7 @@ Response::status_t	Response::_createStatus(void)
 	return (status);
 }
 
-void	Response::send_error(Response::status_code_t err, Client const * client, Location const & location)
+void	Response::send_error(Response::status_code_t err, Client * client, Location const & location)
 {
 	Response	rep;
 
@@ -79,6 +79,7 @@ void	Response::send_error(Response::status_code_t err, Client const * client, Lo
 	rep.add_content_length();
 	rep.append_to_header("Connection: close");
 	rep.send_to_client(client);
+	client->closeConnexion();
 }
 
 /*
