@@ -216,8 +216,6 @@ std::string	OSName(void)
     #endif
 }
 
-# include <unistd.h>
-
 bool	exist(std::string const & file)
 {
 	return (!access(file.data(), F_OK) ? true : false);

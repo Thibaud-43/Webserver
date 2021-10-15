@@ -6,6 +6,7 @@
 # include <sstream>
 # include <map>
 # include <ctime>
+# include <unistd.h>
 # include "Client.hpp"
 # include "Location.hpp"
 
