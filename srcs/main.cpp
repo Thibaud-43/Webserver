@@ -4,11 +4,11 @@
 
 int main(int argc, char const *argv[])
 {
-    // Cluster test;
+    Cluster test;
 
-    // test.run();
+    test.run();
 
-    std::cout << "PARSING TESTS" << std::endl;
+    /*std::cout << "PARSING TESTS" << std::endl;
     Tokenizer   test1("test.conf");
     Tokenizer   test2;
 
@@ -19,5 +19,6 @@ int main(int argc, char const *argv[])
     // std::cout << std::endl << "Test2" << std::endl;
     // test2.createTokensList();
     // test2.displayList();
+    */
     return 0;
 }

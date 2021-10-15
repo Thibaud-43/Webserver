@@ -216,26 +216,22 @@ std::string	OSName(void)
     #endif
 }
 
+bool	exist(std::string const & file)
+{
+	return (!access(file.data(), F_OK) ? true : false);
+}
+
 bool	is_readable(std::string const & file)
 {
-	std::ifstream	fstream;
-
-	fstream.open(file, std::fstream::in);
-	return (fstream ? true : false);
+	return (!access(file.data(), R_OK) ? true : false);
 }
 
 bool	is_writable(std::string const & file)
 {
-	std::ifstream	fstream;
-
-	fstream.open(file, std::fstream::out);
-	return (fstream ? true : false);
+	return (!access(file.data(), W_OK) ? true : false);
 }
 
-bool	is_rwable(std::string const & file)
+bool	is_executable(std::string const & file)
 {
-	std::ifstream	fstream;
-
-	fstream.open(file);
-	return (fstream ? true : false);
+	return (!access(file.data(), X_OK) ? true : false);
 }

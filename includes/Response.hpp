@@ -6,6 +6,7 @@
 # include <sstream>
 # include <map>
 # include <ctime>
+# include <unistd.h>
 # include "Client.hpp"
 # include "Location.hpp"
 
@@ -49,8 +50,9 @@ class Response
 std::ostream &	operator<<( std::ostream & o, Response const & i );
 std::string		HTTPDate(void);
 std::string		OSName(void);
+bool			exist(std::string const & file);
 bool			is_readable(std::string const & file);
 bool			is_writable(std::string const & file);
-bool			is_rwable(std::string const & file);
+bool			is_executable(std::string const & file);
 
 #endif /* ******************************************************** RESPONSE_H */
