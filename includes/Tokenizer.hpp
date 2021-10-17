@@ -18,7 +18,7 @@ class Tokenizer
         void    searchAndReplace(std::string const &str, std::string const &toReplace);
         void    replaceAllSeparators(void);
         void    createTokensList(void);
-        void    displayList(void)const;
+        void    displayList(std::ostream &o)const;
 
         // std::ifstream const &       getIfs(void) const;
         const char *                getConfigFilePath(void) const;
