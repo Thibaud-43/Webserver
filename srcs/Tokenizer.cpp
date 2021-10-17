@@ -119,7 +119,7 @@ void    Tokenizer::displayList(std::ostream &o)const
     std::vector<std::string>::const_iterator   it;
 
     for (it = m_list.begin(); it != m_list.end(); it++)
-        o << *it << std::endl;
+        o << *it << " // ";
 }
 
 /*
