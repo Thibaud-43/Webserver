@@ -14,7 +14,7 @@ class Location
 		typedef std::string					path_t;
 		typedef std::string					file_t;
 		typedef size_t						body_size_t;
-		typedef short						redirect_t;
+		typedef std::string					redirect_t;
 		typedef std::vector<std::string>	methods_t;
 
 		Location();
@@ -44,7 +44,7 @@ class Location
 		path_t								m_root; // DEFAULT .
 		std::vector<file_t>					m_indexes; // DEFAULT index.htm
 		methods_t							m_methods; // DEFAULT ALL
-		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT 0-""
+		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT empty-empty
 		bool								m_autoindex; // DEFAULT true
 		file_t								m_cgi_pass; // DEFAULT NONE
 		path_t								m_upload_path; // DEFAULT ?

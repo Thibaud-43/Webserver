@@ -12,7 +12,6 @@ ASocket::ASocket()
 
 ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr), m_event(src.m_event)
 {
-
 }
 
 /*
@@ -56,7 +55,7 @@ bool                    operator>=(ASocket & lhs, ASocket & rhs)
 	return lhs.getFd() >= rhs.getFd();
 }
 
-bool                    operator==(ASocket & lhs, ASocket & rhs)
+bool                    operator==(ASocket const & lhs, ASocket const & rhs)
 {
 	return lhs.getFd() == rhs.getFd();
 }
@@ -77,17 +76,8 @@ ASocket::operator fd_type(void) const
 
 void			ASocket::_makeFdNonBlocking(void)
 {
-	int flags, s;
-
-	flags = fcntl (m_fd, F_GETFL, 0);
-	if (flags == -1)
-	{
-		perror ("fcntl");
-		exit(1);
-
-	}
-	flags |= O_NONBLOCK;
-	s = fcntl (m_fd, F_SETFL, flags);
+	int s;
+	s = fcntl (m_fd, F_SETFL, O_NONBLOCK);
 	if (s == -1)
 	{
 		perror ("fcntl");

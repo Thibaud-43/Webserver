@@ -9,9 +9,11 @@ Response::status_t	Response::_createStatus(void)
 
 	status["200"] = "OK";
 	status["201"] = "Created";
+	status["300"] = "Multiple Choice";
 	status["301"] = "Moved Permanently";
 	status["302"] = "Found";
 	status["303"] = "See Other";
+	status["304"] = "Not Modifed";
 	status["307"] = "Temporary Redirect";
 	status["400"] = "Bad Request";
 	status["403"] = "Forbidden";
@@ -33,7 +35,7 @@ Response::status_t	Response::_createStatus(void)
 	return (status);
 }
 
-void	Response::send_error(Response::status_code_t err, Client const * client, Location const & location)
+void	Response::send_error(Response::status_code_t const & err, Client const * client, Location const & location)
 {
 	Response	rep;
 
@@ -66,7 +68,7 @@ void	Response::send_error(Response::status_code_t err, Client const * client, Lo
 	Client::closeConnexion(*client);
 }
 
-void	Response::redirect(Response::status_code_t red, Client const * client, Location const & location)
+void	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
 {
 	Response	rep;
 
@@ -83,7 +85,7 @@ void	Response::redirect(Response::status_code_t red, Client const * client, Loca
 	rep.append_to_body("</html>\n");
 	rep.add_content_length();
 	rep.append_to_header("Connection: keep-alive");
-	rep.append_to_header("Location: " + location.getRedirectPath());
+	rep.append_to_header("Location: " + location);
 	rep.send_to_client(client);
 }
 
