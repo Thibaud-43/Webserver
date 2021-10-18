@@ -39,11 +39,28 @@ Node&     Node::operator=(Node const & rhs)
 
 std::ostream&			operator<<(std::ostream & o, Node const &i)
 {
-    // o << "Left addr : " << i.getLeft() << std::endl;
-    // o << "Right addr: " << i.getRight() << std::endl;
+    o << "Obj addrr : " << &i << std::endl;
     o << "Type      : " << i.getType() << std::endl;
+
     o << "Content   : ";
     i.displayContent(o);
+    o << std::endl;
+
+    o << "Left addr : " << i.getLeft() << std::endl;
+    o << "Right addr: " << i.getRight() << std::endl;
+    
+    o << std::endl;
+
+    if (i.getLeft() != NULL)
+    {
+        o << &i << " left branch:" << std::endl;
+        o << *i.getLeft();
+    }
+    if (i.getRight() != NULL)
+    {
+        o << &i << " right branch:" << std::endl;
+        o << *i.getRight();
+    }
     return o;
 }
 
