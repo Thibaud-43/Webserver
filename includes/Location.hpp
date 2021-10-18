@@ -38,16 +38,16 @@ class Location
 		bool										isAllowed(std::string const & method) const;
 
 	private:
-		std::string							m_uri;
-		std::map<err_code_t, path_t>		m_error_pages; // DEFAULT ?
-		body_size_t							m_body_size; // DEFAULT ?
+		std::string							m_uri; // DEFAULT empty
+		std::map<err_code_t, path_t>		m_error_pages; // DEFAULT empty-empty
+		body_size_t							m_body_size; // DEFAULT 1 000 000
 		path_t								m_root; // DEFAULT .
 		std::vector<file_t>					m_indexes; // DEFAULT index.htm
-		methods_t							m_methods; // DEFAULT ALL
+		methods_t							m_methods; // DEFAULT GET HEAD POST DELETE PUT
 		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT empty-empty
 		bool								m_autoindex; // DEFAULT true
 		file_t								m_cgi_pass; // DEFAULT NONE
-		path_t								m_upload_path; // DEFAULT ?
+		path_t								m_upload_path; // DEFAULT .
 };
 
 #endif /* ******************************************************** LOCATION_H */

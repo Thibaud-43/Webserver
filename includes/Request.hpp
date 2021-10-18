@@ -20,15 +20,15 @@ class Request
 		Request(std::string const request);
 		Request(Client const * client);
 		~Request();
+
 		Request &			operator=(Request const & rhs);
-		void				parse(std::string & buffer);
-		void				execute(void);
-		void				linkServer(std::vector<Server> & list);
-		
+		bool				manage(std::string & buffer, std::vector<Server> const & servers);
+		bool				execute(void);
 		Client const *		getClient(void) const;
+		bool				ready(void) const;
+		
 		static	Request *	getRequestFromClient(Client const & client);
-		static	void		removeRequestFromClient(Client const & client);
-		static	void		removeRequestFromRequest(Request const & request);
+		static	void		removeRequest(Request const & request);
 
 	private:
 		std::map<std::string, std::string>	m_header;
@@ -38,9 +38,10 @@ class Request
 		Location const *					m_location;
 		std::string							m_path;
 		bool								m_headerCompleted;
+		bool								m_ready;
 
 		static list_type					_list;
-
+		void								_linkServer(std::vector<Server> const & list);
 		bool								_check_header(void);
 		void								_parseRequestLine(std::string & buffer);				
 		void								_parseHeaders(std::string & buffer);

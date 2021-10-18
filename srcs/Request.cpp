@@ -2,6 +2,31 @@
 
 Request::list_type Request::_list = Request::list_type();
 
+Request *	Request::getRequestFromClient(Client const & client)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (&client == (*it).getClient())
+		{
+			return (&(*it));
+		}
+	}
+	_list.push_front(Request(&client));
+	return &(*(_list.begin()));
+}
+
+void		Request::removeRequest(Request const & request)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (request.getClient() == (*it).getClient())
+		{
+			_list.erase(it);
+			return ;
+		}
+	}
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -164,30 +189,31 @@ void			Request::_printHex(std::string & token)
 	}
 }
 
-void			Request::parse(std::string & buffer)
+bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 {
 	if (m_header.empty())
-	{
 		_parseRequestLine(buffer);
-		m_location = m_server->getLocation(m_header["uri"]);
-
-		if (!m_location->getRedirectNum().empty()) // VERIFIER NUMERO REDIRECTION
-		{
-			Response::redirect(m_location->getRedirectNum(), m_location->getRedirectPath(), m_client);
-			// SUPPRIMER REQUETE
-		}
-	}
 	if (m_headerCompleted == false)
 	{
 		_parseHeaders(buffer);
-		
+        _linkServer(servers);
+		m_location = m_server->getLocation(m_header["uri"]);
+		if (!_check_header())
+			return (false);
 	}
 	if (m_headerCompleted == true)
+	{
 		_parseBody(buffer);
+		execute();
+	}
 	
+	// READY ?? 
+
 	// DEBUG
 	_printHeader();
 	_printBody();
+
+	return (true);
 }
 
 bool	Request::_check_header(void)
@@ -210,7 +236,7 @@ bool	Request::_check_header(void)
 	return (true);
 }
 
-void			Request::linkServer(std::vector<Server> & list)
+void			Request::_linkServer(std::vector<Server> const & list)
 {
 	std::string	delimiter = ":";
 	size_t		pos;
@@ -229,8 +255,8 @@ void			Request::linkServer(std::vector<Server> & list)
 		port = m_header["Host"].substr(pos + delimiter.length(), m_header["Host"].length());
 	}
 
-	std::vector<std::string>::iterator it2;
-	for (std::vector<Server>::iterator it = list.begin(); it != list.end(); it++)
+	std::vector<std::string>::const_iterator it2;
+	for (std::vector<Server>::const_iterator it = list.begin(); it != list.end(); it++)
 	{
 		it2 = std::find((*it).getNames().begin(), (*it).getNames().end(), server_name);
 		if (port == (*it).getPort() && it2 != (*it).getNames().end())
@@ -243,47 +269,28 @@ void			Request::linkServer(std::vector<Server> & list)
 	return ;
 }
 
+bool	Request::execute(void)
+{
+	Response::send_error("200", m_client, m_server->getParams());
+
+	// METHOD DISPATCH
+
+	return (true);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-	Client const *	Request::getClient(void) const
-	{
-		return m_client;
-	}
+Client const *	Request::getClient(void) const
+{
+	return m_client;
+}
 
-	Request *	Request::getRequestFromClient(Client const & client)
-	{
-		for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-		{
-			if (&client == (*it).getClient())
-			{
-				return (&(*it));
-			}
-		}
-		_list.push_front(Request(&client));
-		return &(*(_list.begin()));
-	}
-	void		Request::removeRequestFromClient(Client const & client)
-	{
-		for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-		{
-			if (&client == (*it).getClient())
-			{
-				_list.erase(it);
-				return ;
-			}
-		}
-	}
-	void		Request::removeRequestFromRequest(Request const & request)
-	{
-		for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-		{
-			if (request.getClient() == (*it).getClient())
-			{
-				_list.erase(it);
-				return ;
-			}
-		}
-	}
+bool			Request::ready(void) const
+{
+	return (m_ready);
+}
+
+	
 /* ************************************************************************** */
