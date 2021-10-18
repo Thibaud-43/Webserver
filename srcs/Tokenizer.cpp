@@ -11,7 +11,9 @@ Tokenizer::Tokenizer() : m_configFilePath(NULL)
 // {}
 
 Tokenizer::Tokenizer(const char *configFilePath) : m_configFilePath(configFilePath)
-{}
+{
+    this->createTokensList();
+}
 
 Tokenizer::Tokenizer(Tokenizer const &src)
 {
@@ -31,6 +33,8 @@ Tokenizer&     Tokenizer::operator=(Tokenizer const &rhs)
 {
     if (this != &rhs)
     {
+        this->m_configFilePath = rhs.m_configFilePath;
+        this->m_bufferStr = rhs.m_bufferStr;
         this->m_list = rhs.m_list;
     }
     return *this;
@@ -38,8 +42,9 @@ Tokenizer&     Tokenizer::operator=(Tokenizer const &rhs)
 
 std::ostream&   operator<<(std::ostream &o, Tokenizer const &i)
 {
-    o << "Configuration file path: " << i.getConfigFilePath() << std::endl;
-    o << "Use print member function to show tokens list." << std::endl;
+    o << "Configuration file path: " << i.getConfigFilePath() << std::endl << std::endl;
+    o << "Tokens list: " << std::endl;
+    i.displayList(o);
     return o;
 }
 
@@ -109,12 +114,12 @@ void    Tokenizer::createTokensList(void)
     }
 }
 
-void    Tokenizer::displayList(void)
+void    Tokenizer::displayList(std::ostream &o)const
 {
-    std::vector<std::string>::iterator   it;
+    std::vector<std::string>::const_iterator   it;
 
     for (it = m_list.begin(); it != m_list.end(); it++)
-        std::cout << *it << std::endl;
+        o << *it << " // ";
 }
 
 /*

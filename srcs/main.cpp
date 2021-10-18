@@ -1,24 +1,22 @@
 #include "Cluster.hpp"
-#include "Tokenizer.hpp"
+#include "Tree.hpp"
 
-
+void    functionIte(std::vector<std::string>::iterator &it)
+{
+    for (unsigned int i = 0; i < 2; i++)
+        it++;
+}
 int main(int argc, char const *argv[])
 {
     Cluster test;
 
     test.run();
 
-    /*std::cout << "PARSING TESTS" << std::endl;
-    Tokenizer   test1("test.conf");
-    Tokenizer   test2;
+    // std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
+    // Tree   tree("test.conf");
 
-    std::cout << "Test1" << std::endl;
-    test1.createTokensList();
-    test1.displayList();
+    // std::cout << tree;
+    // tree.parseCluster();
 
-    // std::cout << std::endl << "Test2" << std::endl;
-    // test2.createTokensList();
-    // test2.displayList();
-    */
-    return 0;
+    // return 0;
 }
