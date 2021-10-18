@@ -11,7 +11,7 @@ Listener::Listener()
 
 Listener::Listener( const Listener & src ): ASocket(src)
 {
-    _list = src._list;
+    //_list = src._list;
 }
 
 Listener::Listener(fd_type epoll, port_type port, ip_type ip)

@@ -8,31 +8,37 @@
 # include "Client.hpp"
 # include "Response.hpp"
 
-
+class Request;
 class Request
 {
 
 	public:
+		typedef std::list<Request>		list_type;
+
 		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
-		Request(std::string buffer, Client const * client);
+		Request(Client const * client);
 		~Request();
-		Request &		operator=(Request const & rhs);
-		void			parse(void);
-		void			execute(void);
-		void			linkServer(std::vector<Server> & list);
-
+		Request &			operator=(Request const & rhs);
+		void				parse(std::string & buffer);
+		void				execute(void);
+		void				linkServer(std::vector<Server> & list);
+		
+		Client const *		getClient(void) const;
+		static	Request *	getRequestFromClient(Client const & client);
+		static	void		removeRequestFromClient(Client const & client);
+		static	void		removeRequestFromRequest(Request const & request);
 	private:
-		std::string							m_buffer;
 		std::map<std::string, std::string>	m_header;
 		std::string							m_body;
 		Client const *						m_client;							
-		Server *							m_server;
-
-		void								_parseRequestLine(void);				
-		void								_parseHeaders(void);
-		void								_parseBody(void);
+		Server const *						m_server;
+		static list_type					_list;
+		bool								m_headerCompleted;
+		void								_parseRequestLine(std::string & buffer);				
+		void								_parseHeaders(std::string & buffer);
+		void								_parseBody(std::string & buffer);
 		void								_parseLine(std::string & token);
 
 		// DEBUG
