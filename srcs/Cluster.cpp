@@ -170,11 +170,11 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
             read_buffer[bytes_read] = 0;
 
             buff += read_buffer;
-            Client const *client = Client::getClientFromFd(eventFd);
-            Request             request(buff, client);
-            request.parse();
-            request.linkServer(m_servers);
-            request.execute();
+            Client const 	*client = Client::getClientFromFd(eventFd);
+            Request			*request = Request::getRequestFromClient(*client);
+
+            if (!request->manage(buff, m_servers))
+                Request::removeRequest(*request);
             break;
         }
     }
