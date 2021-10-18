@@ -7,49 +7,35 @@ Response::status_t	Response::_createStatus(void)
 {
 	Response::status_t	status;
 
-	status["100"] = "Continue";
-	status["101"] = "Switching Protols";
 	status["200"] = "OK";
 	status["201"] = "Created";
-	status["202"] = "Accepted";
-	status["203"] = "Non-Authoritative Information";
-	status["204"] = "No Content";
-	status["205"] = "Reset Content";
-	status["206"] = "Partial Content";
+	status["300"] = "Multiple Choice";
 	status["301"] = "Moved Permanently";
 	status["302"] = "Found";
 	status["303"] = "See Other";
-	status["304"] = "Not Modified";
+	status["304"] = "Not Modifed";
 	status["307"] = "Temporary Redirect";
 	status["400"] = "Bad Request";
-	status["401"] = "Unauthorized";
-	status["402"] = "Payment Required";
 	status["403"] = "Forbidden";
 	status["404"] = "Not Found";
 	status["405"] = "Method Not Allowed";
-	status["406"] = "Not Acceptable";
-	status["407"] = "Proxy Authentification Required";
 	status["408"] = "Request Timeout";
 	status["409"] = "Conflict";
-	status["410"] = "Gone";
 	status["411"] = "Length Required";
 	status["412"] = "Precondition Failed";
 	status["413"] = "Payload Too Large";
-	status["414"] = "URI Too Long";
 	status["415"] = "Unsupported Media Type";
 	status["416"] = "Range Not Satisfiable";
 	status["417"] = "Expectation Failed";
-	status["426"] = "Upgrade Required";
 	status["500"] = "Internal Server Error";
-	status["501"] = "Not Implemented";
+	status["501"] = "Not Implemented"; // RETIRER SI TOUTES METHODES GEREES
 	status["502"] = "Bad Gateway";
-	status["503"] = "Service Unavalaible";
 	status["504"] = "Gateway Timeout";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
 }
 
-void	Response::send_error(Response::status_code_t err, Client const * client, Location const & location)
+void	Response::send_error(Response::status_code_t const & err, Client const * client, Location const & location)
 {
 	Response	rep;
 
@@ -74,12 +60,33 @@ void	Response::send_error(Response::status_code_t err, Client const * client, Lo
 		rep.append_to_body(SERV_NAME);
 		rep.append_to_body("</center>\n");
 		rep.append_to_body("</body>\n");
-		rep.append_to_body("</html>");
+		rep.append_to_body("</html>\n");
 	}
 	rep.add_content_length();
 	rep.append_to_header("Connection: close");
 	rep.send_to_client(client);
 	Client::closeConnexion(*client);
+}
+
+void	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
+{
+	Response	rep;
+
+	rep.start_header(red);
+	rep.append_to_header("Content-Type: text/html");
+	rep.append_to_body("<html>\n");
+	rep.append_to_body("<head><title>" + red + " " + Response::_status[red] + "</title></head>\n");
+	rep.append_to_body("<body bgcolor=\"white\">\n");
+	rep.append_to_body("<center><h1>" + red + " " + Response::_status[red] + "</h1></center>\n");
+	rep.append_to_body("<hr><center>");
+	rep.append_to_body(SERV_NAME);
+	rep.append_to_body("</center>\n");
+	rep.append_to_body("</body>\n");
+	rep.append_to_body("</html>\n");
+	rep.add_content_length();
+	rep.append_to_header("Connection: keep-alive");
+	rep.append_to_header("Location: " + location);
+	rep.send_to_client(client);
 }
 
 /*

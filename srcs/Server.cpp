@@ -84,4 +84,20 @@ std::vector<Location>			Server::getLocations(void) const
 	return (m_locations);
 }
 
+Location const *	Server::getLocation(std::string const & uri) const
+{
+	size_t									match = 0;
+	std::vector<Location>::const_iterator	it_ret;
+
+	for (std::vector<Location>::const_iterator it = m_locations.begin(); it != m_locations.end(); it++)
+	{
+		if (!uri.compare(0, it->getUri().size(), it->getUri()) && it->getUri().size() > match)
+		{
+			it_ret = it;
+			match = it->getUri().size();
+		}
+	}
+	return (match ? &(*it_ret) : &m_params);
+}
+
 /* ************************************************************************** */

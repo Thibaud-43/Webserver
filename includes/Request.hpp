@@ -7,32 +7,45 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Response.hpp"
-
+# include "Location.hpp"
 
 class Request
 {
 
 	public:
+		typedef std::list<Request>		list_type;
+
 		//Request();
 		Request(Request const & src);
 		Request(std::string const request);
-		Request(std::string buffer, Client const * client);
+		Request(Client const * client);
 		~Request();
-		Request &		operator=(Request const & rhs);
-		void			parse(void);
-		void			execute(void);
-		void			linkServer(std::vector<Server> & list);
+
+		Request &			operator=(Request const & rhs);
+		bool				manage(std::string & buffer, std::vector<Server> const & servers);
+		bool				execute(void);
+		Client const *		getClient(void) const;
+		bool				ready(void) const;
+		
+		static	Request *	getRequestFromClient(Client const & client);
+		static	void		removeRequest(Request const & request);
 
 	private:
-		std::string							m_buffer;
 		std::map<std::string, std::string>	m_header;
 		std::string							m_body;
 		Client const *						m_client;							
-		Server *							m_server;
+		Server const *						m_server;
+		Location const *					m_location;
+		std::string							m_path;
+		bool								m_headerCompleted;
+		bool								m_ready;
 
-		void								_parseRequestLine(void);				
-		void								_parseHeaders(void);
-		void								_parseBody(void);
+		static list_type					_list;
+		void								_linkServer(std::vector<Server> const & list);
+		bool								_check_header(void);
+		void								_parseRequestLine(std::string & buffer);				
+		void								_parseHeaders(std::string & buffer);
+		void								_parseBody(std::string & buffer);
 		void								_parseLine(std::string & token);
 
 		// DEBUG

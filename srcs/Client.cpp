@@ -4,6 +4,7 @@ Client::list_type Client::_list = list_type();
 void	Client::closeConnexion(Client const & client)
 {
 	close(client.getFd());
+	
     _list.erase(client);
 }
 
@@ -17,7 +18,7 @@ Client::Client()
 
 Client::Client( const Client & src ): ASocket(src)
 {
-	_list = src._list;
+	//_list = src._list;
 }
 
 Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): Client()
