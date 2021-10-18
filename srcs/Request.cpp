@@ -152,14 +152,25 @@ void			Request::parse(void)
 
 }
 
-void	Request::execute(void)
+bool	Request::check_header(void)
 {
 	if (m_header.empty())
-		return (Response::send_error("400", m_client, m_server->getParams()));
+	{
+		Response::send_error("400", m_client, m_server->getParams());
+		return (false);
+	}
 	if (m_header["protocol"] != PROTOCOL)
-		return (Response::send_error("505", m_client, m_server->getParams()));
-	Response::send_error("200", m_client, m_server->getParams());
-	
+	{
+		Response::send_error("505", m_client, m_server->getParams());
+		return (false);
+	}
+	// m_location = m_server->getLocation(m_header["uri"]); A METTRE DE PREFERENCE AVANT APPEL A CETTE FONCTION
+	if (!m_location->isAllowed(m_header["method"]))
+	{
+		Response::send_error("405", m_client, m_server->getParams());
+		return (false);
+	}
+	return (true);
 }
 
 void			Request::linkServer(std::vector<Server> & list)

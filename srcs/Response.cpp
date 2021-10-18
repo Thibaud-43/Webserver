@@ -7,7 +7,6 @@ Response::status_t	Response::_createStatus(void)
 {
 	Response::status_t	status;
 
-	status["100"] = "Continue";
 	status["200"] = "OK";
 	status["201"] = "Created";
 	status["301"] = "Moved Permanently";
@@ -59,12 +58,33 @@ void	Response::send_error(Response::status_code_t err, Client const * client, Lo
 		rep.append_to_body(SERV_NAME);
 		rep.append_to_body("</center>\n");
 		rep.append_to_body("</body>\n");
-		rep.append_to_body("</html>");
+		rep.append_to_body("</html>\n");
 	}
 	rep.add_content_length();
 	rep.append_to_header("Connection: close");
 	rep.send_to_client(client);
 	Client::closeConnexion(*client);
+}
+
+void	Response::redirect(Response::status_code_t red, Client const * client, Location const & location)
+{
+	Response	rep;
+
+	rep.start_header(red);
+	rep.append_to_header("Content-Type: text/html");
+	rep.append_to_body("<html>\n");
+	rep.append_to_body("<head><title>" + red + " " + Response::_status[red] + "</title></head>\n");
+	rep.append_to_body("<body bgcolor=\"white\">\n");
+	rep.append_to_body("<center><h1>" + red + " " + Response::_status[red] + "</h1></center>\n");
+	rep.append_to_body("<hr><center>");
+	rep.append_to_body(SERV_NAME);
+	rep.append_to_body("</center>\n");
+	rep.append_to_body("</body>\n");
+	rep.append_to_body("</html>\n");
+	rep.add_content_length();
+	rep.append_to_header("Connection: keep-alive");
+	rep.append_to_header("Location: " + location.getRedirectPath());
+	rep.send_to_client(client);
 }
 
 /*

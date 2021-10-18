@@ -37,6 +37,7 @@ class Response
 
 		Response &		operator=(Response const & rhs);
 		static void		send_error(status_code_t err, Client const * client, Location const & location);
+		static void		redirect(status_code_t red, Client const * client, Location const & location);
 
 	private:
 		static status_t	_status;

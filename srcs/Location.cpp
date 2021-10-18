@@ -50,10 +50,24 @@ Location &				Location::operator=( Location const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool	Location::isAllowed(std::string const & method) const
+{
+	for (Location::methods_t::const_iterator it = m_methods.begin(); it != m_methods.end(); it++)
+	{
+		if (*it == method)
+			return (true);
+	}
+	return (false);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+std::string const &						Location::getUri(void) const
+{
+	return (m_uri);
+}
 
 std::map<Location::err_code_t, Location::path_t> const &	Location::getErrPages(void) const
 {
@@ -75,7 +89,7 @@ std::vector<Location::file_t> const &	Location::getIndexes(void) const
 	return (m_indexes);
 }
 
-std::vector<std::string> const &		Location::getMethods(void) const
+Location::methods_t const &		Location::getMethods(void) const
 {
 	return (m_methods);
 }
@@ -93,9 +107,14 @@ std::string								Location::getStrMethods(void) const
 	return (str);
 }
 
-Location::redirect_t const &			Location::getRedirect(void) const
+Location::redirect_t const &	Location::getRedirectNum(void) const
 {
-	return (m_redirect);
+	return (m_redirect.first);
+}
+
+std::string const &	Location::getRedirectPath(void) const
+{
+	return (m_redirect.second);
 }
 
 bool									Location::autoindex(void) const

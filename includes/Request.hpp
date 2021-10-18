@@ -7,7 +7,7 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Response.hpp"
-
+# include "Location.hpp"
 
 class Request
 {
@@ -20,7 +20,7 @@ class Request
 		~Request();
 		Request &		operator=(Request const & rhs);
 		void			parse(void);
-		void			execute(void);
+		bool			check_header(void);
 		void			linkServer(std::vector<Server> & list);
 
 	private:
@@ -28,7 +28,9 @@ class Request
 		std::map<std::string, std::string>	m_header;
 		std::string							m_body;
 		Client const *						m_client;							
-		Server *							m_server;
+		Server const *						m_server;
+		Location const *					m_location;
+		std::string							m_path;
 
 		void								_parseRequestLine(void);				
 		void								_parseHeaders(void);

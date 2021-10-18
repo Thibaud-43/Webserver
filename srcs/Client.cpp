@@ -5,6 +5,7 @@ void	Client::closeConnexion(Client const & client)
 {
 	close(client.getFd());
     _list.erase(client);
+	// SUPPRIMER REQUETE AFFILIEE
 }
 
 /*
