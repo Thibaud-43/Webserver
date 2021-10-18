@@ -56,7 +56,7 @@ void    Tree::parseCluster(void)
 
     while(it != ite)
     {
-        if (this->isServer(it, ite) == true) // STRANGE FUNCITON MEMBER ?
+        if (Tree::isServer(it, ite) == true) // STRANGE FUNCITON MEMBER ? Thib told me to make it as a static
             {
                 currentNode = this->createServerNode(currentNode); // NODE FUNCTION MEMBER ??
                 // this->parseServer(currentNode, it, ite);

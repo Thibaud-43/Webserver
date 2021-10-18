@@ -21,8 +21,9 @@ class   Tree
         void    parseCluster(void);
         void    parseServer(Node *currentNode, std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
         void    parseLocation(Node *currentNode);
-        bool    isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
         Node*   createServerNode(Node *currentNode);
+
+        static bool    isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
 
         // void        displayTokens(void)const;
         // void        displayRoot(void)const;
