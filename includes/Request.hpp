@@ -23,9 +23,9 @@ class Request
 
 		Request &			operator=(Request const & rhs);
 		bool				manage(std::string & buffer, std::vector<Server> const & servers);
-		bool				execute(void);
 		Client const *		getClient(void) const;
 		bool				ready(void) const;
+		
 		
 		static	Request *	getRequestFromClient(Client const & client);
 		static	void		removeRequest(Request const & request);
@@ -47,6 +47,13 @@ class Request
 		void								_parseHeaders(std::string & buffer);
 		void								_parseBody(std::string & buffer);
 		void								_parseLine(std::string & token);
+		bool								_execute(void) const;
+		bool								_check_get(void) const;
+		bool								_GetOrHead(std::string const & method) const;
+		bool								_check_delete(void) const;
+		bool								_delete(void) const;
+		bool								_check_post(void) const;
+		bool								_post(void) const;
 
 		// DEBUG
 

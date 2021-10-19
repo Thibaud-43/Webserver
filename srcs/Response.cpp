@@ -28,9 +28,7 @@ Response::status_t	Response::_createStatus(void)
 	status["416"] = "Range Not Satisfiable";
 	status["417"] = "Expectation Failed";
 	status["500"] = "Internal Server Error";
-	status["501"] = "Not Implemented"; // RETIRER SI TOUTES METHODES GEREES
-	status["502"] = "Bad Gateway";
-	status["504"] = "Gateway Timeout";
+	status["501"] = "Not Implemented";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
 }

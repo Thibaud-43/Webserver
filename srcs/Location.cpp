@@ -122,7 +122,7 @@ bool									Location::autoindex(void) const
 	return (m_autoindex);
 }
 
-Location::file_t const &				Location::getCGIPass(void) const
+Location::cgi_t const &				Location::getCGIPass(void) const
 {
 	return (m_cgi_pass);
 }

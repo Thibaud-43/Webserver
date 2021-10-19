@@ -10,12 +10,13 @@ class Location
 {
 
 	public:
-		typedef std::string					err_code_t;
-		typedef std::string					path_t;
-		typedef std::string					file_t;
-		typedef size_t						body_size_t;
-		typedef std::string					redirect_t;
-		typedef std::vector<std::string>	methods_t;
+		typedef std::string						err_code_t;
+		typedef std::string						path_t;
+		typedef std::string						file_t;
+		typedef size_t							body_size_t;
+		typedef std::string						redirect_t;
+		typedef std::vector<std::string>		methods_t;
+		typedef std::map<std::string, file_t>	cgi_t;
 
 		Location();
 		Location( Location const & src );
@@ -33,8 +34,9 @@ class Location
 		redirect_t const &							getRedirectNum(void) const;
 		std::string const &							getRedirectPath(void) const;
 		bool										autoindex(void) const;
-		file_t const &								getCGIPass(void) const;
+		cgi_t const &								getCGIPass(void) const;
 		path_t const &								getUploadPath(void) const;
+		
 		bool										isAllowed(std::string const & method) const;
 
 	private:
@@ -46,7 +48,7 @@ class Location
 		methods_t							m_methods; // DEFAULT GET HEAD POST DELETE PUT
 		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT empty-empty
 		bool								m_autoindex; // DEFAULT true
-		file_t								m_cgi_pass; // DEFAULT NONE
+		cgi_t								m_cgi_pass; // DEFAULT NONE
 		path_t								m_upload_path; // DEFAULT .
 };
 

@@ -206,7 +206,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 	if (m_headerCompleted == true)
 	{
 		_parseBody(buffer);
-		execute();
+		_execute();
 	}
 	
 	// READY ?? 
@@ -271,13 +271,55 @@ void			Request::_linkServer(std::vector<Server> const & list)
 	return ;
 }
 
-bool	Request::execute(void)
+bool	Request::_execute(void) const
 {
-	Response::send_error("200", m_client, m_server->getParams());
+	std::string const & method = m_header.at("method");
 
-	// METHOD DISPATCH
+	if (method == "GET" || "HEAD")
+	{
+		if (_check_get() && _GetOrHead(method))
+			return (true);
+	}
+	else if (method == "DELETE")
+	{
+		// VERIFS
+		// DELETE
+	}
+	else if (method == "POST")
+	{
+		// VERIFS
+		// POST
+	}
+	else if (method == "PUT")
+	{
+		// VERIFS
+		// PUT
+	}
+	else
+		Response::send_error("501", m_client, *m_location);
+	return (false);
+}
 
+bool	Request::_check_get(void) const
+{
+	if (!exist(m_path))
+	{
+		Response::send_error("404", m_client, *m_location);
+		return (false);
+	}
+	if (!is_readable(m_path) )
+	{
+		Response::send_error("403", m_client, *m_location);
+		return (false);
+	}
 	return (true);
+}
+
+bool	Request::_GetOrHead(std::string const & method) const
+{
+	Response	rep;
+
+	rep.start_header("200");
 }
 
 /*
