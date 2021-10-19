@@ -47,7 +47,7 @@ class Location
 		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT empty-empty
 		bool								m_autoindex; // DEFAULT true
 		file_t								m_cgi_pass; // DEFAULT NONE
-		path_t								m_upload_path; // DEFAULT .
+		bool								m_upload; // DEFAULT false. (on/off)
 };
 
 #endif /* ******************************************************** LOCATION_H */
