@@ -200,6 +200,8 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 		m_location = m_server->getLocation(m_header["uri"]);
 		if (!_check_header())
 			return (false);
+		m_path = m_header["uri"];
+		m_path.replace(0, m_location->getUri().size(), m_location->getRoot());
 	}
 	if (m_headerCompleted == true)
 	{
