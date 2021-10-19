@@ -175,6 +175,8 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
             if (!request->manage(buff, m_servers))
                 Request::removeRequest(*request);
+		    Request::checkRequestAdvancement(*request);
+            
             break;
         }
     }

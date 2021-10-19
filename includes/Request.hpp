@@ -13,7 +13,9 @@ class Request
 {
 
 	public:
-		typedef std::list<Request>		list_type;
+		typedef std::list<Request>					list_type;
+		typedef std::map<std::string, std::string>	header_type;
+		typedef std::string							body_type;
 
 		//Request();
 		Request(Request const & src);
@@ -29,16 +31,19 @@ class Request
 		
 		static	Request *	getRequestFromClient(Client const & client);
 		static	void		removeRequest(Request const & request);
+		static void			checkRequestAdvancement(Request & request);
+		header_type &		getHeader(void) ;
+		body_type  &		getBody(void) ;
 
 	private:
-		std::map<std::string, std::string>	m_header;
+		header_type							m_header;
 		std::string							m_body;
 		Client const *						m_client;							
 		Server const *						m_server;
 		Location const *					m_location;
 		std::string							m_path;
 		bool								m_headerCompleted;
-		bool								m_ready;
+		bool								m_end;
 
 		static list_type					_list;
 		void								_linkServer(std::vector<Server> const & list);
