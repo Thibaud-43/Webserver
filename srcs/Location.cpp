@@ -6,6 +6,8 @@
 
 Location::Location()
 {
+	m_methods.push_back("GET");
+	m_methods.push_back("POST");
 }
 
 Location::Location( const Location & src )

@@ -17,6 +17,7 @@ Request *	Request::getRequestFromClient(Client const & client)
 
 void		Request::removeRequest(Request const & request)
 {
+	std::cout << "Request removed from list" << std::endl;
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
 		if (request.getClient() == (*it).getClient())
@@ -27,6 +28,34 @@ void		Request::removeRequest(Request const & request)
 	}
 }
 
+void							Request::checkRequestAdvancement(Request & request)
+{
+	header_type::iterator		contentLenght = request.getHeader().find("Content-Length");
+	header_type::iterator		transfertEncoding = request.getHeader().find("Transfert-encoding");
+
+	if (contentLenght == request.getHeader().end() && transfertEncoding == request.getHeader().end())
+	{
+		removeRequest(request);
+		return ;
+	}
+	else if (contentLenght != request.getHeader().end() && transfertEncoding == request.getHeader().end())
+	{
+		std::stringstream sstream(request.getHeader()["Content-Length"]);
+		size_t lenght;
+		sstream >> lenght;
+		if (request.getBody().size() == lenght)
+			removeRequest(request);
+		return ;
+	}
+	else if (contentLenght == request.getHeader().end() && transfertEncoding != request.getHeader().end())
+	{
+		return ;
+	}
+	else
+	{
+		return ;
+	}
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -189,6 +218,7 @@ void			Request::_printHex(std::string & token)
 	}
 }
 
+
 bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 {
 	if (m_header.empty())
@@ -289,10 +319,13 @@ Client const *	Request::getClient(void) const
 	return m_client;
 }
 
-bool			Request::ready(void) const
+Request::header_type  &		Request::getHeader(void) 
 {
-	return (m_ready);
+	return m_header;
 }
 
-	
+Request::body_type  &		Request::getBody(void) 
+{
+	return m_body;
+}	
 /* ************************************************************************** */
