@@ -18,10 +18,7 @@ class   Tree
         Node*       getRoot(void) const;
         Tokenizer   getTokens(void) const;
 
-        void    parseCluster(void);
-        void    parseServer(Node *currentNode, std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
-        void    parseLocation(Node *currentNode);
-        Node*   createServerNode(Node *currentNode);
+        int     parseCluster(void);
 
         static bool    isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
 

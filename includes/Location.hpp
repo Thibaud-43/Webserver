@@ -34,7 +34,7 @@ class Location
 		std::string const &							getRedirectPath(void) const;
 		bool										autoindex(void) const;
 		file_t const &								getCGIPass(void) const;
-		path_t const &								getUploadPath(void) const;
+		bool										getUpload(void) const;
 		bool										isAllowed(std::string const & method) const;
 
 	private:
