@@ -74,7 +74,7 @@ std::vector<std::string>	Server::getNames(void) const
 	return m_names;
 }
 
-Location						Server::getParams(void) const
+Location const &			Server::getParams(void) const
 {
 	return (m_params);
 }

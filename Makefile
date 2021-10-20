@@ -1,6 +1,6 @@
 NAME		=	a.out
 CC			=	clang++
-CFLAGS		=	#-g -fsanitize=address -Wall -Wextra -Werror -std=c++98
+CFLAGS		=	-g -fsanitize=address #-Wall -Wextra -Werror -std=c++98
 RM			=	rm -rf
 SRC_DIR 	= 	srcs
 SRC		 	=	$(notdir $(shell find $(SRC_DIR) -type f -name *.cpp))

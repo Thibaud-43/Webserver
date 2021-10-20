@@ -1,14 +1,14 @@
 #include "File.hpp"
 
-std::vector<std::string>	currentFiles(File::path_t const & directory)
+std::vector<std::string>	File::currentFiles(File::path_t const & directory)
 {
 	DIR *dir;
 	struct dirent *diread;
     std::vector<std::string> files;
 
-    if (dir = opendir(directory.data()))
+    if ((dir = opendir(directory.data())))
 	{
-        while (diread = readdir(dir))
+        while ((diread = readdir(dir)))
 		{
 			if (diread->d_name[0] != '.')
 				files.push_back(diread->d_name);
@@ -112,15 +112,6 @@ std::string	File::size_str(void) const
 
 	ss << s;
 	return (ss.str());	
-}
-
-time_t	File::last_access(void) const
-{
-	struct stat	s;
-
-	if (stat(m_path.data(), &s) == 0)
-		return (s.st_atime);
-	return (-1);
 }
 
 time_t	File::last_access(void) const

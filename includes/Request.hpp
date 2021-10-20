@@ -31,10 +31,12 @@ class Request
 		
 		
 		static	Request *	getRequestFromClient(Client const & client);
+		static  Request *	createRequest(Client const & client);
 		static	void		removeRequest(Request const & request);
-		static void			checkRequestAdvancement(Request & request);
+		static	void		unChunked(std::string & str);
 		header_type &		getHeader(void) ;
 		body_type  &		getBody(void) ;
+		bool				getHeaderCompleted(void);
 
 	private:
 		header_type							m_header;
@@ -48,18 +50,22 @@ class Request
 
 		static list_type					_list;
 		void								_linkServer(std::vector<Server> const & list);
-		bool								_check_header(void);
-		void								_parseRequestLine(std::string & buffer);				
-		void								_parseHeaders(std::string & buffer);
-		void								_parseBody(std::string & buffer);
-		void								_parseLine(std::string & token);
+		void								_linkPath(void);
+		void								_linkLocation(void);
+		bool								_parseHeader(void);
+		void								_bufferToRequestLine(std::string & buffer);				
+		void								_bufferToHeader(std::string & buffer);
+		void								_bufferToBody(std::string & buffer);
+		void								_bufferToHeaderLine(std::string & token);
+		bool								_checkRequestAdvancement(void);
+		bool								_checkBodySize(void);
+		bool								_checkChunkAdvancement(void);
 		bool								_execute(void) const;
+
+		// TOM
 		bool								_check_get(void) const;
-		bool								_Get(std::string const & method) const;
-		bool								_check_delete(void) const;
-		bool								_delete(void) const;
-		bool								_check_post(void) const;
-		bool								_post(void) const;
+		bool								_get(std::string const & method) const;
+
 
 		// DEBUG
 

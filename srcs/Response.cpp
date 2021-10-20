@@ -85,7 +85,7 @@ bool	Response::redirect(Response::status_code_t const & red, std::string const &
 	return (true);
 }
 	
-bool		send_index(std::string const & directory, Client const * client, Location const * location)
+bool	Response::send_index(std::string const & directory, Client const * client, Location const * location)
 {
 	Location::indexes_t const & indexes = location->getIndexes();
 	File						current;

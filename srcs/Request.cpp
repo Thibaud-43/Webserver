@@ -7,17 +7,19 @@ Request *	Request::getRequestFromClient(Client const & client)
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
 		if (&client == (*it).getClient())
-		{
 			return (&(*it));
-		}
 	}
+	return (NULL);
+}
+
+Request *	Request::createRequest(Client const & client)
+{
 	_list.push_front(Request(&client));
 	return &(*(_list.begin()));
 }
 
 void		Request::removeRequest(Request const & request)
 {
-	std::cout << "Request removed from list" << std::endl;
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
 		if (request.getClient() == (*it).getClient())
@@ -28,32 +30,82 @@ void		Request::removeRequest(Request const & request)
 	}
 }
 
-void							Request::checkRequestAdvancement(Request & request)
+void		Request::unChunked(std::string & str)
 {
-	header_type::iterator		contentLenght = request.getHeader().find("Content-Length");
-	header_type::iterator		transfertEncoding = request.getHeader().find("Transfert-encoding");
+	std::string		delimiter = "\r\n";
+	std::string		chunkSizeStr = str.substr(0, str.find(delimiter));
+	std::string		newStr = "";
+	int				chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
+	int				i = 0;
 
-	if (contentLenght == request.getHeader().end() && transfertEncoding == request.getHeader().end())
+	while (chunkSizeInt)
 	{
-		removeRequest(request);
-		return ;
+		i = str.find(delimiter, i) + delimiter.length();
+		newStr += str.substr(i, chunkSizeInt);
+		i += chunkSizeInt + delimiter.length();
+		chunkSizeStr = str.substr(i, str.find(delimiter));
+		chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
 	}
-	else if (contentLenght != request.getHeader().end() && transfertEncoding == request.getHeader().end())
+	str = newStr;
+}
+
+
+bool							Request::_checkBodySize(void)
+{
+	std::stringstream sstream(this->getHeader()["Content-Length"]);
+	size_t lenght;
+	sstream >> lenght;
+	if (this->getBody().size() == lenght)
 	{
-		std::stringstream sstream(request.getHeader()["Content-Length"]);
-		size_t lenght;
-		sstream >> lenght;
-		if (request.getBody().size() == lenght)
-			removeRequest(request);
-		return ;
+		std::cout << " REMOVE LIST --> DETECT RECEIVE FULL BODY" << std::endl;
+		return (true);
 	}
-	else if (contentLenght == request.getHeader().end() && transfertEncoding != request.getHeader().end())
+	return (false);
+}
+bool							Request::_checkChunkAdvancement(void)
+{
+	std::string			s = this->getBody();
+	std::string 		delimiter = "\r\n";
+	std::string 		token;
+	size_t				pos;
+	while((pos = s.find(delimiter)) != std::string::npos)
 	{
-		return ;
+		token = s.substr(0, pos);
+		s.erase(0, pos + delimiter.length());
+		if (token == "0")
+		{
+			std::cout << " REMOVE LIST --> DETECT CHUNK END " << std::endl;
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool							Request::_checkRequestAdvancement(void)
+{
+	header_type::iterator		contentLenght = this->getHeader().find("Content-Length");
+	header_type::iterator		transfertEncoding = this->getHeader().find("Transfer-Encoding");
+
+	if (!this->getHeaderCompleted())
+	{
+		return false;
+	}
+	else if (contentLenght == this->getHeader().end() && transfertEncoding == this->getHeader().end())
+	{
+		std::cout << "REMOVE LIST --> NO BODY TO RECEIVE" << std::endl;
+		return true;
+	}
+	else if (contentLenght != this->getHeader().end() && transfertEncoding == this->getHeader().end())
+	{
+		return _checkBodySize();
+	}
+	else if (contentLenght == this->getHeader().end() && transfertEncoding != this->getHeader().end())
+	{
+		return _checkChunkAdvancement();;
 	}
 	else
 	{
-		return ;
+		return false;
 	}
 }
 /*
@@ -70,7 +122,7 @@ Request::Request(Client const * client): m_client(client), m_headerCompleted(fal
 	m_server = NULL;
 }
 
-Request::Request( const Request & src ): m_header(src.m_header), m_body(src.m_body), m_client(src.m_client), m_server(src.m_server)
+Request::Request( const Request & src ): m_header(src.m_header), m_body(src.m_body), m_client(src.m_client), m_server(src.m_server), m_headerCompleted(src.m_headerCompleted)
 {
 
 }
@@ -120,7 +172,7 @@ std::ostream &			operator<<( std::ostream & o, Request const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void			Request::_parseRequestLine(std::string & buffer)
+void			Request::_bufferToRequestLine(std::string & buffer)
 {
 	std::string delimiter1 = "\r\n";
 	std::string delimiter2 = " ";
@@ -149,47 +201,49 @@ void			Request::_parseRequestLine(std::string & buffer)
 	buffer.erase(0, buffer.find(delimiter1) + delimiter1.length());
 }		
 
-void			Request::_parseLine(std::string & token)
+void			Request::_bufferToHeaderLine(std::string & token)
 {
 	std::string delimiter = ": ";
 	size_t		pos = token.find(delimiter);
 	m_header.insert(std::pair<std::string, std::string>(token.substr(0, pos), token.substr(pos + delimiter.length(), token.length() - 1)));
 }
 
-void			Request::_parseHeaders(std::string & buffer)
+void			Request::_bufferToHeader(std::string & buffer)
 {
 	std::string delimiter = "\r\n";
 	std::string delimiter2 = "\r\n\r\n";
 	size_t pos = 0;
 	std::string	token;
-    if (buffer.empty())
-    {
-        return ;
-    }
+
+	if (m_header.empty())
+		_bufferToRequestLine(buffer);
+	if (buffer == delimiter)
+	{
+		buffer = "";
+		m_headerCompleted = true;
+		return ;
+	}
+
 	while ((pos = buffer.find(delimiter)) != std::string::npos && pos != buffer.find(delimiter2)) 
 	{
 		token = buffer.substr(0, pos);
-		_parseLine(token);
+		_bufferToHeaderLine(token);
 		buffer.erase(0, pos + delimiter.length());
 	}
-	token = buffer.substr(0, pos);
-	_parseLine(token);
 	if (buffer.find(delimiter2) != std::string::npos)
 	{
 		token = buffer.substr(0, pos);
-		_parseLine(token);
+		_bufferToHeaderLine(token);
 		buffer.erase(0, pos + delimiter2.length());
 		m_headerCompleted = true;
 	}
 	else
 	{
-		token = buffer.substr(0, pos);
-		_parseLine(token);
-		buffer.erase(0, pos + delimiter.length());
+		m_headerCompleted = false;
 	}
 }
 
-void			Request::_parseBody(std::string & buffer)
+void			Request::_bufferToBody(std::string & buffer)
 {
 	m_body = buffer;
 }
@@ -220,34 +274,34 @@ void			Request::_printHex(std::string & token)
 
 bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 {
-	if (m_header.empty())
-		_parseRequestLine(buffer);
 	if (m_headerCompleted == false)
 	{
-		_parseHeaders(buffer);
-        _linkServer(servers);
-		m_location = m_server->getLocation(m_header["uri"]);
-		if (!_check_header())
-			return (false);
-		m_path = m_header["uri"];
-		m_path.replace(0, m_location->getUri().size(), m_location->getRoot());
+		_bufferToHeader(buffer);
+		if (m_headerCompleted == true)
+		{
+			_linkServer(servers);
+			_linkLocation();
+			_linkPath();
+			if (!_parseHeader())
+				return (true);
+		}
 	}
 	if (m_headerCompleted == true)
 	{
-		_parseBody(buffer);
-		_execute();
+		_bufferToBody(buffer);
+		_printHeader();
+		_printBody();
+		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
+			unChunked(m_body);
+		_printBody();
+		if (!_execute())
+			return (true);
+		return _checkRequestAdvancement();
 	}
-	
-	// READY ?? 
-
-	// DEBUG
-	_printHeader();
-	_printBody();
-
-	return (true);
+	return (false);
 }
 
-bool	Request::_check_header(void)
+bool	Request::_parseHeader(void)
 {
 	if (m_header.empty())
 	{
@@ -266,6 +320,16 @@ bool	Request::_check_header(void)
 	}
 	return (true);
 }
+void			Request::_linkLocation(void)
+{
+	m_location = m_server->getLocation(m_header["uri"]);
+}
+
+void			Request::_linkPath(void)
+{
+	m_path = m_header["uri"];
+	m_path.replace(0, m_location->getUri().size(), m_location->getRoot());
+}
 
 void			Request::_linkServer(std::vector<Server> const & list)
 {
@@ -274,6 +338,8 @@ void			Request::_linkServer(std::vector<Server> const & list)
 	std::string	server_name;
 	std::string	port;
 
+	if (m_header.find("Host") == m_header.end())
+		return ;
 	pos = m_header["Host"].find(delimiter);
 	if (pos > m_header["Host"].length())
 	{
@@ -306,7 +372,7 @@ bool	Request::_execute(void) const
 
 	if (method == "GET")
 	{
-		if (_check_get() && _Get(method))
+		if (_check_get() && _get(method))
 			return (true);
 	}
 	else if (method == "DELETE")
@@ -340,16 +406,17 @@ bool	Request::_check_get(void) const
 	}
 	else if (file.is_directory())
 	{
-		if (*m_path.rend() != '/')
-			Response::redirect("302", m_path + "/" ,m_client);
+		if (*(m_path.end() - 1) != '/')
+			Response::redirect("302", m_path + "/" , m_client);
 		else if (m_location->autoindex())
 			Response::send_index(m_path, m_client, m_location);
 		return (false);
 	}
+	std::cout << "message: GET\n";
 	return (true);
 }
 
-bool	Request::_Get(std::string const & method) const
+bool	Request::_get(std::string const & method) const
 {
 	Response	rep;
 
@@ -357,6 +424,7 @@ bool	Request::_Get(std::string const & method) const
 	rep.append_to_body("THIBAUD GROSSE PUTE\n");
 	rep.add_content_length();
 	rep.send_to_client(m_client);
+	return (false);
 }
 
 /*
@@ -376,5 +444,11 @@ Request::header_type  &		Request::getHeader(void)
 Request::body_type  &		Request::getBody(void) 
 {
 	return m_body;
-}	
+}
+
+bool				Request::getHeaderCompleted(void)
+{
+	return m_headerCompleted;
+}
+
 /* ************************************************************************** */
