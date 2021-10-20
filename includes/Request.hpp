@@ -31,9 +31,9 @@ class Request
 		
 		static	Request *	getRequestFromClient(Client const & client);
 		static	void		removeRequest(Request const & request);
-		static void			checkRequestAdvancement(Request & request);
 		header_type &		getHeader(void) ;
 		body_type  &		getBody(void) ;
+		bool				getHeaderCompleted(void);
 
 	private:
 		header_type							m_header;
@@ -47,12 +47,16 @@ class Request
 
 		static list_type					_list;
 		void								_linkServer(std::vector<Server> const & list);
-		bool								_check_header(void);
-		void								_parseRequestLine(std::string & buffer);				
-		void								_parseHeaders(std::string & buffer);
-		void								_parseBody(std::string & buffer);
-		void								_parseLine(std::string & token);
-
+		void								_linkPath(void);
+		void								_linkLocation(void);
+		bool								_parseHeader(void);
+		void								_bufferToRequestLine(std::string & buffer);				
+		void								_bufferToHeader(std::string & buffer);
+		void								_bufferToBody(std::string & buffer);
+		void								_bufferToHeaderLine(std::string & token);
+		bool								_checkRequestAdvancement(void);
+		bool								_checkBodySize(void);
+		bool								_checkChunkAdvancement(void);
 		// DEBUG
 
 		void								_printHeader(void);

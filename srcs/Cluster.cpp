@@ -174,11 +174,8 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
             Client const 	*client = Client::getClientFromFd(eventFd);
             Request			*request = Request::getRequestFromClient(*client);
 
-            if (!request->manage(buff, m_servers))
+            if (request->manage(buff, m_servers))
                 Request::removeRequest(*request);
-		    Request::checkRequestAdvancement(*request);
-
-            
             break;
         }
     }
