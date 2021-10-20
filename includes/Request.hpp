@@ -31,6 +31,7 @@ class Request
 		
 		static	Request *	getRequestFromClient(Client const & client);
 		static	void		removeRequest(Request const & request);
+		static	void		unChunked(std::string & str);
 		header_type &		getHeader(void) ;
 		body_type  &		getBody(void) ;
 		bool				getHeaderCompleted(void);

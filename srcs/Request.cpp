@@ -32,6 +32,25 @@ void		Request::removeRequest(Request const & request)
 	}
 }
 
+void		Request::unChunked(std::string & str)
+{
+	std::string		delimiter = "\r\n";
+	std::string		chunkSizeStr = str.substr(0, str.find(delimiter));
+	std::string		newStr = "";
+	int				chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
+	int				i = 0;
+
+	while (chunkSizeInt)
+	{
+		i = str.find(delimiter, i) + delimiter.length();
+		newStr += str.substr(i, chunkSizeInt);
+		i += chunkSizeInt + delimiter.length();
+		chunkSizeStr = str.substr(i, str.find(delimiter));
+		chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
+	}
+	str = newStr;
+}
+
 
 bool							Request::_checkBodySize(void)
 {
@@ -274,6 +293,9 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 	{
 		_bufferToBody(buffer);
 		_printHeader();
+		_printBody();
+		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
+			unChunked(m_body);
 		_printBody();
 		if (!execute())
 			return (true);
