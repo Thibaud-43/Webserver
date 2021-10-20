@@ -6,9 +6,13 @@
 # include <sstream>
 # include <map>
 # include <ctime>
+# include <sys/types.h>
+# include <sys/stat.h>
 # include <unistd.h>
+# include <fstream>
 # include "Client.hpp"
 # include "Location.hpp"
+# include "File.hpp"
 
 # define PROTOCOL "HTTP/1.1"
 # define SERV_NAME "Webserv/1.0.0"
@@ -36,8 +40,9 @@ class Response
 		void		clear(void);
 
 		Response &		operator=(Response const & rhs);
-		static void		send_error(status_code_t const & err, Client const * client, Location const & location);
-		static void		redirect(status_code_t const & red, std::string const & location, Client const * client);
+		static bool		send_error(status_code_t const & err, Client const * client, Location const * location);
+		static bool		redirect(status_code_t const & red, std::string const & location, Client const * client);
+		static bool		send_index(std::string const & directory, Client const * client, Location const * location);
 
 	private:
 		static status_t	_status;
@@ -47,13 +52,8 @@ class Response
 		static status_t	_createStatus(void);
 };
 
-
 std::ostream &	operator<<( std::ostream & o, Response const & i );
 std::string		HTTPDate(void);
 std::string		OSName(void);
-bool			exist(std::string const & file);
-bool			is_readable(std::string const & file);
-bool			is_writable(std::string const & file);
-bool			is_executable(std::string const & file);
 
 #endif /* ******************************************************** RESPONSE_H */

@@ -86,7 +86,7 @@ Location::path_t const &				Location::getRoot(void) const
 	return (m_root);
 }
 
-std::vector<Location::file_t> const &	Location::getIndexes(void) const
+Location::indexes_t const &	Location::getIndexes(void) const
 {
 	return (m_indexes);
 }

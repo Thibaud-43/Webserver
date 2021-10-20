@@ -16,6 +16,7 @@ class Location
 		typedef size_t							body_size_t;
 		typedef std::string						redirect_t;
 		typedef std::vector<std::string>		methods_t;
+		typedef methods_t						indexes_t;
 		typedef std::map<std::string, file_t>	cgi_t;
 
 		Location();
@@ -28,7 +29,7 @@ class Location
 		std::map<err_code_t, path_t> const &		getErrPages(void) const;
 		body_size_t const &							getBodySize(void) const;
 		path_t const &								getRoot(void) const;
-		std::vector<file_t> const &					getIndexes(void) const;
+		indexes_t const &							getIndexes(void) const;
 		methods_t const &							getMethods(void) const;
 		std::string									getStrMethods(void) const;
 		redirect_t const &							getRedirectNum(void) const;

@@ -4,6 +4,7 @@
 # include <iostream>
 # include <string>
 # include <map>
+# include "File.hpp"
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Response.hpp"
@@ -54,7 +55,7 @@ class Request
 		void								_parseLine(std::string & token);
 		bool								_execute(void) const;
 		bool								_check_get(void) const;
-		bool								_GetOrHead(std::string const & method) const;
+		bool								_Get(std::string const & method) const;
 		bool								_check_delete(void) const;
 		bool								_delete(void) const;
 		bool								_check_post(void) const;

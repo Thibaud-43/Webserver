@@ -1,5 +1,5 @@
 #include "Response.hpp"
-#include <fstream>
+
 
 Response::status_t Response::_status = Response::_createStatus();
 
@@ -33,23 +33,18 @@ Response::status_t	Response::_createStatus(void)
 	return (status);
 }
 
-void	Response::send_error(Response::status_code_t const & err, Client const * client, Location const & location)
+bool	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)
 {
-	Response	rep;
-
-	rep.start_header(err);
-	if (err == "405")
-		rep.append_to_header("Allow: " + location.getStrMethods());
-	// AUTRES LIGNES POUR AUTRES ERREURS ?
-	if (location.getErrPages().find(err) != location.getErrPages().end() && is_readable(location.getErrPages().at(err)))
-	{
-		// CGI ??
-		// CONTENT-type ?
-		rep.fill_body(location.getErrPages().at(err));
-	}
+	if (location->getErrPages().find(err) != location->getErrPages().end())
+		return (Response::redirect("302", location->getErrPages().at(err), client));
 	else
 	{
-		rep.append_to_header("Content-Type: text/html");
+		Response	rep;
+
+		rep.start_header(err);
+		if (err == "405")
+			rep.append_to_header("Allow: " + location->getStrMethods());
+		// AUTRES LIGNES POUR AUTRES ERREURS ?
 		rep.append_to_body("<html>\n");
 		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
 		rep.append_to_body("<body bgcolor=\"white\">\n");
@@ -59,19 +54,20 @@ void	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_body("</center>\n");
 		rep.append_to_body("</body>\n");
 		rep.append_to_body("</html>\n");
-	}
-	rep.add_content_length();
-	rep.append_to_header("Connection: close");
-	rep.send_to_client(client);
-	Client::closeConnexion(*client);
+		rep.append_to_header("Content-Type: text/html");
+		rep.add_content_length();
+		rep.append_to_header("Connection: close");
+		rep.send_to_client(client);
+		Client::closeConnexion(*client);
+	}	
+	return (false);
 }
 
-void	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
+bool	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
 {
 	Response	rep;
 
 	rep.start_header(red);
-	rep.append_to_header("Content-Type: text/html");
 	rep.append_to_body("<html>\n");
 	rep.append_to_body("<head><title>" + red + " " + Response::_status[red] + "</title></head>\n");
 	rep.append_to_body("<body bgcolor=\"white\">\n");
@@ -81,10 +77,50 @@ void	Response::redirect(Response::status_code_t const & red, std::string const &
 	rep.append_to_body("</center>\n");
 	rep.append_to_body("</body>\n");
 	rep.append_to_body("</html>\n");
+	rep.append_to_header("Content-Type: text/html");
 	rep.add_content_length();
 	rep.append_to_header("Connection: keep-alive");
 	rep.append_to_header("Location: " + location);
 	rep.send_to_client(client);
+	return (true);
+}
+	
+bool		send_index(std::string const & directory, Client const * client, Location const * location)
+{
+	Location::indexes_t const & indexes = location->getIndexes();
+	File						current;
+
+	for (Location::indexes_t::const_iterator it = indexes.begin(); it != indexes.end(); it++)
+	{
+		current.setPath(directory + *it);
+		if (current.is_regular())
+			return (Response::redirect("301", current.getPath(), client));
+	}
+	Response						rep;
+	std::vector<std::string> const	files = File::currentFiles(directory);
+
+	rep.start_header("200");
+	rep.append_to_body("<html>\n");
+	rep.append_to_body("<head><title>Index of /</title></head>\n");
+	rep.append_to_body("<body bgcolor=\"white\">\n");
+	rep.append_to_body("<h1>Index of " + directory + "</h1><hr><pre><a href=\"../\">../</a>\n");
+	for (std::vector<std::string>::const_iterator it = files.begin(); it != files.end(); it++)
+	{
+		current.setPath(directory + *it);
+		rep.append_to_body("<a href=\"" + *it + "\">" + *it + "</a>\t\t\t\t\t\t\t\t");
+		rep.append_to_body(current.last_modification_str() + "\t\t\t\t");
+		if (current.is_regular())
+			rep.append_to_body(current.size_str() + "\n");
+		else
+			rep.append_to_body("-\n");
+	}
+	rep.append_to_body("</pre><hr></body>\n");
+	rep.append_to_body("</html>\n");
+	rep.append_to_header("Content-Type: text/html");
+	rep.append_to_header("Connection: keep-alive");
+	rep.add_content_length();
+	rep.send_to_client(client);
+	return (true);
 }
 
 /*
@@ -219,24 +255,4 @@ std::string	OSName(void)
     #else
  	   return ("Other");
     #endif
-}
-
-bool	exist(std::string const & file)
-{
-	return (!access(file.data(), F_OK) ? true : false);
-}
-
-bool	is_readable(std::string const & file)
-{
-	return (!access(file.data(), R_OK) ? true : false);
-}
-
-bool	is_writable(std::string const & file)
-{
-	return (!access(file.data(), W_OK) ? true : false);
-}
-
-bool	is_executable(std::string const & file)
-{
-	return (!access(file.data(), X_OK) ? true : false);
 }

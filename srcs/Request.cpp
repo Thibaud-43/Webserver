@@ -218,7 +218,6 @@ void			Request::_printHex(std::string & token)
 	}
 }
 
-
 bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 {
 	if (m_header.empty())
@@ -252,17 +251,17 @@ bool	Request::_check_header(void)
 {
 	if (m_header.empty())
 	{
-		Response::send_error("400", m_client, m_server->getParams());
+		Response::send_error("400", m_client, &m_server->getParams());
 		return (false);
 	}
 	if (m_header["protocol"] != PROTOCOL)
 	{
-		Response::send_error("505", m_client, m_server->getParams());
+		Response::send_error("505", m_client, &m_server->getParams());
 		return (false);
 	}
 	if (!m_location->isAllowed(m_header["method"]))
 	{
-		Response::send_error("405", m_client, m_server->getParams());
+		Response::send_error("405", m_client, &m_server->getParams());
 		return (false);
 	}
 	return (true);
@@ -305,9 +304,9 @@ bool	Request::_execute(void) const
 {
 	std::string const & method = m_header.at("method");
 
-	if (method == "GET" || "HEAD")
+	if (method == "GET")
 	{
-		if (_check_get() && _GetOrHead(method))
+		if (_check_get() && _Get(method))
 			return (true);
 	}
 	else if (method == "DELETE")
@@ -320,36 +319,44 @@ bool	Request::_execute(void) const
 		// VERIFS
 		// POST
 	}
-	else if (method == "PUT")
-	{
-		// VERIFS
-		// PUT
-	}
 	else
-		Response::send_error("501", m_client, *m_location);
+		Response::send_error("501", m_client, m_location);
 	return (false);
 }
 
 bool	Request::_check_get(void) const
 {
-	if (!exist(m_path))
+	File const	file(m_path);
+
+	if (!file.exist())
 	{
-		Response::send_error("404", m_client, *m_location);
+		Response::send_error("404", m_client, m_location);
 		return (false);
 	}
-	if (!is_readable(m_path) )
+	else if (!file.is_readable())
 	{
-		Response::send_error("403", m_client, *m_location);
+		Response::send_error("403", m_client, m_location);
+		return (false);
+	}
+	else if (file.is_directory())
+	{
+		if (*m_path.rend() != '/')
+			Response::redirect("302", m_path + "/" ,m_client);
+		else if (m_location->autoindex())
+			Response::send_index(m_path, m_client, m_location);
 		return (false);
 	}
 	return (true);
 }
 
-bool	Request::_GetOrHead(std::string const & method) const
+bool	Request::_Get(std::string const & method) const
 {
 	Response	rep;
 
 	rep.start_header("200");
+	rep.append_to_body("THIBAUD GROSSE PUTE\n");
+	rep.add_content_length();
+	rep.send_to_client(m_client);
 }
 
 /*
