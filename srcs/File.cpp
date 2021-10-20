@@ -135,8 +135,10 @@ time_t	File::last_modification(void) const
 std::string	File::last_modification_str(void) const
 {
 	time_t	tm = last_modification();
+	std::string	ret(ctime(&tm));
 
-	return (ctime(&tm));	
+	ret.resize(ret.size() - 1);
+	return (ret);	
 }
 
 /*

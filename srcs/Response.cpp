@@ -107,8 +107,8 @@ bool	Response::send_index(std::string const & directory, Client const * client, 
 	for (std::vector<std::string>::const_iterator it = files.begin(); it != files.end(); it++)
 	{
 		current.setPath(directory + *it);
-		rep.append_to_body("<a href=\"" + *it + "\">" + *it + "</a>\t\t\t\t\t\t\t\t");
-		rep.append_to_body(current.last_modification_str() + "\t\t\t\t");
+		rep.append_to_body("<a href=\"" + *it + "\">" + *it + "</a>\t\t\t\t");
+		rep.append_to_body(current.last_modification_str() + "\t\t");
 		if (current.is_regular())
 			rep.append_to_body(current.size_str() + "\n");
 		else
