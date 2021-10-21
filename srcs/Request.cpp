@@ -172,11 +172,21 @@ std::ostream &			operator<<( std::ostream & o, Request const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool		Request::_checkBufferCharacters(std::string & str)
+{
+	for (std::string ::iterator it = str.begin(); it != str.end(); it++)
+	{
+		if (isprint(int(*it)))
+			return (true);
+	}
+	return (false);
+	
+}
+
 void			Request::_bufferToRequestLine(std::string & buffer)
 {
 	std::string delimiter1 = "\r\n";
 	std::string delimiter2 = " ";
-
 	std::string s = buffer.substr(0, buffer.find(delimiter1));
 	size_t	count = 0;
 	size_t pos = 0;
@@ -215,15 +225,12 @@ void			Request::_bufferToHeader(std::string & buffer)
 	size_t pos = 0;
 	std::string	token;
 
-	if (m_header.empty())
-		_bufferToRequestLine(buffer);
 	if (buffer == delimiter)
 	{
 		buffer = "";
 		m_headerCompleted = true;
 		return ;
 	}
-
 	while ((pos = buffer.find(delimiter)) != std::string::npos && pos != buffer.find(delimiter2)) 
 	{
 		token = buffer.substr(0, pos);
@@ -276,23 +283,27 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 {
 	if (m_headerCompleted == false)
 	{
+		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
+		{
+			Response::send_error("400", m_client);
+			return (true);
+		}
+		if (m_header.empty())
+			_bufferToRequestLine(buffer);	
 		_bufferToHeader(buffer);
 		if (m_headerCompleted == true)
 		{
-			_linkServer(servers);
-			_linkLocation();
-			_linkPath();
-			if (!_parseHeader())
+			if (!_checkHeader(servers))
 				return (true);
 		}
 	}
 	if (m_headerCompleted == true)
 	{
 		_bufferToBody(buffer);
-		_printHeader();
 		_printBody();
 		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 			unChunked(m_body);
+		_printHeader();
 		_printBody();
 		if (!_execute())
 			return (true);
@@ -301,25 +312,51 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 	return (false);
 }
 
-bool	Request::_parseHeader(void)
+bool	Request::_checkHeader(std::vector<Server> const & servers)
 {
-	if (m_header.empty())
+	if (_checkRequestLine() == false || _checkHost() == false)
+		return (false);
+	_linkServer(servers);
+	_linkLocation();
+	_linkPath();
+	if (!m_location->isAllowed(m_header["method"]))
 	{
 		Response::send_error("400", m_client, &m_server->getParams());
 		return (false);
 	}
-	if (m_header["protocol"] != PROTOCOL)
+	return (true);
+}
+
+
+bool	Request::_checkHost(void)
+{
+	if (m_header["Host"].empty())
 	{
-		Response::send_error("505", m_client, &m_server->getParams());
-		return (false);
-	}
-	if (!m_location->isAllowed(m_header["method"]))
-	{
-		Response::send_error("405", m_client, &m_server->getParams());
+		Response::send_error("400", m_client);
 		return (false);
 	}
 	return (true);
 }
+bool	Request::_checkRequestLine(void)
+{
+	if (m_header.empty() || m_header["protocol"].empty() || m_header["method"].empty() || m_header["uri"].empty())
+	{
+		Response::send_error("400", m_client);
+		return (false);
+	}
+	if (m_header["protocol"] != PROTOCOL)
+	{
+		Response::send_error("505", m_client);
+		return (false);
+	}
+	if (m_header["method"] != "GET" && m_header["method"] != "POST" && m_header["method"] != "DELETE")
+	{
+		Response::send_error("400", m_client);
+		return (false);
+	}
+	return (true);
+}
+
 void			Request::_linkLocation(void)
 {
 	m_location = m_server->getLocation(m_header["uri"]);
@@ -362,7 +399,7 @@ void			Request::_linkServer(std::vector<Server> const & list)
 			return ;
 		}
 	}
-	m_server = NULL;
+	m_server = &(*list.begin());
 	return ;
 }
 

@@ -32,6 +32,28 @@ Response::status_t	Response::_createStatus(void)
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
 }
+bool	Response::send_error(Response::status_code_t const & err, Client const * client)
+{
+		Response	rep;
+
+		rep.start_header(err);
+		// AUTRES LIGNES POUR AUTRES ERREURS ?
+		rep.append_to_body("<html>\n");
+		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
+		rep.append_to_body("<body bgcolor=\"white\">\n");
+		rep.append_to_body("<center><h1>" + err + " " + Response::_status[err] + "</h1></center>\n");
+		rep.append_to_body("<hr><center>");
+		rep.append_to_body(SERV_NAME);
+		rep.append_to_body("</center>\n");
+		rep.append_to_body("</body>\n");
+		rep.append_to_body("</html>\n");
+		rep.append_to_header("Content-Type: text/html");
+		rep.add_content_length();
+		rep.append_to_header("Connection: close");
+		rep.send_to_client(client);
+		Client::closeConnexion(*client);
+	return (false);
+}
 
 bool	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)
 {

@@ -41,6 +41,7 @@ class Response
 
 		Response &		operator=(Response const & rhs);
 		static bool		send_error(status_code_t const & err, Client const * client, Location const * location);
+		static bool		send_error(Response::status_code_t const & err, Client const * client);
 		static bool		redirect(status_code_t const & red, std::string const & location, Client const * client);
 		static bool		send_index(std::string const & directory, Client const * client, Location const * location);
 
