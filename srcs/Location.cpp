@@ -12,13 +12,13 @@ Location::Location()
 	m_body_size = 1000000;
 	m_root = ".";
 	m_autoindex = true;
-	m_upload_path = ".";
+	m_upload = false;
 }
 
 Location::Location( const Location & src )
 	: m_error_pages(src.m_error_pages), m_body_size(src.m_body_size), m_root(src.m_root)
 	, m_indexes(src.m_indexes), m_methods(src.m_methods), m_redirect(src.m_redirect)
-	, m_autoindex(src.m_autoindex), m_cgi_pass(src.m_cgi_pass), m_upload_path(src.m_upload_path)
+	, m_autoindex(src.m_autoindex), m_cgi_pass(src.m_cgi_pass), m_upload(src.m_upload)
 {
 }
 
@@ -48,7 +48,7 @@ Location &				Location::operator=( Location const & rhs )
 		m_redirect = rhs.m_redirect;
 		m_autoindex = rhs.m_autoindex;
 		m_cgi_pass = rhs.m_cgi_pass;
-		m_upload_path = rhs.m_upload_path;
+		m_upload = rhs.m_upload;
 	}
 	return *this;
 }
@@ -134,9 +134,9 @@ Location::cgi_t const &				Location::getCGIPass(void) const
 	return (m_cgi_pass);
 }
 
-Location::path_t const &				Location::getUploadPath(void) const
+bool									Location::getUpload(void) const
 {
-	return (m_upload_path);
+	return (m_upload);
 }
 
 /* ************************************************************************** */

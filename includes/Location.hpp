@@ -35,9 +35,8 @@ class Location
 		redirect_t const &							getRedirectNum(void) const;
 		std::string const &							getRedirectPath(void) const;
 		bool										autoindex(void) const;
+		bool										getUpload(void) const;
 		cgi_t const &								getCGIPass(void) const;
-		path_t const &								getUploadPath(void) const;
-		
 		bool										isAllowed(std::string const & method) const;
 
 	private:
@@ -49,8 +48,8 @@ class Location
 		methods_t							m_methods; // DEFAULT GET HEAD POST DELETE PUT
 		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT empty-empty
 		bool								m_autoindex; // DEFAULT true
+		bool								m_upload; // DEFAULT false. (on/off)
 		cgi_t								m_cgi_pass; // DEFAULT NONE
-		path_t								m_upload_path; // DEFAULT .
 };
 
 #endif /* ******************************************************** LOCATION_H */

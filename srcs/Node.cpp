@@ -68,6 +68,49 @@ std::ostream&			operator<<(std::ostream & o, Node const &i)
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
+
+Node*   Node::parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
+{
+    Node*       tmpNode = this;
+    std::string type;
+
+    while (it != ite && *it != "}")
+    {
+        if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
+        {
+            tmpNode = tmpNode->createNode(type);
+            while (it != ite && *it != ";")
+                it++;
+            if (*it == ";")
+                it++;
+            else
+                return NULL;
+            // tmpNode->fillNode(type, it);
+        }
+        else
+            return NULL;
+    }
+    if (*it == "}")
+        ++it;
+    else
+        return NULL;
+    return tmpNode;
+}
+
+Node*   Node::createNode(std::string const &type)
+{
+    if (this->getLeft() == NULL)
+    {
+        this->setLeft(Node(type));
+        return this->getLeft();
+    }
+    else
+    {
+        this->setRight(Node(type));
+        return this->getRight();
+    }
+}
+
 void    Node::displayContent(std::ostream &o)const
 {
     std::vector<std::string>::const_iterator  it;
@@ -77,6 +120,33 @@ void    Node::displayContent(std::ostream &o)const
     {
         o << *it << " - ";
     }
+}
+
+bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
+{
+    std::string const directives [12] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload", "location"};
+
+    if (it != ite)
+    {
+        for (size_t i = 0; i < 12; i++)
+        {
+            if (*it == directives[i])
+            {
+                type = directives[i];
+                return true; // return Node::checkDirectiveFormat
+            }
+        }
+    }
+    return false;
+}
+
+void    Node::postfixFree(void)
+{
+    if (this->m_left != NULL)
+        this->m_left->postfixFree();
+    if (this->m_right != NULL)
+        this->m_right->postfixFree();
+    delete this;
 }
 
 /*
