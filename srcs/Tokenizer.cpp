@@ -42,6 +42,8 @@ Tokenizer&     Tokenizer::operator=(Tokenizer const &rhs)
 
 std::ostream&   operator<<(std::ostream &o, Tokenizer const &i)
 {
+    if (i.getConfigFilePath() == NULL)
+        return o;
     o << "Configuration file path: " << i.getConfigFilePath() << std::endl << std::endl;
     o << "Tokens list: " << std::endl;
     i.displayList(o);
