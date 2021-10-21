@@ -9,7 +9,7 @@ Server::Server(): m_port("80"), m_ip("0.0.0.0")
 	m_names.push_back("localhost");
 }
 
-Server::Server( const Server & src ): m_port(src.m_port), m_ip(src.m_ip), m_names(src.m_names)
+Server::Server( const Server & src ): m_port(src.m_port), m_ip(src.m_ip), m_names(src.m_names), m_params(Location())
 {
 
 }
@@ -74,7 +74,7 @@ std::vector<std::string>	Server::getNames(void) const
 	return m_names;
 }
 
-Location						Server::getParams(void) const
+Location const &			Server::getParams(void) const
 {
 	return (m_params);
 }

@@ -6,6 +6,13 @@
 
 Location::Location()
 {
+	m_methods.push_back("GET");
+	m_methods.push_back("POST");
+	m_methods.push_back("DELETE");
+	m_body_size = 1000000;
+	m_root = ".";
+	m_autoindex = true;
+	m_upload = false;
 }
 
 Location::Location( const Location & src )
@@ -84,7 +91,7 @@ Location::path_t const &				Location::getRoot(void) const
 	return (m_root);
 }
 
-std::vector<Location::file_t> const &	Location::getIndexes(void) const
+Location::indexes_t const &	Location::getIndexes(void) const
 {
 	return (m_indexes);
 }
@@ -122,7 +129,7 @@ bool									Location::autoindex(void) const
 	return (m_autoindex);
 }
 
-Location::file_t const &				Location::getCGIPass(void) const
+Location::cgi_t const &				Location::getCGIPass(void) const
 {
 	return (m_cgi_pass);
 }

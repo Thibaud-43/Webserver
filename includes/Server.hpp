@@ -25,7 +25,7 @@ class Server
 		std::string						getIp(void) const;
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
-		Location						getParams(void) const;
+		Location const &				getParams(void) const;
 		std::vector<Location>			getLocations(void) const;					
 		Location const *				getLocation(std::string const & uri) const;					
 

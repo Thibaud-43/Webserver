@@ -157,6 +157,7 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
         bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
         if (bytes_read < 0)
         {
+            //removerequest
             close(eventFd);
             break;
         }
@@ -166,14 +167,17 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
             buff += read_buffer;
         }
         else
-        {
+        { 
             read_buffer[bytes_read] = 0;
 
             buff += read_buffer;
+
             Client const 	*client = Client::getClientFromFd(eventFd);
             Request			*request = Request::getRequestFromClient(*client);
 
-            if (!request->manage(buff, m_servers))
+            if (!request && buff != "\r\n")
+                request = Request::createRequest(*client);
+            if (request && request->manage(buff, m_servers))
                 Request::removeRequest(*request);
             break;
         }
