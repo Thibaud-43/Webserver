@@ -27,6 +27,8 @@ class   Node
 
         void    displayContent(std::ostream &o)const;
 
+        void    postfixFree(void);
+
         static bool    isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type);
 
 

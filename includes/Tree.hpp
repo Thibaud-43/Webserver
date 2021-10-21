@@ -22,6 +22,8 @@ class   Tree
 
         static bool    isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
 
+        void    postfixSearch(Node *node);
+
         // void        displayTokens(void)const;
         // void        displayRoot(void)const;
 

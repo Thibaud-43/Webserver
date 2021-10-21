@@ -19,7 +19,7 @@ Tree::Tree(Tree const &src) : m_root(src.m_root), m_tokens(src.m_tokens)
 Tree::~Tree()
 {
     if (m_root != NULL)
-        delete m_root;
+        m_root->postfixFree();
 }
 
 /*
@@ -38,7 +38,8 @@ Tree& Tree::operator=(Tree const & rhs)
 
 std::ostream&   operator<<(std::ostream &o, Tree const &i)
 {
-    o << "TREE:" << std::endl << *i.getRoot() << std::endl << std::endl;
+    if (i.getRoot() != NULL)
+        o << "TREE:" << std::endl << *i.getRoot() << std::endl << std::endl;
     o << "TOKENS: " << std::endl << i.getTokens() << std::endl;
     return o;
 }

@@ -124,7 +124,7 @@ void    Node::displayContent(std::ostream &o)const
 
 bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
 {
-    std::string const directives [12] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "auto_index", "upload", "location"};
+    std::string const directives [12] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload", "location"};
 
     if (it != ite)
     {
@@ -140,9 +140,14 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
     return false;
 }
 
-// bool    Node::checkDirectiveFormat(std::string const &directive)
-// {}
-
+void    Node::postfixFree(void)
+{
+    if (this->m_left != NULL)
+        this->m_left->postfixFree();
+    if (this->m_right != NULL)
+        this->m_right->postfixFree();
+    delete this;
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
