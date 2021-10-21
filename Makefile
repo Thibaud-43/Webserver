@@ -1,4 +1,4 @@
-NAME		=	a.out
+NAME		=	webserv
 CC			=	clang++
 CFLAGS		=	-g -fsanitize=address #-Wall -Wextra -Werror -std=c++98
 RM			=	rm -rf

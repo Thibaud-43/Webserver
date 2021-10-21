@@ -25,11 +25,11 @@ void printBT(const Node* node)
 
 int main(int argc, char const *argv[])
 {
-    // Cluster test;
+    Cluster test;
 
-    // test.run();
+    test.run();
 
-    std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
+    /*std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
     Tree   tree("test.conf");
 
 
@@ -42,5 +42,5 @@ int main(int argc, char const *argv[])
 
 
     std::cout << tree.getRoot()->directivesMap["server_name"](it, ite) << std::endl;
-    return 0;
+    return 0;*/
 }
