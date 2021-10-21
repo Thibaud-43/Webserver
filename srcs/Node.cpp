@@ -5,9 +5,20 @@ Node::directive_t   Node::directivesMap = initMap();
 Node::directive_t Node::initMap(void)
 {
     directive_t directivesMap;
+    {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload", "location"};
 
     directivesMap["listen"] = &Node::checkListen;
     directivesMap["server_name"] = &Node::checkServerName;
+    directivesMap["client_max_body_size"] = &Node::checkMaxBodySize;
+    directivesMap["cgi"] = &Node::checkCgi;
+    directivesMap["error_page"] = &Node::checkErrorPage;
+    directivesMap["methods"] = &Node::checkMethods;
+    directivesMap["index"] = &Node::checkIndex;
+    directivesMap["root"] = &Node::checkRoot;
+    directivesMap["redirect"] = &Node::checkRedirect;
+    directivesMap["autoindex"] = &Node::checkAutoindex;
+    directivesMap["upload"] = &Node::checkUpload;
+    directivesMap["location"] = &Node::checkLocation;
     return directivesMap;
 }
 /*
@@ -152,8 +163,44 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
 
 bool    Node::checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    std::cout << "listen !" << std::endl;
+    if (++it == ite)
+        return false;
+
+    std::string                 buffer;
+    std::istringstream          iss(*it);
+    std::vector<std::string>    serverInfo; // IP and PORT
+    
+    while (getline(iss, buffer, ':'))
+        if (buffer.empty() == false)
+            serverInfo.push_back(buffer);
+        return false;
+    
+
     return true;
+}
+
+bool    Node::checkIpAndPort(std::vector<std::string> serverInfo)
+{
+    std::vector<std::string>::iterator  it = serverInfo.begin();
+    std::vector<std::string>::iterator  ite = serverInfo.end();
+
+    if (serverInfo.size() < 1 || serverInfo.size() > 2)
+        return false;
+    if (Node::checkIp(*it) == false)
+        return false;
+    if (++it != ite && Node::checkPort(*it) == false)
+        return false;
+    return true;
+}
+
+bool    Node::checkIp(std::string ip)
+{
+
+}
+
+bool    Node::checkPort(std::string port)
+{
+    
 }
 
 bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
@@ -161,6 +208,62 @@ bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector
     std::cout << "server_name !" << std::endl;
     return true;
 }
+
+bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkErrorPage(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkMethods(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
+bool    Node::checkLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+
+}
+
 
 // bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
 // {
