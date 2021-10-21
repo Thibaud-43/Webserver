@@ -478,8 +478,11 @@ bool	Request::_get(void) const
 	if (!fstream.is_open())
 		return (Response::send_error("500", m_client, m_location));
 	rep.start_header("200");
-	while (fstream.readsome(buff, MAX_SERVER_BODY_SIZE))
+	while (fstream.readsome(buff, MAX_SERVER_BODY_SIZE - 1))
+	{
+		buff[MAX_SERVER_BODY_SIZE - 1] = 0;
 		rep.append_to_body(buff);
+	}
 	rep.send_to_client(m_client);
 	return (false);
 }
