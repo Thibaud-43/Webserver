@@ -47,7 +47,6 @@ bool	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_body("</body>\n");
 		rep.append_to_body("</html>\n");
 		rep.append_to_header("Content-Type: text/html");
-		rep.add_content_length();
 		rep.append_to_header("Connection: close");
 		rep.send_to_client(client);
 		Client::closeConnexion(*client);
