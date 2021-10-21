@@ -33,7 +33,7 @@ class Server
 		std::string						m_ip;
 		std::string						m_port;
 		std::vector<std::string>		m_names;
-		Location						m_params;
+		Location						m_params; // m_uri = "/" -- m_root /var/www/
 		std::vector<Location>			m_locations;
 };
 

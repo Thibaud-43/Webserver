@@ -123,10 +123,10 @@ bool	Response::send_index(std::string const & directory, std::string const & uri
 	rep.append_to_body("<html>\n");
 	rep.append_to_body("<head><title>Index of /</title></head>\n");
 	rep.append_to_body("<body bgcolor=\"white\">\n");
-	rep.append_to_body("<h1>Index of " + directory + "</h1><hr><pre><a href=\"../\">../</a>\n"); // retirer directory[0]
+	rep.append_to_body("<h1>Index of " + uri + "</h1><hr><pre><a href=\"../\">../</a>\n"); // retirer directory[0]
 	for (std::vector<std::string>::const_iterator it = files.begin(); it != files.end(); it++)
 	{
-		current.setPath(directory + *it);
+		current.setPath(uri + *it);
 		rep.append_to_body("<a href=\"" + *it + "\">" + *it + "</a>\t\t\t\t");
 		rep.append_to_body(current.last_modification_str() + "\t\t");
 		if (current.is_regular())
