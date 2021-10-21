@@ -364,8 +364,15 @@ void			Request::_linkLocation(void)
 
 void			Request::_linkPath(void)
 {
-	m_path = m_header["uri"];
-	m_path.replace(0, m_location->getUri().size(), m_location->getRoot());
+	std::string	uri = m_header["uri"];
+
+	if (uri == m_location->getUri())
+		m_path = m_location->getRoot();
+	else
+	{
+		uri.erase(uri.begin(), uri.begin() + m_location->getUri().size());	
+		m_path = m_location->getRoot() + uri;
+	}
 }
 
 void			Request::_linkServer(std::vector<Server> const & list)
@@ -457,11 +464,13 @@ bool	Request::_check_get(void) const
 	}
 	else if (file.is_directory())
 	{
-		std::cout << m_path << std::endl;
-		if (*(m_path.end() - 1) != '/')
-			Response::redirect("302", m_path + "/" , m_client);
+		if (*(m_header.at("uri").end() - 1) != '/')
+		{
+			std::cout << "DEBUG\n";
+			Response::redirect("302", m_header.at("uri") + "/" , m_client);
+		}
 		else if (m_location->autoindex())
-			Response::send_index(m_path, m_client, m_location);
+			Response::send_index(m_path, m_header.at("uri"), m_client, m_location);
 		else
 			Response::send_error("403", m_client, m_location);
 		return (false);

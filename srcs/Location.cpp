@@ -10,7 +10,8 @@ Location::Location()
 	m_methods.push_back("POST");
 	m_methods.push_back("DELETE");
 	m_body_size = 1000000;
-	m_root = ".";
+	m_uri = "/";
+	m_root = "/var/www/";
 	m_autoindex = true;
 	m_upload = false;
 }

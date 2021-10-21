@@ -25,11 +25,11 @@ void printBT(const Node* node)
 
 int main(int argc, char const *argv[])
 {
-    // Cluster test;
+    Cluster test;
 
-    // test.run();
+    test.run();
 
-    std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
+    /*std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
     Tree   tree("test.conf");
 
 
@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
     std::cout << tree;
     std::cout << std::endl << std::endl;
     printBT(tree.getRoot());
-
+    */
 
     return 0;
 }

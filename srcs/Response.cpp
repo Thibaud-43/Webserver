@@ -9,12 +9,13 @@ Response::status_t	Response::_createStatus(void)
 
 	status["200"] = "OK";
 	status["201"] = "Created";
-	status["300"] = "Multiple Choice";
+	status["300"] = "Multiple Choices";
 	status["301"] = "Moved Permanently";
 	status["302"] = "Found";
 	status["303"] = "See Other";
 	status["304"] = "Not Modifed";
 	status["307"] = "Temporary Redirect";
+	status["308"] = "Temporary Redirect";
 	status["400"] = "Bad Request";
 	status["403"] = "Forbidden";
 	status["404"] = "Not Found";
@@ -104,7 +105,7 @@ bool	Response::redirect(Response::status_code_t const & red, std::string const &
 	return (true);
 }
 	
-bool	Response::send_index(std::string const & directory, Client const * client, Location const * location)
+bool	Response::send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location)
 {
 	Location::indexes_t const & indexes = location->getIndexes();
 	File						current;
@@ -113,7 +114,7 @@ bool	Response::send_index(std::string const & directory, Client const * client, 
 	{
 		current.setPath(directory + *it);
 		if (current.is_regular())
-			return (Response::redirect("301", current.getPath(), client));
+			return (Response::redirect("301", uri + *it, client));
 	}
 	Response						rep;
 	std::vector<std::string> const	files = File::currentFiles(directory);
@@ -122,7 +123,7 @@ bool	Response::send_index(std::string const & directory, Client const * client, 
 	rep.append_to_body("<html>\n");
 	rep.append_to_body("<head><title>Index of /</title></head>\n");
 	rep.append_to_body("<body bgcolor=\"white\">\n");
-	rep.append_to_body("<h1>Index of " + directory + "</h1><hr><pre><a href=\"../\">../</a>\n");
+	rep.append_to_body("<h1>Index of " + directory + "</h1><hr><pre><a href=\"../\">../</a>\n"); // retirer directory[0]
 	for (std::vector<std::string>::const_iterator it = files.begin(); it != files.end(); it++)
 	{
 		current.setPath(directory + *it);
