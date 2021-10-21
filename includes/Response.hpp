@@ -34,7 +34,7 @@ class Response
 		void		start_header(status_code_t const & status);
 		void		append_to_header(std::string const & str);
 		void		append_to_body(std::string const & str);
-		void		send_to_client(Client const * client) const;
+		void		send_to_client(Client const * client);
 		void		add_content_length(void);
 		void		fill_body(file_t const & file);
 		void		clear(void);

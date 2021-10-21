@@ -4,11 +4,14 @@
 # include <iostream>
 # include <string>
 # include <map>
+# include <fstream>
 # include "File.hpp"
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Response.hpp"
 # include "Location.hpp"
+
+# define MAX_SERVER_BODY_SIZE 4096
 
 class Request
 {
@@ -64,8 +67,9 @@ class Request
 
 		// TOM
 		bool								_check_get(void) const;
-		bool								_get(std::string const & method) const;
-
+		bool								_get(void) const;
+		bool								_is_cgi(void) const;
+		bool								_get_cgi(void) const;
 
 		// DEBUG
 

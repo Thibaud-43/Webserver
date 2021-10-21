@@ -372,8 +372,11 @@ bool	Request::_execute(void) const
 
 	if (method == "GET")
 	{
-		if (_check_get() && _get(method))
-			return (true);
+		if (!_check_get())
+			return (false);
+		if (_is_cgi())
+			return (_get_cgi());
+		return (_get());
 	}
 	else if (method == "DELETE")
 	{
@@ -404,6 +407,17 @@ bool	Request::_check_get(void) const
 		Response::send_error("403", m_client, m_location);
 		return (false);
 	}
+	else if (m_body.size() > m_location->getBodySize())
+	{
+		Response::send_error("413", m_client, m_location);
+		return (false);
+	}
+	else if (m_header.find("Range") != m_header.end())
+	{
+		// RANGE NOT SUPPORTED
+		Response::send_error("416", m_client, m_location);
+		return (false);
+	}
 	else if (file.is_directory())
 	{
 		std::cout << m_path << std::endl;
@@ -415,18 +429,31 @@ bool	Request::_check_get(void) const
 			Response::send_error("403", m_client, m_location);
 		return (false);
 	}
-	std::cout << "message: GET\n";
 	return (true);
 }
 
-bool	Request::_get(std::string const & method) const
+bool	Request::_get(void) const
 {
-	Response	rep;
+	Response		rep;
+	std::ifstream	fstream(m_path);
+	char			buff[MAX_SERVER_BODY_SIZE];
 
+	if (!fstream.is_open())
+		return (Response::send_error("500", m_client, m_location));
 	rep.start_header("200");
-	rep.append_to_body("THIBAUD GROSSE PUTE\n");
-	rep.add_content_length();
+	while (fstream.readsome(buff, MAX_SERVER_BODY_SIZE))
+		rep.append_to_body(buff);
 	rep.send_to_client(m_client);
+	return (false);
+}
+
+bool	Request::_is_cgi(void) const
+{
+	return (false);
+}
+
+bool	Request::_get_cgi(void) const
+{
 	return (false);
 }
 

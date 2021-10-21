@@ -26,7 +26,6 @@ Response::status_t	Response::_createStatus(void)
 	status["413"] = "Payload Too Large";
 	status["415"] = "Unsupported Media Type";
 	status["416"] = "Range Not Satisfiable";
-	status["417"] = "Expectation Failed";
 	status["500"] = "Internal Server Error";
 	status["501"] = "Not Implemented";
 	status["505"] = "HTTP Version Not Supported";
@@ -55,7 +54,6 @@ bool	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_body("</body>\n");
 		rep.append_to_body("</html>\n");
 		rep.append_to_header("Content-Type: text/html");
-		rep.add_content_length();
 		rep.append_to_header("Connection: close");
 		rep.send_to_client(client);
 		Client::closeConnexion(*client);
@@ -118,7 +116,6 @@ bool	Response::send_index(std::string const & directory, Client const * client, 
 	rep.append_to_body("</html>\n");
 	rep.append_to_header("Content-Type: text/html");
 	rep.append_to_header("Connection: keep-alive");
-	rep.add_content_length();
 	rep.send_to_client(client);
 	return (true);
 }
@@ -176,8 +173,10 @@ void	Response::append_to_body(std::string const & str)
 	m_body.append(str);
 }
 
-void	Response::send_to_client(Client const * client) const
+void	Response::send_to_client(Client const * client)
 {
+	if (!m_body.empty())
+		add_content_length();
 	client->sendResponse(getContent().data());
 }
 
