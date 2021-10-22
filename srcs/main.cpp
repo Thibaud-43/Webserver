@@ -29,18 +29,31 @@ int main(int argc, char const *argv[])
 
     // test.run();
 
-    std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
-    Tree   tree("test.conf");
+    // std::cout << "--------PARSING TESTS--------" << std::endl << std::endl;
+    // Tree   tree("test.conf");
 
 
-    tree.parseCluster();
+    // tree.parseCluster();
     // std::cout << tree;
     // std::cout << std::endl << std::endl;
     // printBT(tree.getRoot());
-    std::vector<std::string>::iterator it;
-    std::vector<std::string>::iterator ite;
 
+    // Node test;
+    std::vector<std::string>            list;
+    list.push_back("upload");
+    list.push_back("off");
+    list.push_back(";");
+    list.push_back(";");
+    std::vector<std::string>::iterator  it = list.begin();
+    std::vector<std::string>::iterator  ite = list.end();
 
-    std::cout << tree.getRoot()->directivesMap["server_name"](it, ite) << std::endl;
+    if (Node::checkUpload(it, ite) == true)
+        std::cout << "checkRedirect : True" << std::endl;
+    else
+        std::cout << "checkRedirect : False" << std::endl;
+    // if (Node::checkIp("43.2.3.4") == true)
+    //     std::cout << "Port : True" << std::endl;
+    // else
+    //     std::cout << "Port : False" << std::endl;
     return 0;
 }
