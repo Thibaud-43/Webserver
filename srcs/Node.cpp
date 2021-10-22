@@ -5,7 +5,6 @@ Node::directive_t   Node::directivesMap = initMap();
 Node::directive_t Node::initMap(void)
 {
     directive_t directivesMap;
-    {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload", "location"};
 
     directivesMap["listen"] = &Node::checkListen;
     directivesMap["server_name"] = &Node::checkServerName;
@@ -163,19 +162,26 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
 
 bool    Node::checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)
+    if (++it == ite)        // token after "listen"
         return false;
-
+    int                         colonNb(0);
     std::string                 buffer;
     std::istringstream          iss(*it);
     std::vector<std::string>    serverInfo; // IP and PORT
     
+    if ((*it).at(0) == ':' || (*it).at((*it).length() - 1) == ':')
+        return false;
     while (getline(iss, buffer, ':'))
+    {
         if (buffer.empty() == false)
             serverInfo.push_back(buffer);
+        else
+            colonNb++;
+    }
+    if ((colonNb > 0) || Node::checkIpAndPort(serverInfo) == false)
         return false;
-    
-
+    if (++it == ite || *it != ";")
+        return false;
     return true;
 }
 
@@ -186,81 +192,233 @@ bool    Node::checkIpAndPort(std::vector<std::string> serverInfo)
 
     if (serverInfo.size() < 1 || serverInfo.size() > 2)
         return false;
-    if (Node::checkIp(*it) == false)
+    if (serverInfo.size() == 1 && Node::checkIp(*it) == false && Node::checkPort(*it) == false)
         return false;
-    if (++it != ite && Node::checkPort(*it) == false)
+    if (serverInfo.size() == 2 && (Node::checkIp(*it) == false || Node::checkPort(*(++it)) == false))
         return false;
     return true;
 }
 
+
+bool    Node::isNumber(std::string string)
+{
+    std::string::const_iterator it = string.begin();
+    std::string::const_iterator ite = string.end();
+
+    while(it != ite && std::isdigit(*it))
+        it++;
+    if (string.empty() == false && it == ite)
+        return true;
+    return false;
+}
+
 bool    Node::checkIp(std::string ip)
 {
-
+    int                         periodNb(0);
+    int                         ipValue;
+    std::string                 buffer;
+    std::istringstream          iss(ip);
+    std::istringstream          tmpIss;
+    
+    if (ip.at(0) == '.' || ip.at(ip.length() - 1) == '.')
+        return false;
+    while (getline(iss, buffer, '.'))
+    {
+        if (buffer.empty() == false)
+        {
+            if (Node::isNumber(buffer) == false)
+                return false;
+            tmpIss.str(buffer);
+            tmpIss >> ipValue;
+            if (ipValue < 0 || ipValue > 255)
+                return false;
+            tmpIss.clear();
+            
+        }
+        periodNb++;
+    }
+    if (periodNb != 4)
+        return false;
+    return true;
 }
 
 bool    Node::checkPort(std::string port)
 {
-    
+    int                 portValue;
+    std::istringstream  tmpIss(port);
+
+    if (Node::isNumber(port) == false)
+        return false;
+    tmpIss >> portValue;
+    if (portValue < 0 || portValue > 65535)
+        return false;
+    return true;
 }
 
 bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    std::cout << "server_name !" << std::endl;
+    size_t i = 0; 
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && i++ < 32)
+    {
+        it++;
+        i++;
+    }
+    if (i >= 32 || it == ite) // MIN MAX NB OF SERVER NAMES
+        return false;
+    if (*it != ";")
+        return false;
     return true;
 }
 
 bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    std::istringstream  tmpIss;
+    float               f;
 
-}
-
-bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
-{
-
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (Node::isNumber(*it) == false || (*it).size() > 10)
+        return false;
+    tmpIss.str(*it);
+    tmpIss >> f;
+    if (f > 2147483647.0)
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
+        return false;
+    if (++it == ite || *it != ";" || ++it == ite || *it == ";")
+        return true;
+    return false;
 }
 
 bool    Node::checkErrorPage(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    float               f;
+    std::istringstream  tmpIss;
 
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (Node::isNumber(*it) == false || (*it).size() > 10)
+        return false;
+    tmpIss.str(*it);
+    tmpIss >> f;
+    if (f > 2147483647.0)
+        return false;
+    if (++it == ite || *it != ";" || ++it == ite || *it == ";")
+        return true;
+    return false;
 }
 
 bool    Node::checkMethods(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    size_t i = 0;
 
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && i < 3)
+    {
+        if (*it != "GET" && *it != "POST" && *it != "DELETE")
+            return false;
+        i++;
+        it++;
+    }
+    if (i == 0 || it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    size_t i = 0; 
 
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && i++ < 32)
+    {
+        it++;
+        i++;
+    }
+    if (i >= 32 || it == ite) // MIN MAX NB OF SERVER NAMES
+        return false;
+    if (*it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    size_t i = 0; 
 
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && i++ < 32)
+    {
+        it++;
+        i++;
+    }
+    if (i >= 32 || it == ite) // MIN MAX NB OF SERVER NAMES
+        return false;
+    if (*it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    float               f;
+    float const         acceptedValues[7] = {301.0, 302.0, 303.0, 304.0, 306.0, 307.0, 308.0};
+    size_t              i = 0;
+    std::istringstream  tmpIss;
 
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (Node::isNumber(*it) == false || (*it).size() > 10)
+        return false;
+    tmpIss.str(*it);
+    tmpIss >> f;
+    if (f != 301.0 && f != 302.0 && f != 303.0 && f != 304.0 && f != 306.0 && f != 307.0 && f != 308.0)
+            return false;
+    if (++it == ite || *it != ";" || ++it == ite || *it == ";")
+        return true;
+    return false;
 }
 
 bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-
+    if (++it == ite)        // token after "listen"
+        return false;  
+    if (*it != "on" && *it != "off")
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-
+    if (++it == ite)        // token after "listen"
+        return false;  
+    if (*it != "on" && *it != "off")
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
+    return true;
 
 }
 
