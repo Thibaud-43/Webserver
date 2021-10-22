@@ -418,9 +418,7 @@ bool	Request::_execute(void) const
 	{
 		if (!_check_get())
 			return (false);
-		if (_is_cgi())
-			return (_get_cgi());
-		return (_get());
+		return (_get(_get_cgi_path()));
 	}
 	else if (method == "DELETE")
 	{
@@ -478,30 +476,82 @@ bool	Request::_check_get(void) const
 	return (true);
 }
 
-bool	Request::_get(void) const
+bool	Request::_get(Location::file_t const * path) const
 {
+	if (path)
+		return (_cgi_get(*path));
+
 	Response		rep;
 	std::ifstream	fstream(m_path);
-	char			buff[MAX_SERVER_BODY_SIZE];
+	char			buff[MAX_SERVER_BODY_SIZE + 1];
+	File			f(m_path);
 
 	if (!fstream.is_open())
 		return (Response::send_error("500", m_client, m_location));
 	rep.start_header("200");
-	while (fstream.readsome(buff, MAX_SERVER_BODY_SIZE - 1))
+	rep.append_to_header("Connection: keep-alive");
+	try
 	{
-		buff[MAX_SERVER_BODY_SIZE - 1] = 0;
-		rep.append_to_body(buff);
+		if (f.size() > MAX_SERVER_BODY_SIZE)
+		{
+			std::string		body;
+
+			rep.append_to_header("Transfer-Encoding: chunked");
+			rep.send_to_client(m_client);
+			fstream.read(buff, MAX_SERVER_BODY_SIZE);
+			while (fstream.gcount())
+			{
+				_chunk_size_to_client(fstream.gcount());
+				buff[fstream.gcount()] = 0;
+				body = buff;
+				body += "\r\n";
+				m_client->sendResponse(body.data());
+				fstream.read(buff, MAX_SERVER_BODY_SIZE - 1);
+			}
+			m_client->sendResponse("0\r\n\r\n");
+		}
+		else
+		{
+			fstream.read(buff, MAX_SERVER_BODY_SIZE);
+			while (fstream.gcount())
+			{
+				buff[fstream.gcount()] = 0;
+				rep.append_to_body(buff);
+				fstream.read(buff, MAX_SERVER_BODY_SIZE);
+			}
+			rep.send_to_client(m_client);
+		}
 	}
-	rep.send_to_client(m_client);
+	catch(const std::exception& e)
+	{
+		return (Response::send_error("500", m_client, m_location));
+	}
 	return (false);
 }
 
-bool	Request::_is_cgi(void) const
+void	Request::_chunk_size_to_client(std::streamsize const & s) const
 {
-	return (false);
+	std::stringstream stream;
+
+	stream << std::hex << s << "\r\n";
+	m_client->sendResponse(stream.str().data());
 }
 
-bool	Request::_get_cgi(void) const
+Location::file_t const *	Request::_get_cgi_path(void) const
+{
+	Location::cgi_t	const & cgi = m_location->getCGIPass();
+
+	for (Location::cgi_t::const_iterator it = cgi.begin() ; it != cgi.end(); it++)
+	{
+		if (it->first.size() > m_path.size())
+			break ;
+		else if (m_path.find(it->first, m_path.size() - it->first.size()) != std::string::npos)
+			return (&(it->second));
+	}
+	return (NULL);
+}
+
+bool	Request::_cgi_get(Location::file_t const & path) const
 {
 	return (false);
 }
