@@ -7,6 +7,7 @@
 # include "Request.hpp"
 # include "ASocket.hpp"
 # include "Client.hpp"
+# include "Cgi.hpp"
 
 #define READ_SIZE 10000
 #define MAX_EVENTS 10
@@ -40,6 +41,7 @@ class Cluster
 		void							_epollWait(void);
 		void							_epollExecute(void);
 		void							_epollExecuteOnListenerConnection(fd_type & eventFd);
+		void							_epollExecuteOnCgiConnection(fd_type & eventFd);
 		void							_epollExecuteOnClientConnection(fd_type & eventFd);
 		void							_closeEpoll(void);
 };

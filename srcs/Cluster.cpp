@@ -109,6 +109,10 @@ void							Cluster::_epollExecute(void)
         {
             _epollExecuteOnListenerConnection(m_events[i].data.fd);
         }
+        else if (Cgi::isCgiFd(m_events[i].data.fd))
+        {
+            _epollExecuteOnCgiConnection(m_events[i].data.fd);
+        }
         else
         {
             _epollExecuteOnClientConnection(m_events[i].data.fd);
@@ -140,6 +144,11 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 		else
         	Client	socket(client, their_addr, m_epoll_fd);
     }
+    
+}
+
+void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
+{
     
 }
 
