@@ -32,6 +32,7 @@ Response::status_t	Response::_createStatus(void)
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
 }
+
 bool	Response::send_error(Response::status_code_t const & err, Client const * client)
 {
 		Response	rep;
@@ -129,6 +130,7 @@ bool	Response::send_index(std::string const & directory, std::string const & uri
 		current.setPath(uri + *it);
 		rep.append_to_body("<a href=\"" + *it + "\">" + *it + "</a>\t\t\t\t");
 		rep.append_to_body(current.last_modification_str() + "\t\t");
+		current.setPath(directory + *it);
 		if (current.is_regular())
 			rep.append_to_body(current.size_str() + "\n");
 		else

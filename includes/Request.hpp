@@ -11,7 +11,7 @@
 # include "Response.hpp"
 # include "Location.hpp"
 
-# define MAX_SERVER_BODY_SIZE 4096
+# define MAX_SERVER_BODY_SIZE 1024
 
 class Request
 {
@@ -73,9 +73,10 @@ class Request
 
 		// TOM
 		bool								_check_get(void) const;
-		bool								_get(void) const;
-		bool								_is_cgi(void) const;
-		bool								_get_cgi(void) const;
+		bool								_get(Location::file_t const * path) const;
+		Location::file_t const *			_get_cgi_path(void) const;
+		bool								_cgi_get(Location::file_t const & path) const;
+		void								_chunk_size_to_client(std::streamsize const & s) const;
 
 		// DEBUG
 
