@@ -1,6 +1,6 @@
 #include "Node.hpp"
 
-Node::directive_t   Node::directivesMap = initMap();
+Node::directive_t   Node::m_directivesMap = initMap();
 
 Node::directive_t Node::initMap(void)
 {
@@ -17,7 +17,6 @@ Node::directive_t Node::initMap(void)
     directivesMap["redirect"] = &Node::checkRedirect;
     directivesMap["autoindex"] = &Node::checkAutoindex;
     directivesMap["upload"] = &Node::checkUpload;
-    directivesMap["location"] = &Node::checkLocation;
     return directivesMap;
 }
 /*
@@ -89,14 +88,27 @@ std::ostream&			operator<<(std::ostream & o, Node const &i)
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
 
-Node*   Node::parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
+bool    Node::isLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (*it != "location")
+        return false;
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}")
+        return false;
+    if (++it == ite || *it != "{")
+        return false;
+    return true;
+}
+
+int     Node::parseLocation(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
 {
     Node*       tmpNode = this;
     std::string type;
 
+    for (size_t i = 0; i < 3; ++i)
+        it++;
     while (it != ite && *it != "}")
     {
-        if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
+        if (Node::isDirectiveLocation(it, ite, type) == true) // CHECK the FORMAT // No ref
         {
             tmpNode = tmpNode->createNode(type);
             while (it != ite && *it != ";")
@@ -104,56 +116,95 @@ Node*   Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
             if (*it == ";")
                 it++;
             else
-                return NULL;
+                return -1;
             // tmpNode->fillNode(type, it);
         }
         else
-            return NULL;
+            return -1;
     }
     if (*it == "}")
         ++it;
     else
-        return NULL;
-    return tmpNode;
+        return -1;
+    return 0;
 }
 
-Node*   Node::createNode(std::string const &type)
+int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
 {
-    if (this->getLeft() == NULL)
+    Node*       tmpNode = this;
+    std::string type;
+
+    while (it != ite && *it != "}")
     {
-        this->setLeft(Node(type));
-        return this->getLeft();
+        if (Node::isLocation(it, ite) == true)
+        {
+            tmpNode = tmpNode->createNode("location");
+            tmpNode->m_content.push_back(*(it + 1));
+            tmpNode->parseLocation(it, ite);
+        }
+        else if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
+        {
+            tmpNode = tmpNode->createNode(type);
+            while (it != ite && *it != ";")
+                it++;
+            if (*it == ";")
+                it++;
+            else
+                return -1;
+            // tmpNode->fillNode(type, it);
+        }
+        else
+            return -1;
     }
+    if (*it == "}")
+        ++it;
     else
-    {
-        this->setRight(Node(type));
-        return this->getRight();
-    }
+        return -1;
+    return 0;
 }
 
-void    Node::displayContent(std::ostream &o)const
+bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
 {
-    std::vector<std::string>::const_iterator  it;
-    std::vector<std::string>::const_iterator  ite = m_content.end();
+    Node::directive_t::const_iterator    itMap = m_directivesMap.begin();
+    Node::directive_t::const_iterator    iteMap = m_directivesMap.end();
 
-    for (it = m_content.begin(); it != ite; ++it)
-    {
-        o << *it << " - ";
-    }
+    while (itMap != iteMap && itMap->first != directive)
+        itMap++;
+    if (itMap == iteMap)
+        return false;
+    return (itMap->second)(it, ite);
 }
 
-bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
+bool    Node::isDirectiveLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
 {
-    std::string const directives [12] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload", "location"};
+    std::string const directives [9] = {"client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload"};
 
     if (it != ite)
     {
-        for (size_t i = 0; i < 12; i++)
+        for (size_t i = 0; i < 9; i++)
         {
             if (*it == directives[i])
             {
                 type = directives[i];
-                return true; // return Node::checkDirectiveFormat
+                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
+            }
+        }
+    }
+    return false;
+}
+
+bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
+{
+    std::string const directives [11] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload"};
+
+    if (it != ite)
+    {
+        for (size_t i = 0; i < 11; i++)
+        {
+            if (*it == directives[i])
+            {
+                type = directives[i];
+                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
             }
         }
     }
@@ -198,7 +249,6 @@ bool    Node::checkIpAndPort(std::vector<std::string> serverInfo)
         return false;
     return true;
 }
-
 
 bool    Node::isNumber(std::string string)
 {
@@ -261,7 +311,7 @@ bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector
 
     if (++it == ite)        // token after "listen"
         return false;
-    while (it != ite && *it != ";" && i++ < 32)
+    while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
     {
         it++;
         i++;
@@ -297,7 +347,7 @@ bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::s
         return false;
     if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
         return false;
-    if (++it == ite || *it != ";" || ++it == ite || *it == ";")
+    if (++it == ite || *it != ";" || *it != "{" || *it != "}" || ++it == ite || *it == ";")
         return true;
     return false;
 }
@@ -315,9 +365,9 @@ bool    Node::checkErrorPage(std::vector<std::string>::iterator it, std::vector<
     tmpIss >> f;
     if (f > 2147483647.0)
         return false;
-    if (++it == ite || *it != ";" || ++it == ite || *it == ";")
-        return true;
-    return false;
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}" || ++it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkMethods(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
@@ -344,7 +394,7 @@ bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std:
 
     if (++it == ite)        // token after "listen"
         return false;
-    while (it != ite && *it != ";" && i++ < 32)
+    while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
     {
         it++;
         i++;
@@ -358,18 +408,7 @@ bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std:
 
 bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    size_t i = 0; 
-
-    if (++it == ite)        // token after "listen"
-        return false;
-    while (it != ite && *it != ";" && i++ < 32)
-    {
-        it++;
-        i++;
-    }
-    if (i >= 32 || it == ite) // MIN MAX NB OF SERVER NAMES
-        return false;
-    if (*it != ";")
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}" || ++it == ite || *it != ";")
         return false;
     return true;
 }
@@ -389,9 +428,9 @@ bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<s
     tmpIss >> f;
     if (f != 301.0 && f != 302.0 && f != 303.0 && f != 304.0 && f != 306.0 && f != 307.0 && f != 308.0)
             return false;
-    if (++it == ite || *it != ";" || ++it == ite || *it == ";")
-        return true;
-    return false;
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}" || ++it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
@@ -416,22 +455,19 @@ bool    Node::checkUpload(std::vector<std::string>::iterator it, std::vector<std
     return true;
 }
 
-bool    Node::checkLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+Node*   Node::createNode(std::string const &type)
 {
-    return true;
-
+    if (this->getLeft() == NULL)
+    {
+        this->setLeft(Node(type));
+        return this->getLeft();
+    }
+    else
+    {
+        this->setRight(Node(type));
+        return this->getRight();
+    }
 }
-
-
-// bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
-// {
-//     std::map<std::string, fcn_t> directivesMap;
-
-
-//     directivesMap[directive](it, ite);
-// }
-
-
 
 void    Node::postfixFree(void)
 {
@@ -440,6 +476,17 @@ void    Node::postfixFree(void)
     if (this->m_right != NULL)
         this->m_right->postfixFree();
     delete this;
+}
+
+void    Node::displayContent(std::ostream &o)const
+{
+    std::vector<std::string>::const_iterator  it;
+    std::vector<std::string>::const_iterator  ite = m_content.end();
+
+    for (it = m_content.begin(); it != ite; ++it)
+    {
+        o << *it << " - ";
+    }
 }
 
 /*
