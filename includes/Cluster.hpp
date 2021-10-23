@@ -7,10 +7,12 @@
 # include "Request.hpp"
 # include "ASocket.hpp"
 # include "Client.hpp"
+# include "Tree.hpp"
 
-#define READ_SIZE 10000
-#define MAX_EVENTS 10
-#define MYPORT 3490
+# define READ_SIZE 10000
+# define MAX_EVENTS 10
+# define MYPORT 3490
+
 class Cluster
 {
 
@@ -25,8 +27,12 @@ class Cluster
 		Cluster &						operator=( Cluster const & rhs );
 		int								run(void);
 
+		std::vector<Server> 			getServers(void) const;
+		Tree				 			getTree(void) const;
+
 	private:
 		std::vector<Server>	m_servers;
+		Tree				m_tree;
 
 		struct sockaddr_in 				m_their_addr;
 		fd_type							m_newsocket_fd;
@@ -34,6 +40,7 @@ class Cluster
 		event_type						m_events[MAX_EVENTS];
 		int								m_eventCount;
 
+		void							_fillCluster(Node* node);
 		void							_createCluster(void);
 		void							_createEpoll(void);
 		void							_runServers(void);
@@ -44,6 +51,6 @@ class Cluster
 		void							_closeEpoll(void);
 };
 
-std::ostream &			operator<<( std::ostream & o, Cluster const & i );
+std::ostream &			operator<<( std::ostream & o, Cluster const & rhs );
 
 #endif /* ********************************************************* CLUSTER_H */

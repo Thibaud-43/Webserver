@@ -1,11 +1,16 @@
 #include "Cluster.hpp"
 
+void printBT(const Node* node);
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cluster::Cluster(): m_eventCount(0)
+Cluster::Cluster(): m_eventCount(0), m_tree("confFiles/nginx.conf")
 {
+    this->_fillCluster(m_tree.getRoot());
+    printBT(m_tree.getRoot());
+
 }
 
 Cluster::Cluster( const Cluster & src )
@@ -35,9 +40,19 @@ Cluster &				Cluster::operator=( Cluster const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Cluster const & i )
+std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 {
-	//o << "Value = " << i.getValue();
+    std::vector<Server> tmpServer = rhs.getServers();
+    std::vector<Server>::const_iterator it = tmpServer.begin();
+    std::vector<Server>::const_iterator ite = tmpServer.end();
+	size_t i = 0;
+
+    while (it != ite)
+    {
+        o << "Server " << i++ << std::endl;
+        o << *it;
+        it++;
+    }
 	return o;
 }
 
@@ -45,6 +60,27 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+
+
+void			Cluster::_fillCluster(Node* node)
+{
+    Server  tmpServer;
+
+    if (node == NULL) 
+        return ;
+    if (node->getLeft() != NULL)
+    {
+        tmpServer.fillServer(node->getLeft());
+        m_servers.push_back(tmpServer);
+    }
+    std::vector<Server>::const_iterator it = m_servers.begin();
+    std::cout << "0 IP: "<< (*it).getIp() << std::endl;
+	std::cout << "0 UPLOAD: "<< (*it).getParams().getUpload() << std::endl;
+	std::cout << "0 AUTOINDEX: "<< (*it).getParams().getAutoindex() << std::endl;
+    if (node->getRight() != NULL)
+        this->_fillCluster(node->getRight());
+}
 
 int				Cluster::run(void)
 {
@@ -197,5 +233,13 @@ void							Cluster::_closeEpoll(void)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
+std::vector<Server> Cluster::getServers(void) const
+{
+    return m_servers;
+}
 
+Tree                Cluster::getTree(void) const
+{
+    return m_tree;
+}
 /* ************************************************************************** */

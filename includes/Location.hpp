@@ -5,6 +5,7 @@
 # include <string>
 # include <vector>
 # include <map>
+# include "Node.hpp"
 
 class Location
 {
@@ -16,8 +17,8 @@ class Location
 		typedef size_t							body_size_t;
 		typedef std::string						redirect_t;
 		typedef std::vector<std::string>		methods_t;
-		typedef methods_t						indexes_t;
-		typedef std::map<std::string, file_t>	cgi_t;
+		typedef std::vector<std::string>		indexes_t;
+		typedef std::map<std::string, path_t>	cgi_t;
 
 		Location();
 		Location( Location const & src );
@@ -34,10 +35,34 @@ class Location
 		std::string									getStrMethods(void) const;
 		redirect_t const &							getRedirectNum(void) const;
 		std::string const &							getRedirectPath(void) const;
-		bool										autoindex(void) const;
+		bool										getAutoindex(void) const;
 		bool										getUpload(void) const;
 		cgi_t const &								getCGIPass(void) const;
 		bool										isAllowed(std::string const & method) const;
+
+		// void	setUri(std::string const & uri);
+		// void	setErrPages(err_code_t errNum, path_t path);
+		// void	setBodySize(body_size_t const & bodySize);
+		// void	setRoot(path_t const & root);
+		// void	setIndexes(indexes_t const & indexes);
+		// void	setMethods(methods_t const & methods);
+		// void	setRedirect(redirect_t num, path_t path);
+		// void	setautoindex(bool state);
+		// void	setUpload(bool state);
+		// void	setCGIPass(std::string extensionType, path_t path);
+		void	fillLocation(Node* node);
+		void	setValue(Node* node);
+
+		void	setUri(std::vector<std::string> content);
+		void	setErrPages(std::vector<std::string> content);
+		void	setBodySize(std::vector<std::string> content);
+		void	setRoot(std::vector<std::string> content);
+		void	setIndexes(std::vector<std::string> content);
+		void	setMethods(std::vector<std::string> content);
+		void	setRedirect(std::vector<std::string> content);
+		void	setautoindex(std::vector<std::string> content);
+		void	setUpload(std::vector<std::string> content);
+		void	setCGIPass(std::vector<std::string> content);
 
 	private:
 		std::string							m_uri; // DEFAULT empty
@@ -51,5 +76,8 @@ class Location
 		bool								m_upload; // DEFAULT false. (on/off)
 		cgi_t								m_cgi_pass; // DEFAULT NONE
 };
+
+std::ostream &			operator<<( std::ostream & o, Location const & rhs );
+
 
 #endif /* ******************************************************** LOCATION_H */

@@ -460,7 +460,7 @@ bool	Request::_check_get(void) const
 		std::cout << m_path << std::endl;
 		if (*(m_path.end() - 1) != '/')
 			Response::redirect("302", m_path + "/" , m_client);
-		else if (m_location->autoindex())
+		else if (m_location->getAutoindex())
 			Response::send_index(m_path, m_client, m_location);
 		else
 			Response::send_error("403", m_client, m_location);
