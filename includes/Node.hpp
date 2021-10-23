@@ -55,7 +55,7 @@ class   Node
         static bool     checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
         static bool     checkLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
         static bool     isLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
-
+        
         static bool     isNumber(std::string string);
 
 

@@ -111,13 +111,9 @@ int     Node::parseLocation(std::vector<std::string>::iterator &it, std::vector<
         if (Node::isDirectiveLocation(it, ite, type) == true) // CHECK the FORMAT // No ref
         {
             tmpNode = tmpNode->createNode(type);
-            while (it != ite && *it != ";")
-                it++;
-            if (*it == ";")
-                it++;
-            else
-                return -1;
-            // tmpNode->fillNode(type, it);
+            while (*(++it) != ";")
+                tmpNode->m_content.push_back(*it);
+            it++;
         }
         else
             return -1;
@@ -145,13 +141,9 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
         else if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
         {
             tmpNode = tmpNode->createNode(type);
-            while (it != ite && *it != ";")
-                it++;
-            if (*it == ";")
-                it++;
-            else
-                return -1;
-            // tmpNode->fillNode(type, it);
+            while (*(++it) != ";")
+                tmpNode->m_content.push_back(*it);
+            it++;
         }
         else
             return -1;
