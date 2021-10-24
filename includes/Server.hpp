@@ -27,7 +27,7 @@ class Server
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
 		Location const &				getParams(void) const;
-		std::vector<Location>			getLocations(void) const;					
+		std::vector<Location*>			getLocations(void) const;					
 		Location const *				getLocation(std::string const & uri) const;	
 
 		void	setIpandPort(std::vector<std::string> const & content);
@@ -54,7 +54,7 @@ class Server
 		std::string						m_port;
 		std::vector<std::string>		m_names;
 		Location						m_params;
-		std::vector<Location>			m_locations;
+		std::vector<Location*>			m_locations;
 };
 
 std::ostream &			operator<<( std::ostream & o, Server const & rhs );

@@ -62,6 +62,7 @@ std::ostream &			operator<<( std::ostream & o, Location const & rhs )
 
 	std::map<std::string, std::string>::iterator	it1;
 
+	std::cout << std::endl;
 	o << "\t\tUri: " << rhs.getUri() << std::endl;
 	for (it1 = tmpErrPages.begin(); it1 != tmpErrPages.end(); it1++)
 	{
@@ -91,7 +92,7 @@ std::ostream &			operator<<( std::ostream & o, Location const & rhs )
 		o << "\t\tUpload: on" << std::endl;
 	else
 		o << "\t\tUpload: off" << std::endl;
-	for (it1 = tmpErrPages.begin(); it1 != tmpErrPages.end(); it1++)
+	for (it1 = tmpCGI.begin(); it1 != tmpCGI.end(); it1++)
 	{
 		o << "\t\tCGI: " << it1->first << " " << it1->second << std::endl;
 	}
@@ -264,6 +265,8 @@ void	Location::setMethods(std::vector<std::string> content)
 	std::vector<std::string>::const_iterator  it = content.begin();
 	std::vector<std::string>::const_iterator  ite = content.end();
 
+	if (content.size() > 0)
+		this->m_methods.clear();
 	while (it != ite)
 		this->m_methods.push_back(*(it++));
 }

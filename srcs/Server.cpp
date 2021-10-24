@@ -24,6 +24,15 @@ Server::Server(std::string port, std::string ip): m_port(port), m_ip(ip)
 
 Server::~Server()
 {
+	std::vector<Location*>::iterator it = m_locations.begin();
+	std::vector<Location*>::iterator ite = m_locations.end();
+
+	while (it != ite)
+	{
+		if (*it != NULL)
+			delete *it;
+		it++;
+	}
 }
 
 
@@ -47,7 +56,7 @@ Server &				Server::operator=( Server const & rhs )
 std::ostream &			operator<<( std::ostream & o, Server const & rhs )
 {
 	std::vector<std::string>	tmpNames = rhs.getNames();
-	std::vector<Location>		tmpLocation = rhs.getLocations();
+	std::vector<Location*>		tmpLocation = rhs.getLocations();
 
 	o << "\tIP: " << rhs.getIp() << std::endl;
 	o << "\tPort: " << rhs.getPort() << std::endl;
@@ -58,11 +67,10 @@ std::ostream &			operator<<( std::ostream & o, Server const & rhs )
 	}
 	o << std::endl;
 	o << rhs.getParams();
-	std::cout << "Nb of location: " << tmpLocation.size() << std::endl;
-	for (std::vector<Location>::const_iterator it = tmpLocation.begin(); it != tmpLocation.end(); it++)
+	for (std::vector<Location*>::const_iterator it = tmpLocation.begin(); it != tmpLocation.end(); it++)
 	{
-		o << "\t\tLOCATION: ";
-		o << *it;
+		o << std::endl << "\t\tLOCATION: ";
+		o << *(*it);
 	}
 	return o;
 }
@@ -74,14 +82,15 @@ std::ostream &			operator<<( std::ostream & o, Server const & rhs )
 
 void			Server::fillServer(Node* node)
 {
-    Location  tmpLocation;
+	Location  *tmpLocation;
 
 	if (node != NULL)
 	{
 		if (node->getType() == "location")
 		{
-			tmpLocation.setUri(node->getContent());
-			tmpLocation.fillLocation(node->getLeft());
+			tmpLocation = new Location();
+			tmpLocation->setUri(node->getContent());
+			tmpLocation->fillLocation(node->getLeft());
 			this->m_locations.push_back(tmpLocation);
 		}
 		else if (node->getType() == "listen")
@@ -89,10 +98,8 @@ void			Server::fillServer(Node* node)
 		else if (node->getType() == "server_name")
 			this->setNames(node->getContent());
 		else
-			this->setValue(node);
+			this->m_params.setValue(node);
 	}
-	// std::cout << "1 UPLOAD: "<< m_params.getUpload() << std::endl;
-	// std::cout << "1 AUTOINDEX: "<< m_params.getAutoindex() << std::endl;
 	if (node->getLeft() != NULL)
 		this->fillServer(node->getLeft());
 	if (node->getRight() != NULL)
@@ -106,115 +113,7 @@ int				Server::run(fd_type epoll)
     return 1;
 }
 
-void	Server::setValue(Node* node)
-{
-	std::string					type = node->getType();
-	std::vector<std::string>	content = node->getContent();
 
-	if (type == "error_page")
-		m_params.setErrPages(content);
-	else if (type == "client_max_body_size")
-		m_params.setBodySize(content);
-	else if (type == "root")
-		m_params.setRoot(content);
-	else if (type == "index")
-		m_params.setIndexes(content);
-	else if (type == "methods")
-		m_params.setMethods(content);
-	else if (type == "redirect")
-		m_params.setRedirect(content);
-	else if (type == "autoindex")
-		m_params.setautoindex(content);
-	else if (type == "upload")
-		m_params.setUpload(content);
-	else if (type == "cgi")
-		m_params.setCGIPass(content);
-}
-
-
-// void	Server::setUri(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	m_params.serUri(*it);
-// }
-
-// void	Server::setErrPages(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	m_error_pages[*it] = *(it + 1);
-// }
-
-// void	Server::setBodySize(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator	it = content.begin();
-// 	std::istringstream							iss(*it);
-// 	size_t										i;
-
-// 	iss >> i;
-// 	this->m_body_size = i;
-// }
-
-// void	Server::setRoot(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	this->m_root = *it;
-// }
-
-// void	Server::setIndexes(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-// 	std::vector<std::string>::const_iterator  ite = content.end();
-
-// 	while (it != ite)
-// 		this->m_indexes.push_back(*(it++));
-// }
-
-// void	Server::setMethods(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-// 	std::vector<std::string>::const_iterator  ite = content.end();
-
-// 	while (it != ite)
-// 		this->m_methods.push_back(*(it++));
-// }
-
-// void	Server::setRedirect(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	m_redirect = std::make_pair(*it, *(it + 1));
-// }
-
-// void	Server::setautoindex(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	if (*it == "on")
-// 		this->m_autoindex = true;
-// 	else
-// 		this->m_autoindex = false;
-// }
-
-// void	Server::setUpload(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	if (*it == "on")
-// 		this->m_upload = true;
-// 	else
-// 		this->m_upload = false;
-// }
-
-// // WHAT S HAPPEN IF SAME MAP
-// void	Server::setCGIPass(std::vector<std::string> const &content)
-// {
-// 	std::vector<std::string>::const_iterator  it = content.begin();
-
-// 	m_cgi_pass[*it] = *(it + 1);
-// }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
@@ -271,7 +170,7 @@ Location const &			Server::getParams(void) const
 	return (m_params);
 }
 
-std::vector<Location>			Server::getLocations(void) const
+std::vector<Location*>			Server::getLocations(void) const
 {
 	return (m_locations);
 }
@@ -279,17 +178,17 @@ std::vector<Location>			Server::getLocations(void) const
 Location const *	Server::getLocation(std::string const & uri) const
 {
 	size_t									match = 0;
-	std::vector<Location>::const_iterator	it_ret;
+	std::vector<Location*>::const_iterator	it_ret;
 
-	for (std::vector<Location>::const_iterator it = m_locations.begin(); it != m_locations.end(); it++)
+	for (std::vector<Location*>::const_iterator it = m_locations.begin(); it != m_locations.end(); it++)
 	{
-		if (!uri.compare(0, it->getUri().size(), it->getUri()) && it->getUri().size() > match)
+		if (!uri.compare(0, (*it)->getUri().size(), (*it)->getUri()) && (*it)->getUri().size() > match)
 		{
 			it_ret = it;
-			match = it->getUri().size();
+			match = (*it)->getUri().size();
 		}
 	}
-	return (match ? &(*it_ret) : &m_params);
+	return (match ? &(*(*it_ret)) : &m_params);
 }
 
 /* ************************************************************************** */

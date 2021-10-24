@@ -27,12 +27,12 @@ class Cluster
 		Cluster &						operator=( Cluster const & rhs );
 		int								run(void);
 
-		std::vector<Server> 			getServers(void) const;
+		std::vector<Server*> 			getServers(void) const;
 		Tree				 			getTree(void) const;
 
 	private:
-		std::vector<Server>	m_servers;
-		Tree				m_tree;
+		std::vector<Server*>	m_servers;
+		Tree					m_tree;
 
 		struct sockaddr_in 				m_their_addr;
 		fd_type							m_newsocket_fd;
