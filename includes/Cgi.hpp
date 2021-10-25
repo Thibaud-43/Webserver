@@ -1,51 +1,68 @@
 #ifndef CGI_HPP
 # define CGI_HPP
 
-#include "Headers.hpp"
-#include "Request.hpp"
-#include "Client.hpp"
+# include "Headers.hpp"
+# include "Client.hpp"
+# include "Request.hpp"
+# include "Server.hpp"
+
+/*		ENV LIST:
+
+		AUTH_TYPE;
+		CONTENT_LENGTH;
+		CONTENT_TYPE;
+		GATEWAY_INTERFACE;
+		PATH_INFO;
+		PATH_TRANSLATED;
+		QUERY_STRING;
+		REMOTE_ADDR;
+		REQUEST_METHOD;
+		SCRIPT_NAME;
+		SERVER_NAME;
+		SERVER_PORT;
+		SERVER_PROTOCOL;
+		SERVER_SOFTWARE;
+*/
 
 class Cgi
 {
 	public:
-		typedef std::set<Cgi>		list_type;
-		typedef int					fd_type;
-		typedef	std::string			envVariable_t;
+		typedef std::set<Cgi>						list_type;
+		typedef int									fd_type;
+		typedef std::map<std::string, std::string>	env_type;
 
 		Cgi();
 		Cgi(Cgi const & src);
-		Cgi(Request const &  Request);
+		Cgi(Request const & Request, std::string const & cgi_path);
 		~Cgi();
 
-		Cgi &						    operator=(Cgi const & rhs);
-		static	bool					isCgiFd(fd_type & fd);
-		static	void					removeCgi(Cgi const & cgi);
-		Client const *					getClient(void) const;
+		Cgi &				operator=(Cgi const & rhs);
+		static bool			isCgiFd(fd_type & fd);
+		static void			removeCgi(Cgi const & cgi);
+		static void			addCgi(Cgi const & cgi);
+		Client const *		getClient(void) const;
+		int					getFd_out(void) const;
+		pid_t				getPid(void) const;
+		char **				getEnv(void) const;
 
+		void				setPid(pid_t const & pid);
+		void				setFd_out(fd_type const & fd);
+
+		friend bool	operator<(Cgi const & lhs, Cgi const & rhs);
+		friend bool	operator<=(Cgi const & lhs, Cgi const & rhs);
+		friend bool	operator>=(Cgi const & lhs, Cgi const & rhs);
+		friend bool	operator==(Cgi const & lhs, Cgi const & rhs);
+		friend bool	operator!=(Cgi const & lhs, Cgi const & rhs);
+		friend bool	operator>(Cgi const & lhs, Cgi const & rhs);
 
 	private:
-		int     		m_pipe[2];
-		pid_t   		m_pid;
-		Client	*		m_client;
 
-		char			**environement;
-		
-		envVariable_t	CONTENT_LENGTH;
-		envVariable_t	CONTENT_TYPE;
-		envVariable_t	GATEWAY_INTERFACE;
-		envVariable_t	PATH_INFO;
-		envVariable_t	PATH_TRANSLATED;
-		envVariable_t	QUERY_STRING;
-		envVariable_t	REMOTE_ADDR;
-		envVariable_t	REQUEST_METHOD;
-		envVariable_t	SCRIPT_NAME;
-		envVariable_t	SERVER_NAME;
-		envVariable_t	SERVER_PORT;
-		envVariable_t	SERVER_PROTOCOL;
-		envVariable_t	SERVER_SOFTWARE;
-		envVariable_t	REDIRECT_STATUS;
-
+		pid_t   			m_pid;
+		fd_type				m_fd_out;
+		Client const *		m_client;
+		env_type			m_env;
 
 		static  list_type   _list;
+
 };
 #endif /* ********************************************************* Cgi_H */

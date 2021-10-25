@@ -1,18 +1,12 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include <iostream>
-# include <string>
-# include <map>
-# include <fstream>
-# include <stdio.h>
-# include "File.hpp"
-# include "Server.hpp"
+# include "Headers.hpp"
 # include "Client.hpp"
-# include "Response.hpp"
+# include "Server.hpp"
 # include "Location.hpp"
-
-# define MAX_SERVER_BODY_SIZE 1024
+# include "Response.hpp"
+# include "File.hpp"
 
 class Request
 {
@@ -40,8 +34,10 @@ class Request
 		static  Request *	createRequest(Client const & client);
 		static	void		removeRequest(Request const & request);
 		static	void		unChunked(std::string & str);
-		header_type &		getHeader(void) ;
-		body_type  &		getBody(void) ;
+		header_type const &	getHeader(void) const;
+		body_type const &	getBody(void) const;
+		std::string const &	getPath(void) const;
+		Server const *		getServer(void) const;
 		bool				getHeaderCompleted(void);
 
 	private:
@@ -76,9 +72,9 @@ class Request
 		bool								_check_get(void) const;
 		bool								_check_delete(void) const;
 		bool								_delete(void) const;	
-		bool								_get(Location::file_t const * path) const;
+		bool								_get(void) const;
 		Location::file_t const *			_get_cgi_path(void) const;
-		bool								_cgi_get(Location::file_t const & path) const;
+		bool								_cgi_get(Location::file_t const & cgi_path) const;
 		void								_chunk_size_to_client(std::streamsize const & s) const;
 
 		// DEBUG

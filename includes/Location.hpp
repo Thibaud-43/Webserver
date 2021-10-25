@@ -1,10 +1,7 @@
 #ifndef LOCATION_HPP
 # define LOCATION_HPP
 
-# include <iostream>
-# include <string>
-# include <vector>
-# include <map>
+# include "Headers.hpp"
 # include "Node.hpp"
 
 class Location

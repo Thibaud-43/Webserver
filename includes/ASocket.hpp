@@ -4,6 +4,7 @@
 #include "Headers.hpp"
 
 class Server;
+
 class ASocket
 {
 	public:
@@ -24,12 +25,12 @@ class ASocket
 		void							destroy(void);
 
 		operator						fd_type(void) const;
-		friend bool						operator<(ASocket & lhs, ASocket & rhs);
-		friend bool						operator<=(ASocket & lhs, ASocket & rhs);
-		friend bool						operator>(ASocket & lhs, ASocket & rhs);
-		friend bool						operator>=(ASocket & lhs, ASocket & rhs);
-		friend bool						operator==(ASocket & lhs, ASocket & rhs);
-		friend bool						operator!=(ASocket & lhs, ASocket & rhs);
+		friend bool						operator<(ASocket const & lhs, ASocket const & rhs);
+		friend bool						operator<=(ASocket const & lhs, ASocket const & rhs);
+		friend bool						operator>(ASocket const & lhs, ASocket const & rhs);
+		friend bool						operator>=(ASocket const & lhs, ASocket const & rhs);
+		friend bool						operator==(ASocket const & lhs, ASocket const & rhs);
+		friend bool						operator!=(ASocket const & lhs, ASocket const & rhs);
 
 	protected:
 		fd_type							m_fd;
