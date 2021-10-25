@@ -29,8 +29,7 @@ class Request
 		~Request();
 
 		Request &			operator=(Request const & rhs);
-		bool				manage(std::string & buffer, std::vector<Server> const & servers);
-		bool				manage2(std::string & buffer, std::vector<Server> const & servers);
+		bool				manage(std::string & buffer, std::vector<Server*> const & servers);
 
 		Client const *		getClient(void) const;
 		bool				ready(void) const;
@@ -55,10 +54,10 @@ class Request
 		bool								m_end;
 
 		static list_type					_list;
-		void								_linkServer(std::vector<Server> const & list);
+		void								_linkServer(std::vector<Server*> const & list);
 		void								_linkPath(void);
 		void								_linkLocation(void);
-		bool								_checkHeader(std::vector<Server> const & servers);
+		bool								_checkHeader(std::vector<Server*> const & servers);
 		
 		bool								_checkRequestLine(void);
 		bool								_checkHost(void);

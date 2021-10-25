@@ -279,7 +279,7 @@ void			Request::_printHex(std::string & token)
 	}
 }
 
-bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
+bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 {
 	if (m_headerCompleted == false)
 	{
@@ -312,7 +312,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 	return (false);
 }
 
-bool	Request::_checkHeader(std::vector<Server> const & servers)
+bool	Request::_checkHeader(std::vector<Server*> const & servers)
 {
 	if (_checkRequestLine() == false || _checkHost() == false)
 		return (false);
@@ -375,7 +375,7 @@ void			Request::_linkPath(void)
 	}
 }
 
-void			Request::_linkServer(std::vector<Server> const & list)
+void			Request::_linkServer(std::vector<Server*> const & list)
 {
 	std::string	delimiter = ":";
 	size_t		pos;
@@ -397,16 +397,16 @@ void			Request::_linkServer(std::vector<Server> const & list)
 	}
 
 	std::vector<std::string>::const_iterator it2;
-	for (std::vector<Server>::const_iterator it = list.begin(); it != list.end(); it++)
+	for (std::vector<Server*>::const_iterator it = list.begin(); it != list.end(); it++)
 	{
-		it2 = std::find((*it).getNames().begin(), (*it).getNames().end(), server_name);
-		if (port == (*it).getPort() && it2 != (*it).getNames().end())
+		it2 = std::find((*it)->getNames().begin(), (*it)->getNames().end(), server_name);
+		if (port == (*it)->getPort() && it2 != (*it)->getNames().end())
 		{
-			m_server = &(*it);
+			m_server = (*it);
 			return ;
 		}
 	}
-	m_server = &(*list.begin());
+	m_server = (*list.begin());
 	return ;
 }
 

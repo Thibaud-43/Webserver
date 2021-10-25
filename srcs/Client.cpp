@@ -8,6 +8,15 @@ void	Client::closeConnexion(Client const & client)
     _list.erase(client);
 }
 
+Client	const *	Client::getClientFromFd(fd_type fd)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if ((*it).m_fd == fd)
+			return (&(*it));
+	}
+	return (NULL);
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -73,14 +82,6 @@ void                   Client::sendResponse(char const *response) const
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-Client	const *	Client::getClientFromFd(fd_type fd)
-{
-	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		if ((*it).m_fd == fd)
-			return (&(*it));
-	}
-	return (NULL);
-}
+
 
 /* ************************************************************************** */

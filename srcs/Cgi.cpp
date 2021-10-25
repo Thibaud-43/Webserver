@@ -23,6 +23,15 @@ void		Cgi::removeCgi(Cgi const & cgi)
 	}
 }
 
+Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if ((*it).m_pipe[1] == fd)
+			return (&(*it));
+	}
+	return (NULL);
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -68,6 +77,10 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool	Cgi::handle(std::string & buffer) const
+{
+	return (true);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

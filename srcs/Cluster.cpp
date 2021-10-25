@@ -2,6 +2,8 @@
 
 void printBT(const Node* node);
 
+
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -190,7 +192,40 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 
 void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 {
-    
+    size_t              bytes_read;
+    char                read_buffer[READ_SIZE + 1];
+    size_t              read_buffer_size = sizeof(read_buffer);
+    std::string         buff = "";
+
+
+    for (;;)
+    {
+        memset(read_buffer, 0, read_buffer_size);
+        bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
+        if (bytes_read < 0)
+        {
+            //removecgi
+            close(eventFd);
+            break;
+        }
+        else if (bytes_read == read_buffer_size)
+        {
+            read_buffer[bytes_read] = 0;
+            buff += read_buffer;
+        }
+        else
+        { 
+            read_buffer[bytes_read] = 0;
+
+            buff += read_buffer;
+
+            Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
+           
+             if (cgi && cgi->handle(buff));
+                 Cgi::removeCgi(*cgi);
+            break;
+        }
+    }
 }
 
 void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
@@ -207,7 +242,10 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
         bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
         if (bytes_read < 0)
         {
-            //removerequest
+            Client const 	*client = Client::getClientFromFd(eventFd);
+            Request			*request = Request::getRequestFromClient(*client);
+            Request::removeRequest(*request);
+
             close(eventFd);
             break;
         }
@@ -227,8 +265,8 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
             if (!request && buff != "\r\n")
                 request = Request::createRequest(*client);
-            // if (request && request->manage(buff, m_servers))
-            //     Request::removeRequest(*request);
+            if (request && request->manage(buff, m_servers))
+                 Request::removeRequest(*request);
             break;
         }
     }

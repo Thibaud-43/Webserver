@@ -19,8 +19,10 @@ class Cgi
 
 		Cgi &						    operator=(Cgi const & rhs);
 		static	bool					isCgiFd(fd_type & fd);
+		static Cgi const *				getCgiFromFd(fd_type fd);
 		static	void					removeCgi(Cgi const & cgi);
 		Client const *					getClient(void) const;
+		bool							handle(std::string & buffer) const;
 
 
 	private:
