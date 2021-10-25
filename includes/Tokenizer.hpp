@@ -35,6 +35,26 @@ class Tokenizer
             public: 
                 virtual const char* what() const throw();
         };
+        class wrongPathException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
+        class isNotReadableException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
+        class isNotRegulatException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
+        class canNotOpenException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
 };
 
 std::ostream&   operator<<(std::ostream &o, Tokenizer const &i);

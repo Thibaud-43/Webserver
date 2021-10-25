@@ -1,4 +1,5 @@
 #include "Tokenizer.hpp"
+#include "File.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -6,13 +7,17 @@
 Tokenizer::Tokenizer() : m_configFilePath(NULL)
 {}
 
-// Is it the same ? 
-// Tokenizer::Tokenizer()
-// {}
-
 Tokenizer::Tokenizer(const char *configFilePath) : m_configFilePath(configFilePath)
 {
-    this->createTokensList();
+    try
+    {
+        this->createTokensList();
+    }
+    catch(const std::exception& e)
+    {
+        throw Tokenizer::canNotOpenException();
+    }
+   
 }
 
 Tokenizer::Tokenizer(Tokenizer const &src)
@@ -59,6 +64,16 @@ void     Tokenizer::openConfigFile(void)
     if (!m_configFilePath)
         throw Tokenizer::nullPathException();
     m_ifs.open(m_configFilePath);
+    if (m_ifs.is_open() == false)
+        throw Tokenizer::wrongPathException();
+    File    confFile(m_configFilePath);
+    if (confFile.is_readable() == false)
+        throw Tokenizer::isNotReadableException();
+    if (confFile.is_regular() == false)
+    {
+        m_ifs.close();
+        throw Tokenizer::isNotRegulatException();
+    }
 }
 
 void     Tokenizer::fillBufferStr(void)
@@ -69,8 +84,8 @@ void     Tokenizer::fillBufferStr(void)
     }
     catch(const std::exception& e)
     {
-        std::cerr << "Error - ";
-        std::cerr << e.what();
+        std::cerr << "ERROR - Opening process - " << e.what() << std::endl;
+        throw Tokenizer::canNotOpenException();
     }
     
     std::string tmpString;
@@ -96,7 +111,14 @@ void    Tokenizer::searchAndReplace(std::string const &toSearch, std::string con
 
 void    Tokenizer::replaceAllSeparators(void)
 {
-    this->fillBufferStr();
+    try
+    {
+        this->fillBufferStr();
+    }
+    catch (const std::exception &e)
+    {
+        throw Tokenizer::canNotOpenException();
+    }
     this->searchAndReplace("{", " { ");
     this->searchAndReplace("}", " } ");
     this->searchAndReplace(";", " ; ");
@@ -105,7 +127,14 @@ void    Tokenizer::replaceAllSeparators(void)
 
 void    Tokenizer::createTokensList(void)
 {
-    this->replaceAllSeparators();
+    try
+    {
+        this->replaceAllSeparators();
+    }
+    catch (const std::exception &e)
+    {
+        throw Tokenizer::canNotOpenException();
+    }
     std::istringstream  iss(m_bufferStr);
     std::string         token;
 
@@ -148,7 +177,28 @@ std::string                 Tokenizer::getBufferStr(void) const
 */
 const char* Tokenizer::nullPathException::what() const throw()
 {
-    return ("Empty path");
+    return ("Empty path.");
 }
+
+const char* Tokenizer::wrongPathException::what() const throw()
+{
+    return ("Impossible to open file. Check path and/or rights.");
+}
+
+const char* Tokenizer::isNotReadableException::what() const throw()
+{
+    return ("Impossible to read file. Check rights.");
+}
+
+const char* Tokenizer::isNotRegulatException::what() const throw()
+{
+    return ("Is not a regular file.");
+}
+
+const char* Tokenizer::canNotOpenException::what() const throw()
+{
+    return ("");
+}
+
 
 /* ************************************************************************** */
