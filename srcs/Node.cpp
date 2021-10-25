@@ -30,6 +30,7 @@ Node::Node() : m_left(NULL), m_right(NULL)
 Node::Node(std::string type) : m_left(NULL), m_right(NULL), m_type(type)
 {}
 
+
 Node::Node(std::string type, std::vector<std::string> content) : m_left(NULL), m_right(NULL), m_type(type), m_content(content)
 {}
 
@@ -537,7 +538,7 @@ std::string                 Node::getErrorMessage(void)const
     return errorMessage;
 }
 
-std::vector<std::string>    Node::getContent(void)const
+std::vector<std::string>&    Node::getContent(void)
 {
     return m_content;
 }

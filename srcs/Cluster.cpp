@@ -106,9 +106,18 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 void			Cluster::_fillCluster(Node* node)
 {
 	Server  *tmpServer;
+	std::vector<std::string>::iterator it = node->getContent().begin();
 
 	if (node == NULL) 
 		return ;
+	if (node->getType() == "Server" && it != node->getContent().end() && *it == "empty")
+	{
+		tmpServer = new Server();
+		m_servers.push_back(tmpServer);
+		if (node->getLeft() != NULL)
+			this->_fillCluster(node->getLeft());
+		return;
+	}
 	if (node->getLeft() != NULL)
 	{
 		tmpServer = new Server();
@@ -116,7 +125,10 @@ void			Cluster::_fillCluster(Node* node)
 		m_servers.push_back(tmpServer);
 	}
 	if (node->getRight() != NULL)
+	{
 		this->_fillCluster(node->getRight());
+	}
+
 }
 
 int				Cluster::run(void)

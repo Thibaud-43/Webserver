@@ -27,7 +27,7 @@ class   Node
         std::string                 getType(void)const;
         std::string                 getErrorMessage(void)const;
 
-        std::vector<std::string>    getContent(void)const;
+        std::vector<std::string>&   getContent(void);
 
         Node*   createNode(std::string const &type);
         int     parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);

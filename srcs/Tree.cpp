@@ -65,23 +65,42 @@ int    Tree::parseCluster(void)
     std::vector<std::string>::iterator  it = tokens.begin();
     std::vector<std::string>::iterator  ite = tokens.end();
 
+
     while(it != ite)
     {
         if (Tree::isServer(it, ite) == true) // STRANGE FUNCITON MEMBER ? Thib told me to make it as a static
-        {
-            if (tmpNode == NULL)
+        { 
+            if (it != ite && *it == "}")
+            {
+                if (tmpNode == NULL)
+                {
+                    m_root = new Node("Server");
+                    m_root->getContent().push_back("empty");
+                    tmpNode = m_root;
+                }
+                else
+                {
+                    tmpNode = tmpNode->createNode("Server");
+                    tmpNode->getContent().push_back("empty");
+                }
+                it++;
+            }
+            else if (tmpNode == NULL)
             {
                 m_root = new Node("Server");
                 tmpNode = m_root;
+                tmpNode->parseServer(it, ite);
             }
             else
+            {
                 tmpNode = tmpNode->createNode("Server");
-            tmpNode->parseServer(it, ite);
+                tmpNode->parseServer(it, ite);
+            }
         }
         else
         {
             if (m_root->getErrorMessage().empty() == true)
-            m_root->setErrorMessage("server scope is wrong.");
+                m_root->setErrorMessage("server scope is wrong.");
             return -1;
         }
     }
@@ -90,8 +109,9 @@ int    Tree::parseCluster(void)
 
 bool    Tree::isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
 {
-    if (*it == "server" && ++it != ite && *it == "{" && ++it != ite && *it != "}")
+    if (*it == "server" && ++it != ite && *it == "{")
     {
+        ++it;
         return true;
     }
     return false;
