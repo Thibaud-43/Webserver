@@ -19,7 +19,7 @@ Location::Location()
 Location::Location( const Location & src )
 	: m_error_pages(src.m_error_pages), m_body_size(src.m_body_size), m_root(src.m_root)
 	, m_indexes(src.m_indexes), m_methods(src.m_methods), m_redirect(src.m_redirect)
-	, m_autoindex(src.m_autoindex), m_cgi_pass(src.m_cgi_pass), m_upload(src.m_upload)
+	, m_autoindex(src.m_autoindex), m_upload(src.m_upload), m_cgi_pass(src.m_cgi_pass)
 {
 }
 

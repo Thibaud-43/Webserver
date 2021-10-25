@@ -19,16 +19,18 @@ class Cgi
 
 		Cgi &						    operator=(Cgi const & rhs);
 		static	bool					isCgiFd(fd_type & fd);
+		static Cgi const *				getCgiFromFd(fd_type fd);
 		static	void					removeCgi(Cgi const & cgi);
 		Client const *					getClient(void) const;
+		bool							handle(std::string & buffer) const;
 
 
 	private:
 		int     		m_pipe[2];
-		pid_t   		m_pid;
+		// pid_t   		m_pid; // THIBAUD!!!
 		Client	*		m_client;
 
-		char			**environement;
+		// char			**environement; // THIBAUD!!
 		
 		envVariable_t	CONTENT_LENGTH;
 		envVariable_t	CONTENT_TYPE;

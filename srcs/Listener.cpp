@@ -50,13 +50,6 @@ Listener &				Listener::operator=( Listener const & rhs )
 	return *this;
 }
 
-// std::ostream &			operator<<( std::ostream & o, Listener const & i )
-// {
-// 	// o << "Value = " << i.getValue();
-// 	return o;
-// }
-
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */

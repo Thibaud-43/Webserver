@@ -33,11 +33,8 @@ class Cluster
 		Tree				 			getTree(void) const;
 
 	private:
-		std::vector<Server*>	m_servers;
-		Tree					m_tree;
-
-		struct sockaddr_in 				m_their_addr;
-		fd_type							m_newsocket_fd;
+		std::vector<Server*>			m_servers;
+		Tree							m_tree;
 		fd_type							m_epoll_fd;
 		event_type						m_events[MAX_EVENTS];
 		int								m_eventCount;

@@ -23,6 +23,15 @@ void		Cgi::removeCgi(Cgi const & cgi)
 	}
 }
 
+Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if ((*it).m_pipe[1] == fd)
+			return (&(*it));
+	}
+	return (NULL);
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -33,12 +42,12 @@ Cgi::Cgi()
 
 Cgi::Cgi( const Cgi & src )
 {
-
+	(void) src; // SOLVE THIBAUD!!
 }
 
 Cgi::Cgi(Request const &  Request)
 {
-
+	(void) Request; // SOLVE THIBAUD!!
 }
 
 /*
@@ -68,6 +77,11 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool	Cgi::handle(std::string & buffer) const
+{
+	(void) buffer; // SOLVE THIBAUD!!
+	return (true);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

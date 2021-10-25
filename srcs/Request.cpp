@@ -279,7 +279,7 @@ void			Request::_printHex(std::string & token)
 	}
 }
 
-bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
+bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 {
 	if (m_headerCompleted == false)
 	{
@@ -312,7 +312,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server> const & servers)
 	return (false);
 }
 
-bool	Request::_checkHeader(std::vector<Server> const & servers)
+bool	Request::_checkHeader(std::vector<Server*> const & servers)
 {
 	if (_checkRequestLine() == false || _checkHost() == false)
 		return (false);
@@ -359,7 +359,19 @@ bool	Request::_checkRequestLine(void)
 
 void			Request::_linkLocation(void)
 {
+	std::string	delimiter = "?";
+	std::string	token;
+	size_t		pos = m_header["uri"].find(delimiter);
+	m_header["query_string"] = "";
+	if (pos != std::string::npos)
+	{
+		token = m_header["uri"].substr(0, pos);
+		m_header["query_string"] = m_header["uri"].substr(pos + delimiter.length(), m_header["uri"].length());
+		m_header["uri"] = token;
+
+	}
 	m_location = m_server->getLocation(m_header["uri"]);
+	
 }
 
 void			Request::_linkPath(void)
@@ -375,7 +387,7 @@ void			Request::_linkPath(void)
 	}
 }
 
-void			Request::_linkServer(std::vector<Server> const & list)
+void			Request::_linkServer(std::vector<Server*> const & list)
 {
 	std::string	delimiter = ":";
 	size_t		pos;
@@ -397,16 +409,16 @@ void			Request::_linkServer(std::vector<Server> const & list)
 	}
 
 	std::vector<std::string>::const_iterator it2;
-	for (std::vector<Server>::const_iterator it = list.begin(); it != list.end(); it++)
+	for (std::vector<Server*>::const_iterator it = list.begin(); it != list.end(); it++)
 	{
-		it2 = std::find((*it).getNames().begin(), (*it).getNames().end(), server_name);
-		if (port == (*it).getPort() && it2 != (*it).getNames().end())
+		it2 = std::find((*it)->getNames().begin(), (*it)->getNames().end(), server_name);
+		if (port == (*it)->getPort() && it2 != (*it)->getNames().end())
 		{
-			m_server = &(*it);
+			m_server = (*it);
 			return ;
 		}
 	}
-	m_server = &(*list.begin());
+	m_server = (*list.begin());
 	return ;
 }
 
@@ -512,7 +524,7 @@ bool	Request::_get(Location::file_t const * path) const
 		return (_cgi_get(*path));
 
 	Response		rep;
-	std::ifstream	fstream(m_path);
+	std::ifstream	fstream(m_path.data());
 	char			buff[MAX_SERVER_BODY_SIZE + 1];
 	File			f(m_path);
 
@@ -583,6 +595,7 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 
 bool	Request::_cgi_get(Location::file_t const & path) const
 {
+	static_cast<void>(path);
 	return (false);
 }
 
