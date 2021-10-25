@@ -11,7 +11,6 @@ Tree::Tree(const char * configFilePath) : m_root(NULL), m_tokens(configFilePath)
 
 Tree::Tree(Tree const &src) : m_root(src.m_root), m_tokens(src.m_tokens)
 {}
-// WE SHOULD TRY IF COPY CONSTRUCTOR IS WORKING PROPERLY!
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -25,7 +24,6 @@ Tree::~Tree()
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-// DEEP COPY ?
 Tree& Tree::operator=(Tree const & rhs)
 {
     if (this != &rhs)
@@ -47,7 +45,6 @@ std::ostream&   operator<<(std::ostream &o, Tree &i)
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
-void printBT(Node* node);
 
 void    Tree::parseTokensList(void)
 {
@@ -58,8 +55,6 @@ void    Tree::parseTokensList(void)
         m_root->setErrorMessage("Empty file.");
         throw Tree::ParserFailException();
     }
-    printBT(m_root);
-
 }
 
 int    Tree::parseCluster(void)
@@ -68,7 +63,6 @@ int    Tree::parseCluster(void)
     std::vector<std::string>            tokens = m_tokens.getTokens();
     std::vector<std::string>::iterator  it = tokens.begin();
     std::vector<std::string>::iterator  ite = tokens.end();
-
 
     while(it != ite)
     {

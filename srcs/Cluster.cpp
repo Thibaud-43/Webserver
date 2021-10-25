@@ -1,9 +1,5 @@
 #include "Cluster.hpp"
 
-void printBT(const Node* node);
-
-
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -58,7 +54,6 @@ Cluster::~Cluster()
 	}
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
@@ -96,12 +91,9 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-
-
 
 void			Cluster::_fillCluster(Node* node)
 {
@@ -128,7 +120,6 @@ void			Cluster::_fillCluster(Node* node)
 	{
 		this->_fillCluster(node->getRight());
 	}
-
 }
 
 int				Cluster::run(void)

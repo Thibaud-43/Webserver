@@ -59,4 +59,5 @@ class Tokenizer
 
 std::ostream&   operator<<(std::ostream &o, Tokenizer const &i);
 
-#endif /* ********************************************************** TOKENIZER_HPP */
+#endif
+/* ********************************************************** TOKENIZER_HPP */

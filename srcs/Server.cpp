@@ -10,9 +10,7 @@ Server::Server():  m_ip("0.0.0.0"), m_port("80")
 }
 
 Server::Server( const Server & src ): m_ip(src.m_ip), m_port(src.m_port), m_names(src.m_names), m_params(Location())
-{
-
-}
+{}
 
 Server::Server(std::string port, std::string ip): m_ip(ip), m_port(port)
 {
@@ -119,7 +117,7 @@ int				Server::run(fd_type epoll)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-void	Server::setIpandPort(std::vector<std::string> const & content)
+void						Server::setIpandPort(std::vector<std::string> const & content)
 {
 	std::vector<std::string>::const_iterator	it = content.begin();
 	std::istringstream							iss(*it);
@@ -136,7 +134,7 @@ void	Server::setIpandPort(std::vector<std::string> const & content)
 	}
 }
 
-void	Server::setNames(std::vector<std::string> const & content)
+void						Server::setNames(std::vector<std::string> const & content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 	std::vector<std::string>::const_iterator  ite = content.end();
@@ -145,14 +143,12 @@ void	Server::setNames(std::vector<std::string> const & content)
 		this->m_names.push_back(*(it++));
 }
 
-
-
-std::string				Server::getIp(void) const
+std::string					Server::getIp(void) const
 {
 	return m_ip;
 }
 
-std::string				Server::getPort(void) const
+std::string					Server::getPort(void) const
 {
 	return m_port;
 }
@@ -167,12 +163,12 @@ Location const &			Server::getParams(void) const
 	return (m_params);
 }
 
-std::vector<Location*>			Server::getLocations(void) const
+std::vector<Location*>		Server::getLocations(void) const
 {
 	return (m_locations);
 }
 
-Location const *	Server::getLocation(std::string const & uri) const
+Location const *			Server::getLocation(std::string const & uri) const
 {
 	size_t									match = 0;
 	std::vector<Location*>::const_iterator	it_ret;

@@ -20,13 +20,10 @@ class   Tree
         
         void    parseTokensList(void);
         int     parseCluster(void);
-
+        void    postfixSearch(Node *node);
+        
         static bool    isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
 
-        void    postfixSearch(Node *node);
-
-        // void        displayTokens(void)const;
-        // void        displayRoot(void)const;
         class   ParserFailException : public std::exception
         {
             public: 
@@ -42,11 +39,9 @@ class   Tree
             public: 
                 virtual const char* what() const throw();
         };
-
-
-
 };
 
 std::ostream&   operator<<(std::ostream &o, Tree &i);
 
-#endif /* ********************************************************** TREE_HPP */
+#endif
+/* ********************************************************** TREE_HPP */

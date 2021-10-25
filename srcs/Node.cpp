@@ -86,7 +86,6 @@ std::ostream&			operator<<(std::ostream & o, Node const &i)
     return o;
 }
 
-
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
@@ -323,7 +322,7 @@ bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector
 {
     size_t i = 0; 
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
     {
@@ -342,7 +341,7 @@ bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vecto
     std::istringstream  tmpIss;
     float               f;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (Node::isNumber(*it) == false || (*it).size() > 10)
         return false;
@@ -357,7 +356,7 @@ bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vecto
 
 bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
         return false;
@@ -371,7 +370,7 @@ bool    Node::checkErrorPage(std::vector<std::string>::iterator it, std::vector<
     float               f;
     std::istringstream  tmpIss;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (Node::isNumber(*it) == false || (*it).size() > 10)
         return false;
@@ -388,7 +387,7 @@ bool    Node::checkMethods(std::vector<std::string>::iterator it, std::vector<st
 {
     size_t i = 0;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     while (it != ite && *it != ";" && i < 3)
     {
@@ -406,7 +405,7 @@ bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std:
 {
     size_t i = 0; 
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
     {
@@ -430,11 +429,9 @@ bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::
 bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
     float               f;
-    // float const         acceptedValues[7] = {301.0, 302.0, 303.0, 304.0, 306.0, 307.0, 308.0};
-    // size_t              i = 0;
     std::istringstream  tmpIss;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (Node::isNumber(*it) == false || (*it).size() > 10)
         return false;
@@ -449,7 +446,7 @@ bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<s
 
 bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;  
     if (*it != "on" && *it != "off")
         return false;
@@ -460,7 +457,7 @@ bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<
 
 bool    Node::checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;  
     if (*it != "on" && *it != "off")
         return false;
@@ -506,6 +503,7 @@ void    Node::displayContent(std::ostream &o)const
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
 Node*                       Node::getLeft(void)const
 {
     return m_left;
@@ -545,10 +543,4 @@ std::vector<std::string>&    Node::getContent(void)
 {
     return m_content;
 }
-
-/*
-** --------------------------------- EXCEPTIONS ---------------------------------
-*/
-
-
 /* ************************************************************************** */

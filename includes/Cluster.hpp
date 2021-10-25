@@ -11,12 +11,10 @@
 
 class Cluster
 {
-
 	public:
 		typedef int						fd_type;
 		typedef struct epoll_event		event_type;
 
-		// Cluster();
 		Cluster( char const * configFilePath = "confFiles/default.conf" );
 		Cluster( Cluster const & src );
 		~Cluster();
@@ -48,4 +46,5 @@ class Cluster
 
 std::ostream &			operator<<( std::ostream & o, Cluster const & rhs );
 
-#endif /* ********************************************************* CLUSTER_H */
+#endif
+/* ********************************************************* CLUSTER_H */
