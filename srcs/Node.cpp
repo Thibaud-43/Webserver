@@ -1,6 +1,6 @@
 #include "Node.hpp"
 
-Node::directive_t   Node::directivesMap = initMap();
+Node::directive_t   Node::m_directivesMap = initMap();
 
 Node::directive_t Node::initMap(void)
 {
@@ -8,6 +8,15 @@ Node::directive_t Node::initMap(void)
 
     directivesMap["listen"] = &Node::checkListen;
     directivesMap["server_name"] = &Node::checkServerName;
+    directivesMap["client_max_body_size"] = &Node::checkMaxBodySize;
+    directivesMap["cgi"] = &Node::checkCgi;
+    directivesMap["error_page"] = &Node::checkErrorPage;
+    directivesMap["methods"] = &Node::checkMethods;
+    directivesMap["index"] = &Node::checkIndex;
+    directivesMap["root"] = &Node::checkRoot;
+    directivesMap["redirect"] = &Node::checkRedirect;
+    directivesMap["autoindex"] = &Node::checkAutoindex;
+    directivesMap["upload"] = &Node::checkUpload;
     return directivesMap;
 }
 /*
@@ -79,32 +88,363 @@ std::ostream&			operator<<(std::ostream & o, Node const &i)
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
 
-Node*   Node::parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
+bool    Node::isLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (*it != "location")
+        return false;
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}")
+        return false;
+    if (++it == ite || *it != "{")
+        return false;
+    return true;
+}
+
+int     Node::parseLocation(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
+{
+    Node*       tmpNode = this;
+    std::string type;
+
+    for (size_t i = 0; i < 3; ++i)
+        it++;
+    while (it != ite && *it != "}")
+    {
+        if (Node::isDirectiveLocation(it, ite, type) == true) // CHECK the FORMAT // No ref
+        {
+            tmpNode = tmpNode->createNode(type);
+            while (*(++it) != ";")
+                tmpNode->m_content.push_back(*it);
+            it++;
+        }
+        else
+            return -1;
+    }
+    if (*it == "}")
+        ++it;
+    else
+        return -1;
+    return 0;
+}
+
+int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
 {
     Node*       tmpNode = this;
     std::string type;
 
     while (it != ite && *it != "}")
     {
-        if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
+        if (Node::isLocation(it, ite) == true)
+        {
+            tmpNode = tmpNode->createNode("location");
+            tmpNode->m_content.push_back(*(it + 1));
+            tmpNode->parseLocation(it, ite);
+        }
+        else if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
         {
             tmpNode = tmpNode->createNode(type);
-            while (it != ite && *it != ";")
-                it++;
-            if (*it == ";")
-                it++;
-            else
-                return NULL;
-            // tmpNode->fillNode(type, it);
+            while (*(++it) != ";")
+                tmpNode->m_content.push_back(*it);
+            it++;
         }
         else
-            return NULL;
+            return -1;
     }
     if (*it == "}")
         ++it;
     else
-        return NULL;
-    return tmpNode;
+        return -1;
+    return 0;
+}
+
+bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
+{
+    Node::directive_t::const_iterator    itMap = m_directivesMap.begin();
+    Node::directive_t::const_iterator    iteMap = m_directivesMap.end();
+
+    while (itMap != iteMap && itMap->first != directive)
+        itMap++;
+    if (itMap == iteMap)
+        return false;
+    return (itMap->second)(it, ite);
+}
+
+bool    Node::isDirectiveLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
+{
+    std::string const directives [9] = {"client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload"};
+
+    if (it != ite)
+    {
+        for (size_t i = 0; i < 9; i++)
+        {
+            if (*it == directives[i])
+            {
+                type = directives[i];
+                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
+            }
+        }
+    }
+    return false;
+}
+
+bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
+{
+    std::string const directives [11] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload"};
+
+    if (it != ite)
+    {
+        for (size_t i = 0; i < 11; i++)
+        {
+            if (*it == directives[i])
+            {
+                type = directives[i];
+                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
+            }
+        }
+    }
+    return false;
+}
+
+bool    Node::checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (++it == ite)        // token after "listen"
+        return false;
+    int                         colonNb(0);
+    std::string                 buffer;
+    std::istringstream          iss(*it);
+    std::vector<std::string>    serverInfo; // IP and PORT
+    
+    if ((*it).at(0) == ':' || (*it).at((*it).length() - 1) == ':')
+        return false;
+    while (getline(iss, buffer, ':'))
+    {
+        if (buffer.empty() == false)
+            serverInfo.push_back(buffer);
+        else
+            colonNb++;
+    }
+    if ((colonNb > 0) || Node::checkIpAndPort(serverInfo) == false)
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkIpAndPort(std::vector<std::string> serverInfo)
+{
+    std::vector<std::string>::iterator  it = serverInfo.begin();
+    std::vector<std::string>::iterator  ite = serverInfo.end();
+
+    if (serverInfo.size() < 1 || serverInfo.size() > 2)
+        return false;
+    if (serverInfo.size() == 1 && Node::checkIp(*it) == false && Node::checkPort(*it) == false)
+        return false;
+    if (serverInfo.size() == 2 && (Node::checkIp(*it) == false || Node::checkPort(*(++it)) == false))
+        return false;
+    return true;
+}
+
+bool    Node::isNumber(std::string string)
+{
+    std::string::const_iterator it = string.begin();
+    std::string::const_iterator ite = string.end();
+
+    while(it != ite && std::isdigit(*it))
+        it++;
+    if (string.empty() == false && it == ite)
+        return true;
+    return false;
+}
+
+bool    Node::checkIp(std::string ip)
+{
+    int                         periodNb(0);
+    int                         ipValue;
+    std::string                 buffer;
+    std::istringstream          iss(ip);
+    std::istringstream          tmpIss;
+    
+    if (ip.at(0) == '.' || ip.at(ip.length() - 1) == '.')
+        return false;
+    while (getline(iss, buffer, '.'))
+    {
+        if (buffer.empty() == false)
+        {
+            if (Node::isNumber(buffer) == false)
+                return false;
+            tmpIss.str(buffer);
+            tmpIss >> ipValue;
+            if (ipValue < 0 || ipValue > 255)
+                return false;
+            tmpIss.clear();
+            
+        }
+        periodNb++;
+    }
+    if (periodNb != 4)
+        return false;
+    return true;
+}
+
+bool    Node::checkPort(std::string port)
+{
+    int                 portValue;
+    std::istringstream  tmpIss(port);
+
+    if (Node::isNumber(port) == false)
+        return false;
+    tmpIss >> portValue;
+    if (portValue < 0 || portValue > 65535)
+        return false;
+    return true;
+}
+
+bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    size_t i = 0; 
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
+    {
+        it++;
+        i++;
+    }
+    if (i >= 32 || it == ite) // MIN MAX NB OF SERVER NAMES
+        return false;
+    if (*it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    std::istringstream  tmpIss;
+    float               f;
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (Node::isNumber(*it) == false || (*it).size() > 10)
+        return false;
+    tmpIss.str(*it);
+    tmpIss >> f;
+    if (f > 2147483647.0)
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
+        return false;
+    if (++it == ite || *it != ";" || *it != "{" || *it != "}" || ++it == ite || *it == ";")
+        return true;
+    return false;
+}
+
+bool    Node::checkErrorPage(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    float               f;
+    std::istringstream  tmpIss;
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (Node::isNumber(*it) == false || (*it).size() > 10)
+        return false;
+    tmpIss.str(*it);
+    tmpIss >> f;
+    if (f > 2147483647.0)
+        return false;
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}" || ++it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkMethods(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    size_t i = 0;
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && i < 3)
+    {
+        if (*it != "GET" && *it != "POST" && *it != "DELETE")
+            return false;
+        i++;
+        it++;
+    }
+    if (i == 0 || it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    size_t i = 0; 
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
+    {
+        it++;
+        i++;
+    }
+    if (i >= 32 || it == ite) // MIN MAX NB OF SERVER NAMES
+        return false;
+    if (*it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}" || ++it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    float               f;
+    float const         acceptedValues[7] = {301.0, 302.0, 303.0, 304.0, 306.0, 307.0, 308.0};
+    size_t              i = 0;
+    std::istringstream  tmpIss;
+
+    if (++it == ite)        // token after "listen"
+        return false;
+    if (Node::isNumber(*it) == false || (*it).size() > 10)
+        return false;
+    tmpIss.str(*it);
+    tmpIss >> f;
+    if (f != 301.0 && f != 302.0 && f != 303.0 && f != 304.0 && f != 306.0 && f != 307.0 && f != 308.0)
+            return false;
+    if (++it == ite || *it == ";" || *it == "{" || *it == "}" || ++it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (++it == ite)        // token after "listen"
+        return false;  
+    if (*it != "on" && *it != "off")
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
+}
+
+bool    Node::checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    if (++it == ite)        // token after "listen"
+        return false;  
+    if (*it != "on" && *it != "off")
+        return false;
+    if (++it == ite || *it != ";")
+        return false;
+    return true;
 }
 
 Node*   Node::createNode(std::string const &type)
@@ -121,6 +461,15 @@ Node*   Node::createNode(std::string const &type)
     }
 }
 
+void    Node::postfixFree(void)
+{
+    if (this->m_left != NULL)
+        this->m_left->postfixFree();
+    if (this->m_right != NULL)
+        this->m_right->postfixFree();
+    delete this;
+}
+
 void    Node::displayContent(std::ostream &o)const
 {
     std::vector<std::string>::const_iterator  it;
@@ -130,55 +479,6 @@ void    Node::displayContent(std::ostream &o)const
     {
         o << *it << " - ";
     }
-}
-
-bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type)
-{
-    std::string const directives [12] = {"listen", "server_name", "client_max_body_size", "cgi", "error_page", "methods", "index", "root", "redirect", "autoindex", "upload", "location"};
-
-    if (it != ite)
-    {
-        for (size_t i = 0; i < 12; i++)
-        {
-            if (*it == directives[i])
-            {
-                type = directives[i];
-                return true; // return Node::checkDirectiveFormat
-            }
-        }
-    }
-    return false;
-}
-
-bool    Node::checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
-{
-    std::cout << "listen !" << std::endl;
-    return true;
-}
-
-bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
-{
-    std::cout << "server_name !" << std::endl;
-    return true;
-}
-
-// bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
-// {
-//     std::map<std::string, fcn_t> directivesMap;
-
-
-//     directivesMap[directive](it, ite);
-// }
-
-
-
-void    Node::postfixFree(void)
-{
-    if (this->m_left != NULL)
-        this->m_left->postfixFree();
-    if (this->m_right != NULL)
-        this->m_right->postfixFree();
-    delete this;
 }
 
 /*

@@ -5,6 +5,7 @@
 # include "Location.hpp"
 # include "Listener.hpp"
 # include "Client.hpp"
+# include "Node.hpp"
 
 # define PROTOCOL "HTTP/1.1"
 class Server
@@ -26,15 +27,37 @@ class Server
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
 		Location const &				getParams(void) const;
-		std::vector<Location>			getLocations(void) const;					
-		Location const *				getLocation(std::string const & uri) const;					
+		std::vector<Location*>			getLocations(void) const;					
+		Location const *				getLocation(std::string const & uri) const;	
+
+		void	setIpandPort(std::vector<std::string> const & content);
+		void	setNames(std::vector<std::string> const & content);
+
+		void							fillServer(Node* node);
+		void							fillLocation(Node* node);
+
+		void	setUri(std::vector<std::string> const &content);
+		void	setErrPages(std::vector<std::string> const &content);
+		void	setBodySize(std::vector<std::string> const &content);
+		void	setRoot(std::vector<std::string> const &content);
+		void	setIndexes(std::vector<std::string> const &content);
+		void	setMethods(std::vector<std::string> const &content);
+		void	setRedirect(std::vector<std::string> const &content);
+		void	setautoindex(std::vector<std::string> const &content);
+		void	setUpload(std::vector<std::string> const &content);
+		void	setCGIPass(std::vector<std::string> const &content);
+		void	setValue(Node* node);
+
 
 	private:
 		std::string						m_ip;
 		std::string						m_port;
 		std::vector<std::string>		m_names;
-		Location						m_params; // m_uri = "/" -- m_root /var/www/
-		std::vector<Location>			m_locations;
+		Location						m_params;
+		std::vector<Location*>			m_locations;
 };
+
+std::ostream &			operator<<( std::ostream & o, Server const & rhs );
+
 
 #endif /* ********************************************************** SERVER_H */

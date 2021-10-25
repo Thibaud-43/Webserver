@@ -24,6 +24,15 @@ Server::Server(std::string port, std::string ip): m_port(port), m_ip(ip)
 
 Server::~Server()
 {
+	std::vector<Location*>::iterator it = m_locations.begin();
+	std::vector<Location*>::iterator ite = m_locations.end();
+
+	while (it != ite)
+	{
+		if (*it != NULL)
+			delete *it;
+		it++;
+	}
 }
 
 
@@ -44,9 +53,59 @@ Server &				Server::operator=( Server const & rhs )
 	return *this;
 }
 
+std::ostream &			operator<<( std::ostream & o, Server const & rhs )
+{
+	std::vector<std::string>	tmpNames = rhs.getNames();
+	std::vector<Location*>		tmpLocation = rhs.getLocations();
+
+	o << "\tIP: " << rhs.getIp() << std::endl;
+	o << "\tPort: " << rhs.getPort() << std::endl;
+	o << "\tNames: ";
+	for (std::vector<std::string>::const_iterator it = tmpNames.begin(); it != tmpNames.end(); it++)
+	{
+		o << *it << " ";
+	}
+	o << std::endl;
+	o << rhs.getParams();
+	for (std::vector<Location*>::const_iterator it = tmpLocation.begin(); it != tmpLocation.end(); it++)
+	{
+		o << std::endl << "\t\tLOCATION: ";
+		o << *(*it);
+	}
+	return o;
+}
+
+
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+void			Server::fillServer(Node* node)
+{
+	Location  *tmpLocation;
+
+	if (node != NULL)
+	{
+		if (node->getType() == "location")
+		{
+			tmpLocation = new Location();
+			tmpLocation->setUri(node->getContent());
+			tmpLocation->fillLocation(node->getLeft());
+			this->m_locations.push_back(tmpLocation);
+		}
+		else if (node->getType() == "listen")
+			this->setIpandPort(node->getContent());
+		else if (node->getType() == "server_name")
+			this->setNames(node->getContent());
+		else
+			this->m_params.setValue(node);
+	}
+	if (node->getLeft() != NULL)
+		this->fillServer(node->getLeft());
+	if (node->getRight() != NULL)
+		this->fillServer(node->getRight());
+}
+
 
 int				Server::run(fd_type epoll)
 {
@@ -54,9 +113,41 @@ int				Server::run(fd_type epoll)
     return 1;
 }
 
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+void	Server::setIpandPort(std::vector<std::string> const & content)
+{
+	std::vector<std::string>::const_iterator  it = content.begin();
+
+	if (content.size() == 2)
+	{
+		m_ip = *it;
+		m_port = *(it + 1);
+	}
+	else if ((*it).size() >= 7)
+	{
+		m_ip = *it;
+		m_port = "80";
+	}
+	else
+	{
+		m_ip = "0.0.0.0";
+		m_port = *it;
+	}
+}
+
+void	Server::setNames(std::vector<std::string> const & content)
+{
+	std::vector<std::string>::const_iterator  it = content.begin();
+	std::vector<std::string>::const_iterator  ite = content.end();
+
+	while (it != ite)
+		this->m_names.push_back(*(it++));
+}
+
 
 
 std::string				Server::getIp(void) const
@@ -79,7 +170,7 @@ Location const &			Server::getParams(void) const
 	return (m_params);
 }
 
-std::vector<Location>			Server::getLocations(void) const
+std::vector<Location*>			Server::getLocations(void) const
 {
 	return (m_locations);
 }
@@ -87,17 +178,17 @@ std::vector<Location>			Server::getLocations(void) const
 Location const *	Server::getLocation(std::string const & uri) const
 {
 	size_t									match = 0;
-	std::vector<Location>::const_iterator	it_ret;
+	std::vector<Location*>::const_iterator	it_ret;
 
-	for (std::vector<Location>::const_iterator it = m_locations.begin(); it != m_locations.end(); it++)
+	for (std::vector<Location*>::const_iterator it = m_locations.begin(); it != m_locations.end(); it++)
 	{
-		if (!uri.compare(0, it->getUri().size(), it->getUri()) && it->getUri().size() > match)
+		if (!uri.compare(0, (*it)->getUri().size(), (*it)->getUri()) && (*it)->getUri().size() > match)
 		{
 			it_ret = it;
-			match = it->getUri().size();
+			match = (*it)->getUri().size();
 		}
 	}
-	return (match ? &(*it_ret) : &m_params);
+	return (match ? &(*(*it_ret)) : &m_params);
 }
 
 /* ************************************************************************** */

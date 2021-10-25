@@ -1,17 +1,21 @@
 #include "Cluster.hpp"
 
+void printBT(const Node* node);
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cluster::Cluster(): m_eventCount(0)
+Cluster::Cluster(): m_eventCount(0), m_tree("confFiles/nginx.conf")
 {
+    this->_fillCluster(m_tree.getRoot());
+    // printBT(m_tree.getRoot());
+
 }
 
 Cluster::Cluster( const Cluster & src )
 {
 }
-
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -19,6 +23,15 @@ Cluster::Cluster( const Cluster & src )
 
 Cluster::~Cluster()
 {
+    std::vector<Server*>::iterator it = m_servers.begin();
+	std::vector<Server*>::iterator ite = m_servers.end();
+
+	while (it != ite)
+	{
+		if (*it != NULL)
+			delete *it;
+		it++;
+	}
 }
 
 
@@ -35,9 +48,19 @@ Cluster &				Cluster::operator=( Cluster const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Cluster const & i )
+std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 {
-	//o << "Value = " << i.getValue();
+    std::vector<Server*> tmpServer = rhs.getServers();
+    std::vector<Server*>::const_iterator it = tmpServer.begin();
+    std::vector<Server*>::const_iterator ite = tmpServer.end();
+	size_t i = 0;
+
+    while (it != ite)
+    {
+        o << "Server " << i++ << std::endl;
+        o << *(*it);
+        it++;
+    }
 	return o;
 }
 
@@ -45,6 +68,24 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+
+
+void			Cluster::_fillCluster(Node* node)
+{
+    Server  *tmpServer;
+
+    if (node == NULL) 
+        return ;
+    if (node->getLeft() != NULL)
+    {
+        tmpServer = new Server();
+        tmpServer->fillServer(node->getLeft());
+        m_servers.push_back(tmpServer);
+    }
+    if (node->getRight() != NULL)
+        this->_fillCluster(node->getRight());
+}
 
 int				Cluster::run(void)
 {
@@ -78,16 +119,16 @@ void							Cluster::_createCluster(void)
     Server      test2("90", "0.0.0.0");
     Server      test3("80", "0.0.0.0");
 
-	m_servers.push_back(test);
-	m_servers.push_back(test2);
-	m_servers.push_back(test3);
+	// m_servers.push_back(test);
+	// m_servers.push_back(test2);
+	// m_servers.push_back(test3);
 }
 
 void							Cluster::_runServers(void)
 {
-	for (std::vector<Server>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
+	for (std::vector<Server*>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
 	{
-		(*i).run(m_epoll_fd);
+		(*(*i)).run(m_epoll_fd);
 	}
 }
 
@@ -186,8 +227,8 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
             if (!request && buff != "\r\n")
                 request = Request::createRequest(*client);
-            if (request && request->manage(buff, m_servers))
-                Request::removeRequest(*request);
+            // if (request && request->manage(buff, m_servers))
+            //     Request::removeRequest(*request);
             break;
         }
     }
@@ -206,5 +247,13 @@ void							Cluster::_closeEpoll(void)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
+std::vector<Server*> Cluster::getServers(void) const
+{
+    return m_servers;
+}
 
+Tree                Cluster::getTree(void) const
+{
+    return m_tree;
+}
 /* ************************************************************************** */

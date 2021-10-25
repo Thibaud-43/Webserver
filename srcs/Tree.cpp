@@ -7,7 +7,9 @@ Tree::Tree() : m_root(NULL)
 {}
 
 Tree::Tree(const char * configFilePath) : m_root(NULL), m_tokens(configFilePath)
-{}
+{
+    this->parseCluster();
+}
 
 Tree::Tree(Tree const &src) : m_root(src.m_root), m_tokens(src.m_tokens)
 {}

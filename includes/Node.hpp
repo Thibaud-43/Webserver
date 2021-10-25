@@ -27,7 +27,8 @@ class   Node
         std::vector<std::string>    getContent(void)const;
 
         Node*   createNode(std::string const &type);
-        Node*   parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
+        int     parseServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
+        int     parseLocation(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
 
         void    displayContent(std::ostream &o)const;
 
@@ -35,18 +36,35 @@ class   Node
 
         static directive_t  initMap(void);
 
-        static bool    isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type);
-        static bool    checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive);
-        static bool    checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
-        static bool    checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     isDirectiveLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type);
+        static bool     isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type);
+        static bool     checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive);
+        static bool     checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkIpAndPort(std::vector<std::string> serverInfo);
+        static bool     checkIp(std::string ip);
+        static bool     checkPort(std::string port);
+        static bool     checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkMaxBodySize(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkCgi(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkErrorPage(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkMethods(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkIndex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkRoot(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     checkLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool     isLocation(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        
+        static bool     isNumber(std::string string);
 
-        static directive_t directivesMap;
 
     private:
-        Node*                          m_left;
-        Node*                          m_right;
-        std::string                    m_type;
-        std::vector<std::string>       m_content;
+        Node*                       m_left;
+        Node*                       m_right;
+        std::string                 m_type;
+        std::vector<std::string>    m_content;
+        static directive_t          m_directivesMap;
         
 
 };
