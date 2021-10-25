@@ -21,7 +21,8 @@ class Cluster
 		typedef int						fd_type;
 		typedef struct epoll_event		event_type;
 
-		Cluster();
+		// Cluster();
+		Cluster( char const * configFilePath = "confFiles/default.conf" );
 		Cluster( Cluster const & src );
 		~Cluster();
 

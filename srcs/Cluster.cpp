@@ -6,11 +6,9 @@ void printBT(const Node* node);
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cluster::Cluster(): m_eventCount(0), m_tree("confFiles/nginx.conf")
+Cluster::Cluster(char const * configFilePath): m_eventCount(0), m_tree(configFilePath)
 {
     this->_fillCluster(m_tree.getRoot());
-    // printBT(m_tree.getRoot());
-
 }
 
 Cluster::Cluster( const Cluster & src )
