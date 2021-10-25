@@ -30,7 +30,7 @@ Client::Client( const Client & src ): ASocket(src)
 	//_list = src._list;
 }
 
-Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll): Client()
+Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll)
 {
 	m_fd = client_fd;
 	m_addr = theirAddr;
