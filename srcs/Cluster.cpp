@@ -8,7 +8,16 @@ void printBT(const Node* node);
 
 Cluster::Cluster(char const * configFilePath): m_eventCount(0), m_tree(configFilePath)
 {
-    this->_fillCluster(m_tree.getRoot());
+    try
+    {
+        this->_fillCluster(m_tree.getRoot());
+        std::cout << *this << std::endl;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "Error - ";
+        std::cerr << e.what();
+    }
 }
 
 Cluster::Cluster( const Cluster & src )
