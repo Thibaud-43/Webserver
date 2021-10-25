@@ -3,9 +3,13 @@
 
 #include "Headers.hpp"
 
+typedef bool (*fcn_t)(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+
 class   Node
 {
     public:
+        typedef std::map<std::string, fcn_t> directive_t;
+
         Node();
         Node(std::string type);
         Node(std::string type, std::vector<std::string> content);
@@ -29,16 +33,25 @@ class   Node
 
         void    postfixFree(void);
 
-        static bool    isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type);
+        static directive_t  initMap(void);
 
+        static bool    isDirectiveServer(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string &type);
+        static bool    checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive);
+        static bool    checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+        static bool    checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite);
+
+        static directive_t directivesMap;
 
     private:
-        Node*                       m_left;
-        Node*                       m_right;
-        std::string                 m_type;
-        std::vector<std::string>    m_content;
+        Node*                          m_left;
+        Node*                          m_right;
+        std::string                    m_type;
+        std::vector<std::string>       m_content;
+        
+
 };
 
 std::ostream&   operator<<(std::ostream &o, Node const &i);
+
 
 #endif /* ********************************************************** NODE_HPP */

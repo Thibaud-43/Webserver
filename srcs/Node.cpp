@@ -1,5 +1,15 @@
 #include "Node.hpp"
 
+Node::directive_t   Node::directivesMap = initMap();
+
+Node::directive_t Node::initMap(void)
+{
+    directive_t directivesMap;
+
+    directivesMap["listen"] = &Node::checkListen;
+    directivesMap["server_name"] = &Node::checkServerName;
+    return directivesMap;
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -139,6 +149,28 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
     }
     return false;
 }
+
+bool    Node::checkListen(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    std::cout << "listen !" << std::endl;
+    return true;
+}
+
+bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
+{
+    std::cout << "server_name !" << std::endl;
+    return true;
+}
+
+// bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
+// {
+//     std::map<std::string, fcn_t> directivesMap;
+
+
+//     directivesMap[directive](it, ite);
+// }
+
+
 
 void    Node::postfixFree(void)
 {

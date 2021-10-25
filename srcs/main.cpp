@@ -34,10 +34,13 @@ int main(int argc, char const *argv[])
 
 
     tree.parseCluster();
-    std::cout << tree;
-    std::cout << std::endl << std::endl;
-    printBT(tree.getRoot());
-    */
+    // std::cout << tree;
+    // std::cout << std::endl << std::endl;
+    // printBT(tree.getRoot());
+    std::vector<std::string>::iterator it;
+    std::vector<std::string>::iterator ite;
 
-    return 0;
+
+    std::cout << tree.getRoot()->directivesMap["server_name"](it, ite) << std::endl;
+    return 0;*/
 }
