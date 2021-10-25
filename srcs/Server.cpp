@@ -120,22 +120,18 @@ int				Server::run(fd_type epoll)
 */
 void	Server::setIpandPort(std::vector<std::string> const & content)
 {
-	std::vector<std::string>::const_iterator  it = content.begin();
+	std::vector<std::string>::const_iterator	it = content.begin();
+	std::istringstream							iss(*it);
+	std::string									buffer;
 
-	if (content.size() == 2)
+	m_ip = "0.0.0.0";
+	m_port = "80";
+	while (getline(iss, buffer, ':'))
 	{
-		m_ip = *it;
-		m_port = *(it + 1);
-	}
-	else if ((*it).size() >= 7)
-	{
-		m_ip = *it;
-		m_port = "80";
-	}
-	else
-	{
-		m_ip = "0.0.0.0";
-		m_port = *it;
+		if (buffer.size() >= 7)
+			m_ip = buffer;
+		else
+			m_port = buffer;
 	}
 }
 
