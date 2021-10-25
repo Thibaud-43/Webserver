@@ -1,5 +1,6 @@
 #include "Cluster.hpp"
 
+// void printBT(const Node* node);
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -10,6 +11,7 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
     {
 		m_tree.getTokens().createTokensList();
         m_tree.parseTokensList();
+		// printBT(m_tree.getRoot());
         this->_fillCluster(m_tree.getRoot());
         std::cout << *this << std::endl;
     }

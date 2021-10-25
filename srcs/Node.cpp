@@ -141,7 +141,10 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
             tmpNode = tmpNode->createNode("location");
             tmpNode->m_content.push_back(*(it + 1));
             if (*(it + 3) == "}")
+            {
+                tmpNode->createNode("emptyLocation");
                 it += 4;
+            }
             else
                 tmpNode->parseLocation(it, ite);
         }
