@@ -5,6 +5,7 @@
 # include <string>
 # include <map>
 # include <fstream>
+# include <stdio.h>
 # include "File.hpp"
 # include "Server.hpp"
 # include "Client.hpp"
@@ -73,6 +74,8 @@ class Request
 
 		// TOM
 		bool								_check_get(void) const;
+		bool								_check_delete(void) const;
+		bool								_delete(void) const;	
 		bool								_get(Location::file_t const * path) const;
 		Location::file_t const *			_get_cgi_path(void) const;
 		bool								_cgi_get(Location::file_t const & path) const;

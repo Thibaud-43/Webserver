@@ -422,8 +422,9 @@ bool	Request::_execute(void) const
 	}
 	else if (method == "DELETE")
 	{
-		// VERIFS
-		// DELETE
+		if (!_check_delete())
+			return (false);
+		return (_delete());
 	}
 	else if (method == "POST")
 	{
@@ -473,6 +474,37 @@ bool	Request::_check_get(void) const
 			Response::send_error("403", m_client, m_location);
 		return (false);
 	}
+	return (true);
+}
+
+bool	Request::_check_delete(void) const
+{
+	File const	file(m_path);
+
+	if (!file.exist())
+	{
+		Response::send_error("404", m_client, m_location);
+		return (false);
+	}
+	else if (!file.is_writable())
+	{
+		Response::send_error("403", m_client, m_location);
+		return (false);
+	}
+	return (true);
+}
+
+bool	Request::_delete(void) const
+{
+	Response	rep;
+
+	if (remove(m_path.data()))
+		return (Response::send_error("500", m_client, m_location));
+	rep.start_header("200");
+	rep.append_to_header("Connection: keep-alive");
+	rep.append_to_body("<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n<html>\n");
+	rep.add_content_length();
+	rep.send_to_client(m_client);
 	return (true);
 }
 
@@ -526,7 +558,7 @@ bool	Request::_get(Location::file_t const * path) const
 	{
 		return (Response::send_error("500", m_client, m_location));
 	}
-	return (false);
+	return (true);
 }
 
 void	Request::_chunk_size_to_client(std::streamsize const & s) const
