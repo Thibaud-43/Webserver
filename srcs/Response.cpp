@@ -229,7 +229,7 @@ void	Response::start_header(Response::status_code_t const & status)
 
 void	Response::fill_body(file_t const & file)
 {
-	std::ifstream	fstream(file);
+	std::ifstream	fstream(file.data());
 	std::string		line;
 
 	if (!fstream)

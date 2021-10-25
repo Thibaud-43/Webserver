@@ -524,7 +524,7 @@ bool	Request::_get(Location::file_t const * path) const
 		return (_cgi_get(*path));
 
 	Response		rep;
-	std::ifstream	fstream(m_path);
+	std::ifstream	fstream(m_path.data());
 	char			buff[MAX_SERVER_BODY_SIZE + 1];
 	File			f(m_path);
 
@@ -595,6 +595,7 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 
 bool	Request::_cgi_get(Location::file_t const & path) const
 {
+	static_cast<void>(path);
 	return (false);
 }
 

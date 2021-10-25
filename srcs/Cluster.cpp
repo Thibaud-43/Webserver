@@ -8,15 +8,20 @@ void printBT(const Node* node);
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cluster::Cluster(): m_eventCount(0), m_tree("confFiles/nginx.conf")
+Cluster::Cluster(): m_tree("confFiles/nginx.conf"), m_eventCount(0)
 {
 	this->_fillCluster(m_tree.getRoot());
 	// printBT(m_tree.getRoot());
 
 }
 
-Cluster::Cluster( const Cluster & src )
+Cluster::Cluster( const Cluster & src ): m_servers(src.m_servers), m_tree(src.m_tree), m_epoll_fd(src.m_epoll_fd), m_eventCount(src.m_eventCount)
 {
+	for (size_t i = 0; i < MAX_EVENTS; i++)
+	{
+		m_events[i].data = src.m_events[i].data;
+		m_events[i].events = src.m_events[i].events;
+	}
 }
 
 /*
@@ -43,10 +48,18 @@ Cluster::~Cluster()
 
 Cluster &				Cluster::operator=( Cluster const & rhs )
 {
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+		m_servers = rhs.m_servers;
+		m_tree = rhs.m_tree;
+		m_epoll_fd = rhs.m_epoll_fd;
+		for (size_t i = 0; i < MAX_EVENTS; i++)
+		{
+			m_events[i].data = rhs.m_events[i].data;
+			m_events[i].events = rhs.m_events[i].events;
+		}
+		m_eventCount = rhs.m_eventCount;
+	}
 	return *this;
 }
 
