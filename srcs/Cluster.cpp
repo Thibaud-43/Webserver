@@ -17,10 +17,18 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
         this->_fillCluster(m_tree.getRoot());
         std::cout << *this << std::endl;
     }
-    catch(const std::exception& e)
+    catch(const Tree::ParserFailException& e)
     {
         std::cerr << "Error - ";
         std::cerr << e.what();
+		std::cerr << m_tree.getRoot()->getErrorMessage();
+		std::cerr << std::endl;
+    }
+	catch(const std::exception& e)
+    {
+        std::cerr << "Error - ";
+        std::cerr << e.what();
+		std::cerr << std::endl;
     }
 }
 

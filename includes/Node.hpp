@@ -22,8 +22,11 @@ class   Node
         Node*                       getRight(void)const;
         void                        setLeft(Node value);
         void                        setRight(Node value);
+        void                        setErrorMessage(std::string const &message);
 
         std::string                 getType(void)const;
+        std::string                 getErrorMessage(void)const;
+
         std::vector<std::string>    getContent(void)const;
 
         Node*   createNode(std::string const &type);
@@ -64,7 +67,9 @@ class   Node
         Node*                       m_right;
         std::string                 m_type;
         std::vector<std::string>    m_content;
-        static directive_t          m_directivesMap;
+
+        static directive_t          directivesMap;
+        static std::string          errorMessage;
         
 
 };

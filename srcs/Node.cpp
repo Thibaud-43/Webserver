@@ -1,6 +1,8 @@
 #include "Node.hpp"
 
-Node::directive_t   Node::m_directivesMap = initMap();
+Node::directive_t   Node::directivesMap = initMap();
+
+std::string         Node::errorMessage = std::string();
 
 Node::directive_t Node::initMap(void)
 {
@@ -96,6 +98,8 @@ bool    Node::isLocation(std::vector<std::string>::iterator it, std::vector<std:
         return false;
     if (++it == ite || *it != "{")
         return false;
+    if (++it == ite || *it == "}")
+        return false;
     return true;
 }
 
@@ -146,7 +150,11 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
             it++;
         }
         else
+        {
+            if (errorMessage.empty())
+                errorMessage = "location scope is wrong.";
             return -1;
+        }
     }
     if (*it == "}")
         ++it;
@@ -157,8 +165,8 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
 
 bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
 {
-    Node::directive_t::const_iterator    itMap = m_directivesMap.begin();
-    Node::directive_t::const_iterator    iteMap = m_directivesMap.end();
+    Node::directive_t::const_iterator    itMap = directivesMap.begin();
+    Node::directive_t::const_iterator    iteMap = directivesMap.end();
 
     while (itMap != iteMap && itMap->first != directive)
         itMap++;
@@ -178,7 +186,13 @@ bool    Node::isDirectiveLocation(std::vector<std::string>::iterator it, std::ve
             if (*it == directives[i])
             {
                 type = directives[i];
-                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
+                if (Node::checkDirectiveFormat(it, ite, directives[i]) == false)
+                {
+                    errorMessage = directives[i] + " directive is wrong.";
+                    return false;
+                }
+                else
+                    return true;
             }
         }
     }
@@ -196,8 +210,13 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
             if (*it == directives[i])
             {
                 type = directives[i];
-                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
-            }
+                if (Node::checkDirectiveFormat(it, ite, directives[i]) == false)
+                {
+                    errorMessage = directives[i] + " directive is wrong.";
+                    return false;
+                }
+                else
+                    return true;            }
         }
     }
     return false;
@@ -503,9 +522,19 @@ void                        Node::setRight(Node value)
     m_right = new Node(value);
 }
 
+void                        Node::setErrorMessage(std::string const &message)
+{
+    errorMessage = message;
+}
+
 std::string                 Node::getType(void)const
 {
     return m_type;
+}
+
+std::string                 Node::getErrorMessage(void)const
+{
+    return errorMessage;
 }
 
 std::vector<std::string>    Node::getContent(void)const

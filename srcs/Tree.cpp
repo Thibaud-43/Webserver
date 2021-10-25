@@ -36,7 +36,7 @@ Tree& Tree::operator=(Tree const & rhs)
     return *this;
 }
 
-std::ostream&   operator<<(std::ostream &o, Tree const &i)
+std::ostream&   operator<<(std::ostream &o, Tree &i)
 {
     if (i.getRoot() != NULL)
         o << "TREE:" << std::endl << *i.getRoot() << std::endl << std::endl;
@@ -51,6 +51,11 @@ void    Tree::parseTokensList(void)
 {
     if (this->parseCluster() < 0)
         throw Tree::ParserFailException();
+    if (this->getTokens().getTokens().size() == 0)
+    {
+        m_root->setErrorMessage("Empty file.");
+        throw Tree::ParserFailException();
+    }
 }
 
 int    Tree::parseCluster(void)
@@ -75,7 +80,8 @@ int    Tree::parseCluster(void)
         }
         else
         {
-            std::cout << "ERROR SERVER" << std::endl;
+            if (m_root->getErrorMessage().empty() == true)
+            m_root->setErrorMessage("server scope is wrong.");
             return -1;
         }
     }
@@ -84,9 +90,8 @@ int    Tree::parseCluster(void)
 
 bool    Tree::isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite)
 {
-    if (*it == "server" && ++it != ite && *it == "{")
+    if (*it == "server" && ++it != ite && *it == "{" && ++it != ite && *it != "}")
     {
-        it++;
         return true;
     }
     return false;
@@ -100,7 +105,7 @@ Node*       Tree::getRoot(void) const
     return m_root;
 }
 
-Tokenizer   Tree::getTokens(void) const
+Tokenizer&  Tree::getTokens(void)
 {
     return m_tokens;
 }
@@ -108,14 +113,9 @@ Tokenizer   Tree::getTokens(void) const
 ** --------------------------------- EXCEPTIONS ---------------------------------
 */
 
-const char* Tree::TokenizerFailException::what() const throw()
-{
-    return ("");
-}
-
 const char* Tree::ParserFailException::what() const throw()
 {
-    return ("ERROR - Parsing error.\n");
+    return ("Parsing error - ");
 }
 
 /* ************************************************************************** */

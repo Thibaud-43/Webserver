@@ -16,7 +16,7 @@ class   Tree
         Tree&   operator=(Tree const &rhs);
 
         Node*       getRoot(void) const;
-        Tokenizer   getTokens(void) const;
+        Tokenizer&  getTokens(void);
         
         void    parseTokensList(void);
         int     parseCluster(void);
@@ -27,24 +27,26 @@ class   Tree
 
         // void        displayTokens(void)const;
         // void        displayRoot(void)const;
-
-    private:
-        Node*       m_root;
-        Tokenizer   m_tokens;
-        class TokenizerFailException : public std::exception
-        {
-            public: 
-                virtual const char* what() const throw();
-        };
         class   ParserFailException : public std::exception
         {
             public: 
                 virtual const char* what() const throw();
         };
 
+    private:
+        Node*       m_root;
+        Tokenizer   m_tokens;
+        
+        class TokenizerFailException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
+
+
 
 };
 
-std::ostream&   operator<<(std::ostream &o, Tree const &i);
+std::ostream&   operator<<(std::ostream &o, Tree &i);
 
 #endif /* ********************************************************** TREE_HPP */

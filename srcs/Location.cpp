@@ -84,7 +84,7 @@ std::ostream &			operator<<( std::ostream & o, Location const & rhs )
 		o << *it << " ";
 	}
 	o << std::endl;
-	o << "\t\tRedirect: " << rhs.getRedirectNum() << rhs.getRedirectPath() <<std::endl;
+	o << "\t\tRedirect: " << rhs.getRedirectNum() << "\t" <<rhs.getRedirectPath() <<std::endl;
 	if (rhs.getAutoindex() == true)
 		o << "\t\tAutoindex: on" << std::endl;
 	else
