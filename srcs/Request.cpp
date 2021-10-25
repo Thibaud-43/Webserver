@@ -359,7 +359,19 @@ bool	Request::_checkRequestLine(void)
 
 void			Request::_linkLocation(void)
 {
+	std::string	delimiter = "?";
+	std::string	token;
+	size_t		pos = m_header["uri"].find(delimiter);
+	m_header["query_string"] = "";
+	if (pos != std::string::npos)
+	{
+		token = m_header["uri"].substr(0, pos);
+		m_header["query_string"] = m_header["uri"].substr(pos + delimiter.length(), m_header["uri"].length());
+		m_header["uri"] = token;
+
+	}
 	m_location = m_server->getLocation(m_header["uri"]);
+	
 }
 
 void			Request::_linkPath(void)

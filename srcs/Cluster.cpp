@@ -10,8 +10,8 @@ void printBT(const Node* node);
 
 Cluster::Cluster(): m_eventCount(0), m_tree("confFiles/nginx.conf")
 {
-    this->_fillCluster(m_tree.getRoot());
-    // printBT(m_tree.getRoot());
+	this->_fillCluster(m_tree.getRoot());
+	// printBT(m_tree.getRoot());
 
 }
 
@@ -25,7 +25,7 @@ Cluster::Cluster( const Cluster & src )
 
 Cluster::~Cluster()
 {
-    std::vector<Server*>::iterator it = m_servers.begin();
+	std::vector<Server*>::iterator it = m_servers.begin();
 	std::vector<Server*>::iterator ite = m_servers.end();
 
 	while (it != ite)
@@ -52,17 +52,17 @@ Cluster &				Cluster::operator=( Cluster const & rhs )
 
 std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 {
-    std::vector<Server*> tmpServer = rhs.getServers();
-    std::vector<Server*>::const_iterator it = tmpServer.begin();
-    std::vector<Server*>::const_iterator ite = tmpServer.end();
+	std::vector<Server*> tmpServer = rhs.getServers();
+	std::vector<Server*>::const_iterator it = tmpServer.begin();
+	std::vector<Server*>::const_iterator ite = tmpServer.end();
 	size_t i = 0;
 
-    while (it != ite)
-    {
-        o << "Server " << i++ << std::endl;
-        o << *(*it);
-        it++;
-    }
+	while (it != ite)
+	{
+		o << "Server " << i++ << std::endl;
+		o << *(*it);
+		it++;
+	}
 	return o;
 }
 
@@ -75,51 +75,51 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 
 void			Cluster::_fillCluster(Node* node)
 {
-    Server  *tmpServer;
+	Server  *tmpServer;
 
-    if (node == NULL) 
-        return ;
-    if (node->getLeft() != NULL)
-    {
-        tmpServer = new Server();
-        tmpServer->fillServer(node->getLeft());
-        m_servers.push_back(tmpServer);
-    }
-    if (node->getRight() != NULL)
-        this->_fillCluster(node->getRight());
+	if (node == NULL) 
+		return ;
+	if (node->getLeft() != NULL)
+	{
+		tmpServer = new Server();
+		tmpServer->fillServer(node->getLeft());
+		m_servers.push_back(tmpServer);
+	}
+	if (node->getRight() != NULL)
+		this->_fillCluster(node->getRight());
 }
 
 int				Cluster::run(void)
 {
 	int running = 1;
 
-    _createCluster();
-    _createEpoll();
-    _runServers();
-    while(running)
-    {
-        _epollWait();
-        _epollExecute();
-    }
-    _closeEpoll();
-    return 0;
+	_createCluster();
+	_createEpoll();
+	_runServers();
+	while(running)
+	{
+		_epollWait();
+		_epollExecute();
+	}
+	_closeEpoll();
+	return 0;
 }
 
 void							Cluster::_createEpoll(void)
 {
-    m_epoll_fd = epoll_create1(0);
-    if(m_epoll_fd < 0)
-    {
-        std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
-        return ;
-    }
+	m_epoll_fd = epoll_create1(0);
+	if(m_epoll_fd < 0)
+	{
+		std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
+		return ;
+	}
 }
 
 void							Cluster::_createCluster(void)
 {
 	Server		test("100", "0.0.0.0");
-    Server      test2("90", "0.0.0.0");
-    Server      test3("80", "0.0.0.0");
+	Server      test2("90", "0.0.0.0");
+	Server      test3("80", "0.0.0.0");
 
 	// m_servers.push_back(test);
 	// m_servers.push_back(test2);
@@ -136,46 +136,45 @@ void							Cluster::_runServers(void)
 
 void							Cluster::_epollWait(void)
 {
-    m_eventCount = epoll_wait(m_epoll_fd, m_events, MAX_EVENTS, 30000);
-    if (m_eventCount == -1)
-    {
-        std::cerr <<  "Failed epoll_wait\n";
-        return ;
-    }
+	m_eventCount = epoll_wait(m_epoll_fd, m_events, MAX_EVENTS, 30000);
+	if (m_eventCount == -1)
+	{
+		std::cerr <<  "Failed epoll_wait\n";
+		return ;
+	}
 }
 
 void							Cluster::_epollExecute(void)
 {
-    for( int i = 0; i < m_eventCount; i++)
-    {
-        if (Listener::isListenerFd(m_events[i].data.fd))
-        {
-            _epollExecuteOnListenerConnection(m_events[i].data.fd);
-        }
-        else if (Cgi::isCgiFd(m_events[i].data.fd))
-        {
-            _epollExecuteOnCgiConnection(m_events[i].data.fd);
-        }
-        else
-        {
-            _epollExecuteOnClientConnection(m_events[i].data.fd);
-        }
-    }
+	for( int i = 0; i < m_eventCount; i++)
+	{
+		if (Listener::isListenerFd(m_events[i].data.fd))
+		{
+			_epollExecuteOnListenerConnection(m_events[i].data.fd);
+		}
+		else if (Cgi::isCgiFd(m_events[i].data.fd))
+		{
+			_epollExecuteOnCgiConnection(m_events[i].data.fd);
+		}
+		else
+		{
+			_epollExecuteOnClientConnection(m_events[i].data.fd);
+		}
+	}
 }
 
 void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 {
-    for (;;)
-    {
-        struct sockaddr_in their_addr;
-        socklen_t size = sizeof(struct sockaddr);
+	for (;;)
+	{
+		struct sockaddr_in their_addr;
+		socklen_t size = sizeof(struct sockaddr);
 
-        int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
+		int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
 		if (client == -1) 
 		{
 			if (errno == EAGAIN || errno == EWOULDBLOCK) 
 			{
-				// we processed all of the connections
 				break;
 			} 
 			else 
@@ -185,100 +184,99 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 			}
 		}
 		else
-        	Client	socket(client, their_addr, m_epoll_fd);
-    }
-    
+			Client	socket(client, their_addr, m_epoll_fd);
+	}
+	
 }
 
 void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 {
-    size_t              bytes_read;
-    char                read_buffer[READ_SIZE + 1];
-    size_t              read_buffer_size = sizeof(read_buffer);
-    std::string         buff = "";
+	size_t              bytes_read;
+	char                read_buffer[READ_SIZE + 1];
+	size_t              read_buffer_size = sizeof(read_buffer);
+	std::string         buff = "";
 
 
-    for (;;)
-    {
-        memset(read_buffer, 0, read_buffer_size);
-        bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
-        if (bytes_read < 0)
-        {
-            //removecgi
-            close(eventFd);
-            break;
-        }
-        else if (bytes_read == read_buffer_size)
-        {
-            read_buffer[bytes_read] = 0;
-            buff += read_buffer;
-        }
-        else
-        { 
-            read_buffer[bytes_read] = 0;
+	for (;;)
+	{
+		memset(read_buffer, 0, read_buffer_size);
+		bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
+		if (bytes_read < 0)
+		{
+			Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
+			Cgi::removeCgi(*cgi);
+			close(eventFd);
+			break;
+		}
+		else if (bytes_read == read_buffer_size)
+		{
+			read_buffer[bytes_read] = 0;
+			buff += read_buffer;
+		}
+		else
+		{ 
+			read_buffer[bytes_read] = 0;
 
-            buff += read_buffer;
+			buff += read_buffer;
 
-            Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
-           
-             if (cgi && cgi->handle(buff));
-                 Cgi::removeCgi(*cgi);
-            break;
-        }
-    }
+			Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
+			if (cgi && cgi->handle(buff))
+				Cgi::removeCgi(*cgi);
+			break;
+		}
+	}
 }
 
 void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 {
-    size_t              bytes_read;
-    char                read_buffer[READ_SIZE + 1];
-    size_t              read_buffer_size = sizeof(read_buffer);
-    std::string         buff = "";
+	size_t              bytes_read;
+	char                read_buffer[READ_SIZE + 1];
+	size_t              read_buffer_size = sizeof(read_buffer);
+	std::string         buff = "";
 
 
-    for (;;)
-    {
-        memset(read_buffer, 0, read_buffer_size);
-        bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
-        if (bytes_read < 0)
-        {
-            Client const 	*client = Client::getClientFromFd(eventFd);
-            Request			*request = Request::getRequestFromClient(*client);
-            Request::removeRequest(*request);
+	for (;;)
+	{
+		memset(read_buffer, 0, read_buffer_size);
+		bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
+		if (bytes_read < 0)
+		{
+			Client const 	*client = Client::getClientFromFd(eventFd);
+			Request			*request = Request::getRequestFromClient(*client);
+			Request::removeRequest(*request);
+			close(eventFd);
+			break;
+		}
+		else if (bytes_read == read_buffer_size)
+		{
+			read_buffer[bytes_read] = 0;
+			buff += read_buffer;
+		}
+		else
+		{ 
+			read_buffer[bytes_read] = 0;
 
-            close(eventFd);
-            break;
-        }
-        else if (bytes_read == read_buffer_size)
-        {
-            read_buffer[bytes_read] = 0;
-            buff += read_buffer;
-        }
-        else
-        { 
-            read_buffer[bytes_read] = 0;
+			buff += read_buffer;
 
-            buff += read_buffer;
+			Client const 	*client = Client::getClientFromFd(eventFd);
+			Request			*request = Request::getRequestFromClient(*client);
 
-            Client const 	*client = Client::getClientFromFd(eventFd);
-            Request			*request = Request::getRequestFromClient(*client);
-
-            if (!request && buff != "\r\n")
-                request = Request::createRequest(*client);
-            if (request && request->manage(buff, m_servers))
-                 Request::removeRequest(*request);
-            break;
-        }
-    }
+			if (!request && buff != "\r\n")
+				request = Request::createRequest(*client);
+			if (request && request->manage(buff, m_servers))
+				 Request::removeRequest(*request);
+			break;
+		}
+	}
 }
 
 void							Cluster::_closeEpoll(void)
 {
-    if(close(m_epoll_fd))
-    {
-        std::cerr << "Failed to close epoll file descriptor\n" << std::endl;
-        return ;
-    }
+	if(close(m_epoll_fd))
+	{
+		std::cerr << "Failed to close epoll file descriptor\n" << std::endl;
+		return ;
+	}
 }
 
 /*
@@ -287,11 +285,11 @@ void							Cluster::_closeEpoll(void)
 
 std::vector<Server*> Cluster::getServers(void) const
 {
-    return m_servers;
+	return m_servers;
 }
 
 Tree                Cluster::getTree(void) const
 {
-    return m_tree;
+	return m_tree;
 }
 /* ************************************************************************** */
