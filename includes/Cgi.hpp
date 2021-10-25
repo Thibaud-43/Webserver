@@ -10,6 +10,7 @@ class Cgi
 	public:
 		typedef std::set<Cgi>		list_type;
 		typedef int					fd_type;
+		typedef	std::string			envVariable_t;
 
 		Cgi();
 		Cgi(Cgi const & src);
@@ -23,9 +24,26 @@ class Cgi
 
 
 	private:
-		int     	m_pipe[2];
-		pid_t   	m_pid;
-		Client	*	m_client;
+		int     		m_pipe[2];
+		pid_t   		m_pid;
+		Client	*		m_client;
+
+		char			**environement;
+		
+		envVariable_t	CONTENT_LENGTH;
+		envVariable_t	CONTENT_TYPE;
+		envVariable_t	GATEWAY_INTERFACE;
+		envVariable_t	PATH_INFO;
+		envVariable_t	PATH_TRANSLATED;
+		envVariable_t	QUERY_STRING;
+		envVariable_t	REMOTE_ADDR;
+		envVariable_t	REQUEST_METHOD;
+		envVariable_t	SCRIPT_NAME;
+		envVariable_t	SERVER_NAME;
+		envVariable_t	SERVER_PORT;
+		envVariable_t	SERVER_PROTOCOL;
+		envVariable_t	SERVER_SOFTWARE;
+		envVariable_t	REDIRECT_STATUS;
 
 
 		static  list_type   _list;
