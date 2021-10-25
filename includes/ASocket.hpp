@@ -18,19 +18,20 @@ class ASocket
 		ASocket(ASocket const & src);
 		virtual ~ASocket() = 0;
 
-		ASocket &						operator=(ASocket const & rhs);
-		Server const *					getServer(void) const;
-		fd_type							getFd(void) const;
-		address_type					getAddr(void) const;
-		void							destroy(void);
+		ASocket &		operator=(ASocket const & rhs);
+		Server const *	getServer(void) const;
+		fd_type			getFd(void) const;
+		address_type	getAddr(void) const;
+		void			destroy(void);
+		static void		epollCtlAdd(fd_type const & epoll, fd_type const & fd);
 
-		operator						fd_type(void) const;
-		friend bool						operator<(ASocket const & lhs, ASocket const & rhs);
-		friend bool						operator<=(ASocket const & lhs, ASocket const & rhs);
-		friend bool						operator>(ASocket const & lhs, ASocket const & rhs);
-		friend bool						operator>=(ASocket const & lhs, ASocket const & rhs);
-		friend bool						operator==(ASocket const & lhs, ASocket const & rhs);
-		friend bool						operator!=(ASocket const & lhs, ASocket const & rhs);
+		operator		fd_type(void) const;
+		friend bool		operator<(ASocket const & lhs, ASocket const & rhs);
+		friend bool		operator<=(ASocket const & lhs, ASocket const & rhs);
+		friend bool		operator>(ASocket const & lhs, ASocket const & rhs);
+		friend bool		operator>=(ASocket const & lhs, ASocket const & rhs);
+		friend bool		operator==(ASocket const & lhs, ASocket const & rhs);
+		friend bool		operator!=(ASocket const & lhs, ASocket const & rhs);
 
 	protected:
 		fd_type							m_fd;

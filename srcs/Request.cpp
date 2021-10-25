@@ -604,8 +604,10 @@ bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 {
 	Cgi	cgi(*this, cgi_path);
 
-
-	return (false);
+	if (!cgi.run())
+		return (Response::send_error("500", m_client, m_location));
+	Cgi::addCgi(cgi);
+	return (true);
 }
 
 /*

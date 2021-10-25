@@ -5,6 +5,7 @@
 # include "Client.hpp"
 # include "Request.hpp"
 # include "Server.hpp"
+# include "Cluster.hpp"
 
 /*		ENV LIST:
 
@@ -30,6 +31,7 @@ class Cgi
 		typedef std::set<Cgi>						list_type;
 		typedef int									fd_type;
 		typedef std::map<std::string, std::string>	env_type;
+		typedef struct epoll_event					event_type;
 
 		Cgi();
 		Cgi(Cgi const & src);
@@ -40,15 +42,14 @@ class Cgi
 		static bool			isCgiFd(fd_type & fd);
 		static void			removeCgi(Cgi const & cgi);
 		static void			addCgi(Cgi const & cgi);
-		static Cgi	const *	getCgiFromFd(fd_type fd);
+		static Cgi const *	getCgiFromFd(fd_type fd);
 		Client const *		getClient(void) const;
 		int					getFd_out(void) const;
 		pid_t				getPid(void) const;
 		char **				getEnv(void) const;
 		bool				handle(std::string & buffer) const;
 
-		void				setPid(pid_t const & pid);
-		void				setFd_out(fd_type const & fd);
+		bool				run(void);
 
 		friend bool	operator<(Cgi const & lhs, Cgi const & rhs);
 		friend bool	operator<=(Cgi const & lhs, Cgi const & rhs);
@@ -58,7 +59,6 @@ class Cgi
 		friend bool	operator>(Cgi const & lhs, Cgi const & rhs);
 
 	private:
-
 		pid_t   			m_pid;
 		fd_type				m_fd_out;
 		Client const *		m_client;
@@ -67,4 +67,5 @@ class Cgi
 		static  list_type   _list;
 
 };
-#endif /* ********************************************************* Cgi_H */
+
+#endif /* ********************************************************* Cgi_HPP */
