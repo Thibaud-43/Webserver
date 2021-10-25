@@ -47,6 +47,8 @@ std::ostream&   operator<<(std::ostream &o, Tree &i)
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
+void printBT(Node* node);
+
 void    Tree::parseTokensList(void)
 {
     if (this->parseCluster() < 0)
@@ -56,6 +58,8 @@ void    Tree::parseTokensList(void)
         m_root->setErrorMessage("Empty file.");
         throw Tree::ParserFailException();
     }
+    printBT(m_root);
+
 }
 
 int    Tree::parseCluster(void)

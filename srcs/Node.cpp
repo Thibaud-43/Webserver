@@ -99,7 +99,7 @@ bool    Node::isLocation(std::vector<std::string>::iterator it, std::vector<std:
         return false;
     if (++it == ite || *it != "{")
         return false;
-    if (++it == ite || *it == "}")
+    if (++it == ite)
         return false;
     return true;
 }
@@ -141,7 +141,10 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
         {
             tmpNode = tmpNode->createNode("location");
             tmpNode->m_content.push_back(*(it + 1));
-            tmpNode->parseLocation(it, ite);
+            if (*(it + 3) == "}")
+                it += 4;
+            else
+                tmpNode->parseLocation(it, ite);
         }
         else if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
         {

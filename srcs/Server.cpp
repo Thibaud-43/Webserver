@@ -90,7 +90,8 @@ void			Server::fillServer(Node* node)
 		{
 			tmpLocation = new Location();
 			tmpLocation->setUri(node->getContent());
-			tmpLocation->fillLocation(node->getLeft());
+			if (node->getLeft() != NULL)
+				tmpLocation->fillLocation(node->getLeft());
 			this->m_locations.push_back(tmpLocation);
 		}
 		else if (node->getType() == "listen")
