@@ -231,7 +231,6 @@ bool    Node::checkListen(std::vector<std::string>::iterator it, std::vector<std
 bool    Node::checkIpAndPort(std::vector<std::string> serverInfo)
 {
     std::vector<std::string>::iterator  it = serverInfo.begin();
-    std::vector<std::string>::iterator  ite = serverInfo.end();
 
     if (serverInfo.size() < 1 || serverInfo.size() > 2)
         return false;
@@ -408,8 +407,8 @@ bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::
 bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
     float               f;
-    float const         acceptedValues[7] = {301.0, 302.0, 303.0, 304.0, 306.0, 307.0, 308.0};
-    size_t              i = 0;
+    // float const         acceptedValues[7] = {301.0, 302.0, 303.0, 304.0, 306.0, 307.0, 308.0};
+    // size_t              i = 0;
     std::istringstream  tmpIss;
 
     if (++it == ite)        // token after "listen"

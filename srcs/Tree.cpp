@@ -7,9 +7,7 @@ Tree::Tree() : m_root(NULL)
 {}
 
 Tree::Tree(const char * configFilePath) : m_root(NULL), m_tokens(configFilePath)
-{
-    this->parseCluster();
-}
+{}
 
 Tree::Tree(Tree const &src) : m_root(src.m_root), m_tokens(src.m_tokens)
 {}
@@ -49,6 +47,12 @@ std::ostream&   operator<<(std::ostream &o, Tree const &i)
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
+void    Tree::parseTokensList(void)
+{
+    if (this->parseCluster() < 0)
+        throw Tree::ParserFailException();
+}
+
 int    Tree::parseCluster(void)
 {
     Node*                               tmpNode = m_root;
@@ -104,5 +108,14 @@ Tokenizer   Tree::getTokens(void) const
 ** --------------------------------- EXCEPTIONS ---------------------------------
 */
 
+const char* Tree::TokenizerFailException::what() const throw()
+{
+    return ("");
+}
+
+const char* Tree::ParserFailException::what() const throw()
+{
+    return ("ERROR - Parsing error.\n");
+}
 
 /* ************************************************************************** */

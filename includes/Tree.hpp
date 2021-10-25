@@ -17,7 +17,8 @@ class   Tree
 
         Node*       getRoot(void) const;
         Tokenizer   getTokens(void) const;
-
+        
+        void    parseTokensList(void);
         int     parseCluster(void);
 
         static bool    isServer(std::vector<std::string>::iterator &it, std::vector<std::string>::iterator &ite);
@@ -30,6 +31,17 @@ class   Tree
     private:
         Node*       m_root;
         Tokenizer   m_tokens;
+        class TokenizerFailException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
+        class   ParserFailException : public std::exception
+        {
+            public: 
+                virtual const char* what() const throw();
+        };
+
 
 };
 
