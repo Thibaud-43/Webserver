@@ -1,21 +1,10 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <iostream>
-# include <string>
-# include <sstream>
-# include <map>
-# include <ctime>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <unistd.h>
-# include <fstream>
+# include "Headers.hpp"
 # include "Client.hpp"
 # include "Location.hpp"
 # include "File.hpp"
-
-# define PROTOCOL "HTTP/1.1"
-# define SERV_NAME "Webserv/1.0.0"
 
 class Response
 {

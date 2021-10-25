@@ -3,11 +3,9 @@
 
 # include "Headers.hpp"
 # include "Location.hpp"
-# include "Listener.hpp"
-# include "Client.hpp"
 # include "Node.hpp"
+# include "Listener.hpp"
 
-# define PROTOCOL "HTTP/1.1"
 class Server
 {
 

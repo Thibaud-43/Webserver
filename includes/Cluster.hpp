@@ -2,17 +2,12 @@
 # define CLUSTER_HPP
 
 # include "Headers.hpp"
-
 # include "Server.hpp"
-# include "Request.hpp"
-# include "ASocket.hpp"
-# include "Client.hpp"
-# include "Cgi.hpp"
 # include "Tree.hpp"
-
-# define READ_SIZE 10000
-# define MAX_EVENTS 10
-# define MYPORT 3490
+# include "Node.hpp"
+# include "Client.hpp"
+# include "Request.hpp"
+# include "Cgi.hpp"
 
 class Cluster
 {

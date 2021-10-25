@@ -1,14 +1,7 @@
 #ifndef FILE_HPP
 # define FILE_HPP
 
-# include <iostream>
-# include <string>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <unistd.h>
-# include <vector>
-# include <dirent.h>
-# include <sstream>
+# include "Headers.hpp"
 
 class File
 {

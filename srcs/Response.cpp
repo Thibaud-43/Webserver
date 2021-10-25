@@ -1,6 +1,5 @@
 #include "Response.hpp"
 
-
 Response::status_t Response::_status = Response::_createStatus();
 
 Response::status_t	Response::_createStatus(void)

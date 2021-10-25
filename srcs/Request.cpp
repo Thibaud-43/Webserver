@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include "Cgi.hpp"
 
 Request::list_type Request::_list = Request::list_type();
 
@@ -52,7 +53,7 @@ void		Request::unChunked(std::string & str)
 
 bool							Request::_checkBodySize(void)
 {
-	std::stringstream sstream(this->getHeader()["Content-Length"]);
+	std::stringstream sstream(this->getHeader().at("Content-Length"));
 	size_t lenght;
 	sstream >> lenght;
 	if (this->getBody().size() == lenght)
@@ -62,6 +63,7 @@ bool							Request::_checkBodySize(void)
 	}
 	return (false);
 }
+
 bool							Request::_checkChunkAdvancement(void)
 {
 	std::string			s = this->getBody();
@@ -83,8 +85,8 @@ bool							Request::_checkChunkAdvancement(void)
 
 bool							Request::_checkRequestAdvancement(void)
 {
-	header_type::iterator		contentLenght = this->getHeader().find("Content-Length");
-	header_type::iterator		transfertEncoding = this->getHeader().find("Transfer-Encoding");
+	header_type::const_iterator		contentLenght = this->getHeader().find("Content-Length");
+	header_type::const_iterator		transfertEncoding = this->getHeader().find("Transfer-Encoding");
 
 	if (!this->getHeaderCompleted())
 	{
@@ -430,7 +432,15 @@ bool	Request::_execute(void) const
 	{
 		if (!_check_get())
 			return (false);
-		return (_get(_get_cgi_path()));
+		Location::file_t const * cgi_path = _get_cgi_path();
+		if (cgi_path)
+		{
+			File	f(*cgi_path);
+			if (f.is_executable())
+				return (_get_cgi_path());
+			return (Response::send_error("500", m_client, m_location));
+		}
+		return (_get());
 	}
 	else if (method == "DELETE")
 	{
@@ -518,11 +528,8 @@ bool	Request::_delete(void) const
 	return (true);
 }
 
-bool	Request::_get(Location::file_t const * path) const
+bool	Request::_get() const
 {
-	if (path)
-		return (_cgi_get(*path));
-
 	Response		rep;
 	std::ifstream	fstream(m_path.data());
 	char			buff[MAX_SERVER_BODY_SIZE + 1];
@@ -593,9 +600,11 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 	return (NULL);
 }
 
-bool	Request::_cgi_get(Location::file_t const & path) const
+bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 {
-	static_cast<void>(path);
+	Cgi	cgi(*this, cgi_path);
+
+
 	return (false);
 }
 
@@ -608,12 +617,12 @@ Client const *	Request::getClient(void) const
 	return m_client;
 }
 
-Request::header_type  &		Request::getHeader(void) 
+Request::header_type const &	Request::getHeader(void) const
 {
 	return m_header;
 }
 
-Request::body_type  &		Request::getBody(void) 
+Request::body_type const &		Request::getBody(void) const
 {
 	return m_body;
 }
@@ -621,6 +630,16 @@ Request::body_type  &		Request::getBody(void)
 bool				Request::getHeaderCompleted(void)
 {
 	return m_headerCompleted;
+}
+
+std::string const &	Request::getPath(void) const
+{
+	return (m_path);
+}
+
+Server const *	Request::getServer(void) const
+{
+	return (m_server);
 }
 
 /* ************************************************************************** */

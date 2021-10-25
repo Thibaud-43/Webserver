@@ -35,34 +35,34 @@ ASocket &				ASocket::operator=( ASocket const & rhs )
 	return *this;
 }
 
-bool                    operator<(ASocket & lhs, ASocket & rhs)
+bool                    operator<(ASocket const & lhs, ASocket const & rhs)
 {
-	return lhs.getFd() < rhs.getFd();
+	return lhs.m_fd < rhs.m_fd;
 }
 
-bool                    operator<=(ASocket & lhs, ASocket & rhs)
+bool                    operator<=(ASocket const & lhs, ASocket const & rhs)
 {
-	return lhs.getFd() <= rhs.getFd();
+	return lhs.m_fd <= rhs.m_fd;
 }
 
-bool                    operator>(ASocket & lhs, ASocket & rhs)
+bool                    operator>(ASocket const & lhs, ASocket const & rhs)
 {
-	return lhs.getFd() > rhs.getFd();
+	return lhs.m_fd > rhs.m_fd;
 }
 
-bool                    operator>=(ASocket & lhs, ASocket & rhs)
+bool                    operator>=(ASocket const & lhs, ASocket const & rhs)
 {
-	return lhs.getFd() >= rhs.getFd();
+	return lhs.m_fd >= rhs.m_fd;
 }
 
 bool                    operator==(ASocket const & lhs, ASocket const & rhs)
 {
-	return lhs.getFd() == rhs.getFd();
+	return lhs.m_fd == rhs.m_fd;
 }
 
-bool                    operator!=(ASocket & lhs, ASocket & rhs)
+bool                    operator!=(ASocket const & lhs, ASocket const & rhs)
 {
-	return lhs.getFd() != rhs.getFd();
+	return lhs.m_fd != rhs.m_fd;
 }
 
 ASocket::operator fd_type(void) const
