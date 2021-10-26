@@ -51,7 +51,7 @@ bool	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_header("Connection: close");
 		rep.send_to_client(client);
 		Client::closeConnexion(*client);
-	return (false);
+		return (false);
 }
 
 bool	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)

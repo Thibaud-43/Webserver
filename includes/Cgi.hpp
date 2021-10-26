@@ -41,15 +41,18 @@ class Cgi
 		Cgi &				operator=(Cgi const & rhs);
 		static bool			isCgiFd(fd_type & fd);
 		static void			removeCgi(Cgi const & cgi);
-		static void			addCgi(Cgi const & cgi);
+		static Cgi const *	addCgi(Cgi const & cgi);
 		static Cgi const *	getCgiFromFd(fd_type fd);
+		static Cgi const *	getCgiFromClient(Client const * client);
 		Client const *		getClient(void) const;
 		int					getFd_out(void) const;
 		pid_t				getPid(void) const;
 		char **				getEnv(void) const;
+		void				del_env(char **envp);
 		bool				handle(std::string & buffer) const;
 
-		bool				run(void);
+		bool				run(char const *cgi_path, char *const *args);
+		bool				check_status(void) const;
 
 		friend bool	operator<(Cgi const & lhs, Cgi const & rhs);
 		friend bool	operator<=(Cgi const & lhs, Cgi const & rhs);

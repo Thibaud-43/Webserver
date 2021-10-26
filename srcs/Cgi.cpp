@@ -22,14 +22,25 @@ Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
-		if ((*it).m_fd_out == fd)
+		if (it->m_fd_out == fd)
 			return (&(*it));
 	}
 	return (NULL);
 }
-void		Cgi::addCgi(Cgi const & cgi)
+
+Cgi const *	Cgi::getCgiFromClient(Client const * client)
 {
-	_list.insert(cgi);
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (it->m_client == client)
+			return (&(*it));
+	}
+	return (NULL);
+}
+
+Cgi const *Cgi::addCgi(Cgi const & cgi)
+{
+	return (&(*_list.insert(cgi).first));
 }
 
 /*
@@ -101,29 +112,63 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 
 bool	Cgi::handle(std::string & buffer) const
 {
-	(void) buffer; // SOLVE THIBAUD!!
+	std::cout << buffer << std::endl;
 	return (true);
 }
 
-bool	Cgi::run(void)
+bool	Cgi::run(char const *cgi_path, char *const *args)
 {
-	int	pipefd[2];
+	int		pipefd[2];
+	char	**envp;
 
 	if (pipe(pipefd))
 		return (false);
 	m_fd_out = pipefd[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
-	ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
+	envp = getEnv();
 	m_pid = fork();
 	if (m_pid < 0)
+	{
+		del_env(envp);
 		return (false);
+	}
 	else if (!m_pid)
 	{
 		dup2(STDOUT_FILENO, pipefd[1]);
-		// IN PROGRESS
+		if (execve(cgi_path, args, envp) < 0)
+			exit(1);
 	}
+	else
+		del_env(envp);
 	return (true);
+}
+
+bool	Cgi::check_status(void) const
+{
+	int	status;
+	int	ret = waitpid(m_pid, &status, WNOHANG);
+	Request const *	request = Request::getRequestFromClient(*m_client);
+
+	if (ret < 0)
+	{
+		Response::send_error("500", m_client, request->getLocation());
+		Request::removeRequest(*request);
+		return (true);
+	}
+	else if (!ret)
+		return (false);
+	else
+	{
+		if (!WIFEXITED(status))
+		{
+			Response::send_error("500", m_client, request->getLocation());
+			Request::removeRequest(*request);
+			return (true);
+		}
+		ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
+		return (false);
+	}
 }
 
 /*
@@ -161,6 +206,18 @@ char	**Cgi::getEnv(void) const
 	}
 	env[i] = 0;
 	return (env);
+}
+
+void	Cgi::del_env(char **envp)
+{
+	size_t	i = 0;
+
+	while (envp[i])
+	{
+		delete [] envp[i];
+		i++;
+	}
+	delete [] envp;
 }
 
 /* ************************************************************************** */

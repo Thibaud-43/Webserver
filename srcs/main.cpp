@@ -30,14 +30,14 @@ int main(int argc, char const *argv[])
         Cluster cluster;
         if (cluster.getServers().size() == 0)
             return 0;
-    // test.run();
+        cluster.run();
     }
     else if (argc == 2)
     {
         Cluster cluster(argv[1]);
         if (cluster.getServers().size() == 0)
             return 0;
-    // test.run();
+        cluster.run();
     }
     else
     {

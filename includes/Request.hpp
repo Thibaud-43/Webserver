@@ -8,6 +8,8 @@
 # include "Response.hpp"
 # include "File.hpp"
 
+class Cgi;
+
 class Request
 {
 
@@ -16,7 +18,7 @@ class Request
 		typedef std::map<std::string, std::string>	header_type;
 		typedef std::string							body_type;
 
-		//Request();
+		Request();
 		Request(Request const & src);
 		Request(std::string const request);
 		Request(Client const * client);
@@ -37,6 +39,7 @@ class Request
 		body_type const &	getBody(void) const;
 		std::string const &	getPath(void) const;
 		Server const *		getServer(void) const;
+		Location const *	getLocation(void) const;
 		bool				getHeaderCompleted(void);
 
 	private:
@@ -47,7 +50,6 @@ class Request
 		Location const *					m_location;
 		std::string							m_path;
 		bool								m_headerCompleted;
-		bool								m_end;
 
 		static list_type					_list;
 		void								_linkServer(std::vector<Server*> const & list);

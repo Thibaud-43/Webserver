@@ -58,7 +58,6 @@ bool							Request::_checkBodySize(void)
 	sstream >> lenght;
 	if (this->getBody().size() == lenght)
 	{
-		std::cout << " REMOVE LIST --> DETECT RECEIVE FULL BODY" << std::endl;
 		return (true);
 	}
 	return (false);
@@ -76,7 +75,6 @@ bool							Request::_checkChunkAdvancement(void)
 		s.erase(0, pos + delimiter.length());
 		if (token == "0")
 		{
-			std::cout << " REMOVE LIST --> DETECT CHUNK END " << std::endl;
 			return (true);
 		}
 	}
@@ -94,7 +92,6 @@ bool							Request::_checkRequestAdvancement(void)
 	}
 	else if (contentLenght == this->getHeader().end() && transfertEncoding == this->getHeader().end())
 	{
-		std::cout << "REMOVE LIST --> NO BODY TO RECEIVE" << std::endl;
 		return true;
 	}
 	else if (contentLenght != this->getHeader().end() && transfertEncoding == this->getHeader().end())
@@ -114,19 +111,21 @@ bool							Request::_checkRequestAdvancement(void)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-/*Request::Request(): m_client(Client())
+Request::Request()
+: m_client(NULL), m_server(NULL), m_location(NULL), m_headerCompleted(false)
 {
-
-}*/
-
-Request::Request(Client const * client): m_client(client), m_headerCompleted(false)
-{
-	m_server = NULL;
 }
 
-Request::Request( const Request & src ): m_header(src.m_header), m_body(src.m_body), m_client(src.m_client), m_server(src.m_server), m_headerCompleted(src.m_headerCompleted)
+Request::Request(Client const * client)
+: m_client(client), m_server(NULL), m_location(NULL), m_headerCompleted(false)
 {
+}
 
+Request::Request( const Request & src )
+	: m_header(src.m_header), m_body(src.m_body), m_client(src.m_client), m_server(src.m_server)
+	, m_location(src.m_location), m_path(src.m_path)
+	, m_headerCompleted(src.m_headerCompleted)
+{
 }
 
 
@@ -136,15 +135,6 @@ Request::Request( const Request & src ): m_header(src.m_header), m_body(src.m_bo
 
 Request::~Request()
 {
-
-	/*for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		if (m_client == (*it).getClient())
-		{
-			_list.erase(it);
-			return ;
-		}
-	}*/
 }
 
 
@@ -302,11 +292,10 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 	if (m_headerCompleted == true)
 	{
 		_bufferToBody(buffer);
-		_printBody();
 		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 			unChunked(m_body);
-		_printHeader();
-		_printBody();
+		//_printHeader();
+		//_printBody();
 		if (!_execute())
 			return (true);
 		return _checkRequestAdvancement();
@@ -437,7 +426,7 @@ bool	Request::_execute(void) const
 		{
 			File	f(*cgi_path);
 			if (f.is_executable())
-				return (_get_cgi_path());
+				return (_cgi_get(*cgi_path));
 			return (Response::send_error("500", m_client, m_location));
 		}
 		return (_get());
@@ -485,9 +474,8 @@ bool	Request::_check_get(void) const
 	}
 	else if (file.is_directory())
 	{
-		std::cout << m_path << std::endl;
 		if (*(m_path.end() - 1) != '/')
-			Response::redirect("302", m_path + "/" , m_client);
+			Response::redirect("302", m_header.at("uri") + "/" , m_client);
 		else if (m_location->getAutoindex())
 			Response::send_index(m_path, m_header.at("uri"), m_client, m_location);
 		else
@@ -602,10 +590,19 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 
 bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 {
-	Cgi	cgi(*this, cgi_path);
+	Cgi		cgi(*this, cgi_path);
+	char	**argv = new char*[1];
 
-	if (!cgi.run())
+	argv[0] = new char[m_path.size() + 1];
+	m_path.copy(argv[0], m_path.size());
+	if (!cgi.run(cgi_path.c_str(), argv))
+	{
+		delete [] argv[0];
+		delete [] argv;
 		return (Response::send_error("500", m_client, m_location));
+	}
+	delete [] argv[0];
+	delete [] argv;
 	Cgi::addCgi(cgi);
 	return (true);
 }
@@ -642,6 +639,11 @@ std::string const &	Request::getPath(void) const
 Server const *	Request::getServer(void) const
 {
 	return (m_server);
+}
+		
+Location const *	Request::getLocation(void) const
+{
+	return (m_location);
 }
 
 /* ************************************************************************** */
