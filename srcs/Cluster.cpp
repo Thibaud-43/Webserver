@@ -241,15 +241,20 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 	char                read_buffer[READ_SIZE + 1];
 	size_t              read_buffer_size = sizeof(read_buffer);
 	std::string         buff = "";
+	Cgi const 			*cgi = Cgi::getCgiFromFd(eventFd);
 
-
+	if (cgi)
+	{
+		if (cgi->check_status())
+			Cgi::removeCgi(*cgi);
+		return ;
+	}
 	for (;;)
 	{
 		memset(read_buffer, 0, read_buffer_size);
 		bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
 		if (bytes_read < 0)
 		{
-			Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
 			Cgi::removeCgi(*cgi);
 			close(eventFd);
 			break;
@@ -279,15 +284,8 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 	char                read_buffer[READ_SIZE + 1];
 	size_t              read_buffer_size = sizeof(read_buffer);
 	std::string         buff = "";
-
-	Client const 	*client = Client::getClientFromFd(eventFd);
-	Request			*request = Request::getRequestFromClient(*client);
-	Cgi const		*cgi = Cgi::getCgiFromClient(client);
-
-	if (cgi)
-	{
-		
-	}
+	Client const 		*client = Client::getClientFromFd(eventFd);
+	Request				*request = Request::getRequestFromClient(*client);
 
 	for (;;)
 	{
