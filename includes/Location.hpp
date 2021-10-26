@@ -18,7 +18,8 @@ class Location
 		typedef std::map<std::string, path_t>	cgi_t;
 
 		Location();
-		Location( Location const & src );
+		Location(std::string const &flag);
+		Location(Location const & src);
 		~Location();
 
 		Location &								operator=( Location const & rhs );
@@ -32,8 +33,8 @@ class Location
 		std::string									getStrMethods(void) const;
 		redirect_t const &							getRedirectNum(void) const;
 		std::string const &							getRedirectPath(void) const;
-		bool										getAutoindex(void) const;
-		bool										getUpload(void) const;
+		int											getAutoindex(void) const;
+		int											getUpload(void) const;
 		cgi_t const &								getCGIPass(void) const;
 		bool										isAllowed(std::string const & method) const;
 
@@ -59,8 +60,8 @@ class Location
 		std::vector<file_t>					m_indexes; // DEFAULT index.htm
 		methods_t							m_methods; // DEFAULT GET HEAD POST DELETE PUT
 		std::pair<redirect_t, std::string>	m_redirect; // DEFAULT empty-empty
-		bool								m_autoindex; // DEFAULT true
-		bool								m_upload; // DEFAULT false. (on/off)
+		int									m_autoindex; // DEFAULT true
+		int									m_upload; // DEFAULT false. (on/off)
 		cgi_t								m_cgi_pass; // DEFAULT NONE
 };
 

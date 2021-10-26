@@ -1,27 +1,27 @@
 #include "Cluster.hpp"
 #include "Tree.hpp"
 
-// void printBT(const std::string& prefix, const Node* node, bool isLeft)
-// {
-//     if( node != NULL )
-//     {
-//         std::cout << prefix;
+void printBT(const std::string& prefix, const Node* node, bool isLeft)
+{
+    if( node != NULL )
+    {
+        std::cout << prefix;
 
-//         std::cout << (isLeft ? "├──" : "└──" );
+        std::cout << (isLeft ? "├──" : "└──" );
 
-//         // print the value of the node
-//         std::cout << node->getType() << std::endl;
+        // print the value of the node
+        std::cout << node->getType() << std::endl;
 
-//         // enter the next tree level - left and right branch
-//         printBT( prefix + (isLeft ? "│   " : "    "), node->getRight(), true);
-//         printBT( prefix + (isLeft ? "│   " : "    "), node->getLeft(), false);
-//     }
-// }
+        // enter the next tree level - left and right branch
+        printBT( prefix + (isLeft ? "│   " : "    "), node->getRight(), true);
+        printBT( prefix + (isLeft ? "│   " : "    "), node->getLeft(), false);
+    }
+}
 
-// void printBT(const Node* node)
-// {
-//     printBT("", node, false);    
-// }
+void printBT(const Node* node)
+{
+    printBT("", node, false);    
+}
 
 int main(int argc, char const *argv[])
 {

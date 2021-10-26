@@ -153,7 +153,8 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
             tmpNode = tmpNode->createNode(type);
             while (*(++it) != ";")
                 tmpNode->m_content.push_back(*it);
-            it++;
+            if (it != ite && *it == ";")
+                it++;
         }
         else
         {
@@ -363,7 +364,7 @@ bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::s
         return false;
     if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
         return false;
-    if (++it == ite || *it != ";" || *it != "{" || *it != "}" || ++it == ite || *it == ";")
+    if (++it != ite && *it != ";" && *it != "{" && *it != "}" && ++it != ite && *it == ";")
         return true;
     return false;
 }

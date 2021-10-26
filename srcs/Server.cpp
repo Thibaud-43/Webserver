@@ -4,15 +4,15 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server():  m_ip("0.0.0.0"), m_port("80")
+Server::Server():  m_ip("0.0.0.0"), m_port("80"), m_params(Location("default"))
 {
 	m_names.push_back("localhost");
 }
 
-Server::Server( const Server & src ): m_ip(src.m_ip), m_port(src.m_port), m_names(src.m_names), m_params(Location())
+Server::Server( const Server & src ): m_ip(src.m_ip), m_port(src.m_port), m_names(src.m_names), m_params(src.m_params)
 {}
 
-Server::Server(std::string port, std::string ip): m_ip(ip), m_port(port)
+Server::Server(std::string port, std::string ip): m_ip(ip), m_port(port), m_params(Location("default"))
 {
 	m_names.push_back("localhost");
 }
@@ -84,6 +84,7 @@ void			Server::fillServer(Node* node)
 
 	if (node != NULL)
 	{
+		std::cout << node->getType() << std::endl;
 		if (node->getType() == "location")
 		{
 			tmpLocation = new Location();
@@ -97,9 +98,15 @@ void			Server::fillServer(Node* node)
 		else if (node->getType() == "server_name")
 			this->setNames(node->getContent());
 		else
+		{
 			this->m_params.setValue(node);
+			// std::cout << "------------------" << std::endl;
+			// std::cout << node->getType() << std::endl;
+			// std::cout << this->m_params << std::endl;
+			// std::cout << "------------------" << std::endl;
+		}
 	}
-	if (node->getLeft() != NULL)
+	if (node->getLeft() != NULL && node->getType() != "location")
 		this->fillServer(node->getLeft());
 	if (node->getRight() != NULL)
 		this->fillServer(node->getRight());

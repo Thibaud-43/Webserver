@@ -6,6 +6,14 @@
 
 Location::Location()
 {
+	m_autoindex = 2;
+	m_body_size = -1;
+	m_upload = 2;
+}
+
+Location::Location(std::string const &flag)
+{
+	(void) flag;
 	m_methods.push_back("GET");
 	m_methods.push_back("POST");
 	m_methods.push_back("DELETE");
@@ -65,11 +73,13 @@ std::ostream &			operator<<( std::ostream & o, Location const & rhs )
 
 	std::cout << std::endl;
 	o << "\t\tUri: " << rhs.getUri() << std::endl;
+	o << "\t\tErr: ";
 	for (it1 = tmpErrPages.begin(); it1 != tmpErrPages.end(); it1++)
 	{
-		o << "\t\tErrorNum: " << it1->first << std::endl;
-		o << "\t\tErrorPath: " << it1->second << std::endl;
+		o << it1->first;
+		o << "\t" << it1->second << " | ";
 	}
+	o << std::endl;
 	o << "\t\tBody size: " << rhs.getBodySize() << std::endl;
 	o << "\t\tRoot: " << rhs.getRoot() << std::endl;
 	o << "\t\tIndexes: ";
@@ -87,16 +97,22 @@ std::ostream &			operator<<( std::ostream & o, Location const & rhs )
 	o << "\t\tRedirect: " << rhs.getRedirectNum() << "\t" <<rhs.getRedirectPath() <<std::endl;
 	if (rhs.getAutoindex() == true)
 		o << "\t\tAutoindex: on" << std::endl;
-	else
+	else if (rhs.getAutoindex() == false)
 		o << "\t\tAutoindex: off" << std::endl;
+	else
+		o << "\t\tAutoindex: unset" << std::endl;
 	if (rhs.getUpload() == true)
 		o << "\t\tUpload: on" << std::endl;
-	else
+	else if (rhs.getUpload() == false)
 		o << "\t\tUpload: off" << std::endl;
+	else
+		o << "\t\tUpload: unset" << std::endl;
+	o << "\t\tCGI: ";
 	for (it1 = tmpCGI.begin(); it1 != tmpCGI.end(); it1++)
 	{
-		o << "\t\tCGI: " << it1->first << " " << it1->second << std::endl;
+		o << it1->first << " " << it1->second << " | ";
 	}
+	std::cout << std::endl;
 	return o;
 }
 
@@ -172,7 +188,7 @@ std::string const &	Location::getRedirectPath(void) const
 	return (m_redirect.second);
 }
 
-bool							Location::getAutoindex(void) const
+int								Location::getAutoindex(void) const
 {
 	return (m_autoindex);
 }
@@ -182,7 +198,7 @@ Location::cgi_t const &			Location::getCGIPass(void) const
 	return (m_cgi_pass);
 }
 
-bool							Location::getUpload(void) const
+int								Location::getUpload(void) const
 {
 	return (m_upload);
 }
@@ -200,6 +216,9 @@ void	Location::setValue(Node* node)
 	std::string					type = node->getType();
 	std::vector<std::string>	content = node->getContent();
 
+	// std::cout << "------------------" << std::endl;
+	// std::cout << *this << std::endl;
+	// std::cout << "------------------" << std::endl;
 	if (type == "error_page")
 		this->setErrPages(content);
 	else if (type == "client_max_body_size")
