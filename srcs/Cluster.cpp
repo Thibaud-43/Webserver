@@ -17,7 +17,6 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
     {
 		m_tree.getTokens().createTokensList();
         m_tree.parseTokensList();
-		// printBT(m_tree.getRoot());
         this->_fillCluster(m_tree.getRoot());
 		this->_parseServerObject();
         std::cout << *this << std::endl;
@@ -148,6 +147,8 @@ void			Cluster::_inheritDefaultLocation(Server &server, Location &location)
 		location.setAutoindex(server.getParams().getAutoindex());
 	if (location.getUpload() == 2)
 		location.setUpload(server.getParams().getUpload());
+	if (location.getCGIPass().empty() == true)
+		location.setCGIPass(server.getParams().getCGIPass());
 
 }
 
