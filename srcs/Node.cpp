@@ -162,7 +162,7 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
             return -1;
         }
     }
-    if (*it == "}")
+    if (it != ite && *it == "}")
         ++it;
     else
         return -1;
