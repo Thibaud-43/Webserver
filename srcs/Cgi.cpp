@@ -105,9 +105,10 @@ bool	Cgi::handle(std::string & buffer) const
 	return (true);
 }
 
-bool	Cgi::run(void)
+bool	Cgi::run(char const *cgi_path, char *const *args)
 {
-	int	pipefd[2];
+	int		pipefd[2];
+	char	**envp;
 
 	if (pipe(pipefd))
 		return (false);
@@ -115,14 +116,21 @@ bool	Cgi::run(void)
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
 	ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
+	envp = getEnv();
 	m_pid = fork();
 	if (m_pid < 0)
+	{
+		del_env(envp);
 		return (false);
+	}
 	else if (!m_pid)
 	{
 		dup2(STDOUT_FILENO, pipefd[1]);
-		// IN PROGRESS
+		if (execve(cgi_path, args, envp) < 0)
+			exit(1);
 	}
+	else
+		del_env(envp);
 	return (true);
 }
 
@@ -161,6 +169,18 @@ char	**Cgi::getEnv(void) const
 	}
 	env[i] = 0;
 	return (env);
+}
+
+void	Cgi::del_env(char **envp)
+{
+	size_t	i = 0;
+
+	while (envp[i])
+	{
+		delete [] envp[i];
+		i++;
+	}
+	delete [] envp;
 }
 
 /* ************************************************************************** */

@@ -47,9 +47,10 @@ class Cgi
 		int					getFd_out(void) const;
 		pid_t				getPid(void) const;
 		char **				getEnv(void) const;
+		void				del_env(char **envp);
 		bool				handle(std::string & buffer) const;
 
-		bool				run(void);
+		bool				run(char const *cgi_path, char *const *args);
 
 		friend bool	operator<(Cgi const & lhs, Cgi const & rhs);
 		friend bool	operator<=(Cgi const & lhs, Cgi const & rhs);

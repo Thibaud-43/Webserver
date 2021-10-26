@@ -602,10 +602,17 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 
 bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 {
-	Cgi	cgi(*this, cgi_path);
+	Cgi		cgi(*this, cgi_path);
+	char	*argv[1];
 
-	if (!cgi.run())
+	argv[0] = new char[m_path.size() + 1];
+	m_path.copy(argv[0], m_path.size());
+	if (!cgi.run(cgi_path.c_str(), argv))
+	{
+		delete [] argv[0];
 		return (Response::send_error("500", m_client, m_location));
+	}
+	delete [] argv[1];
 	Cgi::addCgi(cgi);
 	return (true);
 }
