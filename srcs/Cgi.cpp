@@ -61,6 +61,7 @@ Cgi::Cgi(Request const & request, std::string const & cgi_path)
 	: m_pid(-1), m_fd_out(-1), m_client(request.getClient()), m_env(Cgi::env_type())
 {
 	Request::header_type const &	header = request.getHeader();
+	char *addr = inet_ntoa(m_client->getAddr().sin_addr);
 
 	if (header.find("Authorization") != header.end())
 		m_env["AUTH_TYPE"] = header.at("Authorization");
@@ -69,16 +70,17 @@ Cgi::Cgi(Request const & request, std::string const & cgi_path)
 	if (header.find("Content-Type") != header.end())
 		m_env["CONTENT_TYPE"] = header.at("Content-Type");
 	m_env["GATEWAY_INTERFACE"] = CGI_VERSION;
-	m_env["PATH_INFO"] = header.at("uri");
-	m_env["PATH_TRANSLATED"] = request.getPath();
-	m_env["QUERY_STRING"] = header.at("query_string");
-	m_env["REMOTE_ADDR"] = request.getServer()->getIp();
-	m_env["REQUEST_METHOD"] = header.at("method");
-	m_env["SCRIPT_NAME"] = cgi_path;
 	m_env["SERVER_NAME"] = header.at("Host");
 	m_env["SERVER_PORT"] = request.getServer()->getPort();
 	m_env["SERVER_PROTOCOL"] = PROTOCOL;
 	m_env["SERVER_SOFTWARE"] = SERV_NAME;
+	m_env["QUERY_STRING"] = header.at("query_string");
+	m_env["REQUEST_METHOD"] = header.at("method");
+	m_env["PATH_INFO"] = request.getPath();
+	m_env["SCRIPT_FILENAME"] = request.getPath();
+	m_env["SCRIPT_NAME"] = cgi_path;
+	m_env["REMOTE_ADDR"] = std::string(addr);
+	m_env["REDIRECT_STATUS"] = "200";
 }
 
 /*
@@ -137,10 +139,12 @@ bool	Cgi::handle(std::string & buffer) const
 		buffer.erase(0, pos + delimiter2.length());
 	}*/
 	std::cout << buffer << std::endl;
+	//(void)buffer;
+	std::cout << "TEST:" << buffer << std::endl;
 	return (true);
 }
 
-bool	Cgi::run(char const *cgi_path, char *const *args)
+bool	Cgi::run(char *const *args)
 {
 	int		pipefd[2];
 	char	**envp;
@@ -159,12 +163,17 @@ bool	Cgi::run(char const *cgi_path, char *const *args)
 	}
 	else if (!m_pid)
 	{
-		dup2(STDOUT_FILENO, pipefd[1]);
-		if (execve(cgi_path, args, envp) < 0)
+		close(pipefd[0]);
+		if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+			exit(1);
+		if (execve(args[0], args + 1, envp) < 0)
 			exit(1);
 	}
 	else
+	{
+		close(pipefd[1]);
 		del_env(envp);
+	}
 	return (true);
 }
 

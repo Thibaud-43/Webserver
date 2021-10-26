@@ -14,7 +14,6 @@
 		CONTENT_TYPE;
 		GATEWAY_INTERFACE;
 		PATH_INFO;
-		PATH_TRANSLATED;
 		QUERY_STRING;
 		REMOTE_ADDR;
 		REQUEST_METHOD;
@@ -35,7 +34,7 @@ class Cgi
 
 		Cgi();
 		Cgi(Cgi const & src);
-		Cgi(Request const & Request, std::string const & cgi_path);
+		Cgi(Request const & request, std::string const & cgi_path);
 		~Cgi();
 
 		Cgi &				operator=(Cgi const & rhs);
@@ -51,7 +50,7 @@ class Cgi
 		void				del_env(char **envp);
 		bool				handle(std::string & buffer) const;
 
-		bool				run(char const *cgi_path, char *const *args);
+		bool				run(char *const *args);
 		bool				check_status(void) const;
 
 		friend bool	operator<(Cgi const & lhs, Cgi const & rhs);

@@ -590,19 +590,22 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 
 bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 {
-	Cgi		cgi(*this, cgi_path);
-	char	**argv = new char*[1];
-
-	argv[0] = new char[m_path.size() + 1];
-	m_path.copy(argv[0], m_path.size());
-	if (!cgi.run(cgi_path.c_str(), argv))
+	Cgi				cgi(*this, cgi_path);
+	char 			**argv = new char*[3];
+	
+	argv[0] = new char[cgi_path.size() + 1];
+	cgi_path.copy(argv[0], cgi_path.size());
+	argv[0][cgi_path.size()] = 0;
+	argv[1] = new char[m_path.size() + 1];
+	m_path.copy(argv[1], m_path.size());
+	argv[1][m_path.size()] = 0;
+	argv[2] = 0;
+	if (!cgi.run(argv))
 	{
-		delete [] argv[0];
-		delete [] argv;
+		cgi.del_env(argv);
 		return (Response::send_error("500", m_client, m_location));
 	}
-	delete [] argv[0];
-	delete [] argv;
+	cgi.del_env(argv);
 	Cgi::addCgi(cgi);
 	return (true);
 }
