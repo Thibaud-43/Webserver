@@ -1,6 +1,8 @@
 #include "Node.hpp"
 
-Node::directive_t   Node::m_directivesMap = initMap();
+Node::directive_t   Node::directivesMap = initMap();
+
+std::string         Node::errorMessage = std::string();
 
 Node::directive_t Node::initMap(void)
 {
@@ -27,6 +29,7 @@ Node::Node() : m_left(NULL), m_right(NULL)
 
 Node::Node(std::string type) : m_left(NULL), m_right(NULL), m_type(type)
 {}
+
 
 Node::Node(std::string type, std::vector<std::string> content) : m_left(NULL), m_right(NULL), m_type(type), m_content(content)
 {}
@@ -83,7 +86,6 @@ std::ostream&			operator<<(std::ostream & o, Node const &i)
     return o;
 }
 
-
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
@@ -95,6 +97,8 @@ bool    Node::isLocation(std::vector<std::string>::iterator it, std::vector<std:
     if (++it == ite || *it == ";" || *it == "{" || *it == "}")
         return false;
     if (++it == ite || *it != "{")
+        return false;
+    if (++it == ite)
         return false;
     return true;
 }
@@ -136,7 +140,13 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
         {
             tmpNode = tmpNode->createNode("location");
             tmpNode->m_content.push_back(*(it + 1));
-            tmpNode->parseLocation(it, ite);
+            if (*(it + 3) == "}")
+            {
+                tmpNode->createNode("emptyLocation");
+                it += 4;
+            }
+            else
+                tmpNode->parseLocation(it, ite);
         }
         else if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
         {
@@ -146,7 +156,11 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
             it++;
         }
         else
+        {
+            if (errorMessage.empty())
+                errorMessage = "location scope is wrong.";
             return -1;
+        }
     }
     if (*it == "}")
         ++it;
@@ -157,8 +171,8 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
 
 bool    Node::checkDirectiveFormat(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite, std::string const &directive)
 {
-    Node::directive_t::const_iterator    itMap = m_directivesMap.begin();
-    Node::directive_t::const_iterator    iteMap = m_directivesMap.end();
+    Node::directive_t::const_iterator    itMap = directivesMap.begin();
+    Node::directive_t::const_iterator    iteMap = directivesMap.end();
 
     while (itMap != iteMap && itMap->first != directive)
         itMap++;
@@ -178,7 +192,13 @@ bool    Node::isDirectiveLocation(std::vector<std::string>::iterator it, std::ve
             if (*it == directives[i])
             {
                 type = directives[i];
-                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
+                if (Node::checkDirectiveFormat(it, ite, directives[i]) == false)
+                {
+                    errorMessage = directives[i] + " directive is wrong.";
+                    return false;
+                }
+                else
+                    return true;
             }
         }
     }
@@ -196,8 +216,13 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
             if (*it == directives[i])
             {
                 type = directives[i];
-                return Node::checkDirectiveFormat(it, ite, directives[i]); // return Node::checkDirectiveFormat
-            }
+                if (Node::checkDirectiveFormat(it, ite, directives[i]) == false)
+                {
+                    errorMessage = directives[i] + " directive is wrong.";
+                    return false;
+                }
+                else
+                    return true;            }
         }
     }
     return false;
@@ -300,7 +325,7 @@ bool    Node::checkServerName(std::vector<std::string>::iterator it, std::vector
 {
     size_t i = 0; 
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
     {
@@ -319,7 +344,7 @@ bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vecto
     std::istringstream  tmpIss;
     float               f;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (Node::isNumber(*it) == false || (*it).size() > 10)
         return false;
@@ -334,7 +359,7 @@ bool    Node::checkMaxBodySize(std::vector<std::string>::iterator it, std::vecto
 
 bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
         return false;
@@ -348,7 +373,7 @@ bool    Node::checkErrorPage(std::vector<std::string>::iterator it, std::vector<
     float               f;
     std::istringstream  tmpIss;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (Node::isNumber(*it) == false || (*it).size() > 10)
         return false;
@@ -365,7 +390,7 @@ bool    Node::checkMethods(std::vector<std::string>::iterator it, std::vector<st
 {
     size_t i = 0;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     while (it != ite && *it != ";" && i < 3)
     {
@@ -383,7 +408,7 @@ bool    Node::checkIndex(std::vector<std::string>::iterator it, std::vector<std:
 {
     size_t i = 0; 
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     while (it != ite && *it != ";" && *it != "{" && *it != "}" && i++ < 32)
     {
@@ -407,11 +432,9 @@ bool    Node::checkRoot(std::vector<std::string>::iterator it, std::vector<std::
 bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
     float               f;
-    // float const         acceptedValues[7] = {301.0, 302.0, 303.0, 304.0, 306.0, 307.0, 308.0};
-    // size_t              i = 0;
     std::istringstream  tmpIss;
 
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;
     if (Node::isNumber(*it) == false || (*it).size() > 10)
         return false;
@@ -426,7 +449,7 @@ bool    Node::checkRedirect(std::vector<std::string>::iterator it, std::vector<s
 
 bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;  
     if (*it != "on" && *it != "off")
         return false;
@@ -437,7 +460,7 @@ bool    Node::checkAutoindex(std::vector<std::string>::iterator it, std::vector<
 
 bool    Node::checkUpload(std::vector<std::string>::iterator it, std::vector<std::string>::iterator &ite)
 {
-    if (++it == ite)        // token after "listen"
+    if (++it == ite)
         return false;  
     if (*it != "on" && *it != "off")
         return false;
@@ -483,6 +506,7 @@ void    Node::displayContent(std::ostream &o)const
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
 Node*                       Node::getLeft(void)const
 {
     return m_left;
@@ -503,19 +527,23 @@ void                        Node::setRight(Node value)
     m_right = new Node(value);
 }
 
+void                        Node::setErrorMessage(std::string const &message)
+{
+    errorMessage = message;
+}
+
 std::string                 Node::getType(void)const
 {
     return m_type;
 }
 
-std::vector<std::string>    Node::getContent(void)const
+std::string                 Node::getErrorMessage(void)const
+{
+    return errorMessage;
+}
+
+std::vector<std::string>&    Node::getContent(void)
 {
     return m_content;
 }
-
-/*
-** --------------------------------- EXCEPTIONS ---------------------------------
-*/
-
-
 /* ************************************************************************** */

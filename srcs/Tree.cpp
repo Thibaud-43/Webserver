@@ -11,7 +11,6 @@ Tree::Tree(const char * configFilePath) : m_root(NULL), m_tokens(configFilePath)
 
 Tree::Tree(Tree const &src) : m_root(src.m_root), m_tokens(src.m_tokens)
 {}
-// WE SHOULD TRY IF COPY CONSTRUCTOR IS WORKING PROPERLY!
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -25,7 +24,6 @@ Tree::~Tree()
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-// DEEP COPY ?
 Tree& Tree::operator=(Tree const & rhs)
 {
     if (this != &rhs)
@@ -36,7 +34,7 @@ Tree& Tree::operator=(Tree const & rhs)
     return *this;
 }
 
-std::ostream&   operator<<(std::ostream &o, Tree const &i)
+std::ostream&   operator<<(std::ostream &o, Tree &i)
 {
     if (i.getRoot() != NULL)
         o << "TREE:" << std::endl << *i.getRoot() << std::endl << std::endl;
@@ -47,10 +45,16 @@ std::ostream&   operator<<(std::ostream &o, Tree const &i)
 /*
 ** --------------------------------- MEMBER FUNCTIONS ----------------------------------
 */
+
 void    Tree::parseTokensList(void)
 {
     if (this->parseCluster() < 0)
         throw Tree::ParserFailException();
+    if (this->getTokens().getTokens().size() == 0)
+    {
+        m_root->setErrorMessage("Empty file.");
+        throw Tree::ParserFailException();
+    }
 }
 
 int    Tree::parseCluster(void)
@@ -63,19 +67,38 @@ int    Tree::parseCluster(void)
     while(it != ite)
     {
         if (Tree::isServer(it, ite) == true) // STRANGE FUNCITON MEMBER ? Thib told me to make it as a static
-        {
-            if (tmpNode == NULL)
+        { 
+            if (it != ite && *it == "}")
+            {
+                if (tmpNode == NULL)
+                {
+                    m_root = new Node("Server");
+                    m_root->getContent().push_back("empty");
+                    tmpNode = m_root;
+                }
+                else
+                {
+                    tmpNode = tmpNode->createNode("Server");
+                    tmpNode->getContent().push_back("empty");
+                }
+                it++;
+            }
+            else if (tmpNode == NULL)
             {
                 m_root = new Node("Server");
                 tmpNode = m_root;
+                tmpNode->parseServer(it, ite);
             }
             else
+            {
                 tmpNode = tmpNode->createNode("Server");
-            tmpNode->parseServer(it, ite);
+                tmpNode->parseServer(it, ite);
+            }
         }
         else
         {
-            std::cout << "ERROR SERVER" << std::endl;
+            if (m_root->getErrorMessage().empty() == true)
+                m_root->setErrorMessage("server scope is wrong.");
             return -1;
         }
     }
@@ -86,7 +109,7 @@ bool    Tree::isServer(std::vector<std::string>::iterator &it, std::vector<std::
 {
     if (*it == "server" && ++it != ite && *it == "{")
     {
-        it++;
+        ++it;
         return true;
     }
     return false;
@@ -100,7 +123,7 @@ Node*       Tree::getRoot(void) const
     return m_root;
 }
 
-Tokenizer   Tree::getTokens(void) const
+Tokenizer&  Tree::getTokens(void)
 {
     return m_tokens;
 }
@@ -108,14 +131,9 @@ Tokenizer   Tree::getTokens(void) const
 ** --------------------------------- EXCEPTIONS ---------------------------------
 */
 
-const char* Tree::TokenizerFailException::what() const throw()
-{
-    return ("");
-}
-
 const char* Tree::ParserFailException::what() const throw()
 {
-    return ("ERROR - Parsing error.\n");
+    return ("Parsing error - ");
 }
 
 /* ************************************************************************** */

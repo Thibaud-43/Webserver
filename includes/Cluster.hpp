@@ -15,7 +15,6 @@ class Cluster
 		typedef int						fd_type;
 		typedef struct epoll_event		event_type;
 
-		// Cluster();
 		Cluster( char const * configFilePath = "confFiles/default.conf" );
 		Cluster( Cluster const & src );
 		~Cluster();
@@ -33,7 +32,7 @@ class Cluster
 		event_type						m_events[MAX_EVENTS];
 		int								m_eventCount;
 		
-		static fd_type					epoll_fd;
+		static fd_type					_epoll_fd;
 
 		void							_fillCluster(Node* node);
 		void							_createCluster(void);
@@ -49,4 +48,5 @@ class Cluster
 
 std::ostream &			operator<<( std::ostream & o, Cluster const & rhs );
 
-#endif /* ********************************************************* CLUSTER_H */
+#endif
+/* ********************************************************* CLUSTER_H */

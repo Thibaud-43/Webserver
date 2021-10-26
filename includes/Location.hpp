@@ -37,19 +37,7 @@ class Location
 		cgi_t const &								getCGIPass(void) const;
 		bool										isAllowed(std::string const & method) const;
 
-		// void	setUri(std::string const & uri);
-		// void	setErrPages(err_code_t errNum, path_t path);
-		// void	setBodySize(body_size_t const & bodySize);
-		// void	setRoot(path_t const & root);
-		// void	setIndexes(indexes_t const & indexes);
-		// void	setMethods(methods_t const & methods);
-		// void	setRedirect(redirect_t num, path_t path);
-		// void	setautoindex(bool state);
-		// void	setUpload(bool state);
-		// void	setCGIPass(std::string extensionType, path_t path);
-		void	fillLocation(Node* node);
 		void	setValue(Node* node);
-
 		void	setUri(std::vector<std::string> content);
 		void	setErrPages(std::vector<std::string> content);
 		void	setBodySize(std::vector<std::string> content);
@@ -60,6 +48,8 @@ class Location
 		void	setautoindex(std::vector<std::string> content);
 		void	setUpload(std::vector<std::string> content);
 		void	setCGIPass(std::vector<std::string> content);
+
+		void	fillLocation(Node* node);
 
 	private:
 		std::string							m_uri; // DEFAULT empty
@@ -77,4 +67,5 @@ class Location
 std::ostream &			operator<<( std::ostream & o, Location const & rhs );
 
 
-#endif /* ******************************************************** LOCATION_H */
+#endif
+/* ******************************************************** LOCATION_H */

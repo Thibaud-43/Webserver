@@ -8,7 +8,6 @@
 
 class Server
 {
-
 	public:
 		typedef int						fd_type;
 
@@ -17,10 +16,13 @@ class Server
 		Server(std::string port, std::string ip);
 		~Server();
 
-		Server &						operator=( Server const & rhs );
-		int								getSocketFd(void) const;
-		int								run(fd_type epoll);
+		Server &	operator=( Server const & rhs );
 
+		int		run(fd_type epoll);
+		void	fillServer(Node* node);
+		void	fillLocation(Node* node);
+
+		int								getSocketFd(void) const;
 		std::string						getIp(void) const;
 		std::string						getPort(void) const;
 		std::vector<std::string>		getNames(void) const;
@@ -29,11 +31,7 @@ class Server
 		Location const *				getLocation(std::string const & uri) const;	
 
 		void	setIpandPort(std::vector<std::string> const & content);
-		void	setNames(std::vector<std::string> const & content);
-
-		void							fillServer(Node* node);
-		void							fillLocation(Node* node);
-
+		void	setNames(std::vector<std::string> const & content);	
 		void	setUri(std::vector<std::string> const &content);
 		void	setErrPages(std::vector<std::string> const &content);
 		void	setBodySize(std::vector<std::string> const &content);
@@ -46,7 +44,6 @@ class Server
 		void	setCGIPass(std::vector<std::string> const &content);
 		void	setValue(Node* node);
 
-
 	private:
 		std::string						m_ip;
 		std::string						m_port;
@@ -57,5 +54,5 @@ class Server
 
 std::ostream &			operator<<( std::ostream & o, Server const & rhs );
 
-
-#endif /* ********************************************************** SERVER_H */
+#endif
+/* ********************************************************** SERVER_H */

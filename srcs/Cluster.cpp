@@ -1,12 +1,10 @@
 #include "Cluster.hpp"
 
-void printBT(const Node* node);
-
-Cluster::fd_type epoll_fd = 0;
+Cluster::fd_type Cluster::_epoll_fd = -1;
 
 Cluster::fd_type	Cluster::getEpollFd(void)
 {
-	return epoll_fd;
+	return _epoll_fd;
 }
 
 /*
@@ -19,13 +17,22 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
     {
 		m_tree.getTokens().createTokensList();
         m_tree.parseTokensList();
+		// printBT(m_tree.getRoot());
         this->_fillCluster(m_tree.getRoot());
         std::cout << *this << std::endl;
     }
-    catch(const std::exception& e)
+    catch(const Tree::ParserFailException& e)
     {
         std::cerr << "Error - ";
         std::cerr << e.what();
+		std::cerr << m_tree.getRoot()->getErrorMessage();
+		std::cerr << std::endl;
+    }
+	catch(const std::exception& e)
+    {
+        std::cerr << "Error - ";
+        std::cerr << e.what();
+		std::cerr << std::endl;
     }
 }
 
@@ -57,7 +64,6 @@ Cluster::~Cluster()
 		it++;
 	}
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -98,19 +104,25 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-
-
 void			Cluster::_fillCluster(Node* node)
 {
 	Server  *tmpServer;
+	std::vector<std::string>::iterator it = node->getContent().begin();
 
 	if (node == NULL) 
 		return ;
+	if (node->getType() == "Server" && it != node->getContent().end() && *it == "empty")
+	{
+		tmpServer = new Server();
+		m_servers.push_back(tmpServer);
+		if (node->getLeft() != NULL)
+			this->_fillCluster(node->getLeft());
+		return;
+	}
 	if (node->getLeft() != NULL)
 	{
 		tmpServer = new Server();
@@ -118,7 +130,9 @@ void			Cluster::_fillCluster(Node* node)
 		m_servers.push_back(tmpServer);
 	}
 	if (node->getRight() != NULL)
+	{
 		this->_fillCluster(node->getRight());
+	}
 }
 
 int				Cluster::run(void)
@@ -139,8 +153,8 @@ int				Cluster::run(void)
 
 void							Cluster::_createEpoll(void)
 {
-	epoll_fd = epoll_create1(0);
-	if(epoll_fd < 0)
+	_epoll_fd = epoll_create1(0);
+	if(_epoll_fd < 0)
 	{
 		std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
 		return ;
@@ -162,13 +176,13 @@ void							Cluster::_runServers(void)
 {
 	for (std::vector<Server*>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
 	{
-		(*(*i)).run(epoll_fd);
+		(*(*i)).run(_epoll_fd);
 	}
 }
 
 void							Cluster::_epollWait(void)
 {
-	m_eventCount = epoll_wait(epoll_fd, m_events, MAX_EVENTS, 30000);
+	m_eventCount = epoll_wait(_epoll_fd, m_events, MAX_EVENTS, 30000);
 	if (m_eventCount == -1)
 	{
 		std::cerr <<  "Failed epoll_wait\n";
@@ -216,7 +230,7 @@ void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
 			}
 		}
 		else
-			Client	socket(client, their_addr, epoll_fd);
+			Client	socket(client, their_addr, _epoll_fd);
 	}
 	
 }
@@ -304,7 +318,7 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
 void							Cluster::_closeEpoll(void)
 {
-	if(close(epoll_fd))
+	if(close(_epoll_fd))
 	{
 		std::cerr << "Failed to close epoll file descriptor\n" << std::endl;
 		return ;
