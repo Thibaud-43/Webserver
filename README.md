@@ -27,12 +27,12 @@ This project is here to make us write our HTTP server.
 
 | directive  | value |
 | ---------- | ------ |
-| ServerName | localhost |
-| BodySizeMax| 1000000 |
-| Root       | /var/www/ |
-| Methods    | GET POST DELETE | 
-| Autoindex  | on |
-| Upload     | off |
+| ServerName | {EMPTY} |
+| BodySizeMax| {EMPTY} |
+| Root       | {EMPTY} |
+| Methods    | {EMPTY} |
+| Autoindex  | -2 |
+| Upload     | -2 |
 | Indexes    | {EMPTY} |
 | Redirect   | {EMPTY} |
 | ErrorPages | {EMPTY} |
@@ -57,6 +57,7 @@ This project is here to make us write our HTTP server.
 | 11. upload              | bool ON or OFF |
 | 12. location            | first $ARG must be URI and every directive can be called except for listen and server_name. |
 
+- Location blocks will ihnerits from Server block.
 - A Location directive cannot be called inside a Location scope;
 - A Server directive cannot be called inside a Location scope or a Server scope;
 - Several servers can be create inside a cluster;
