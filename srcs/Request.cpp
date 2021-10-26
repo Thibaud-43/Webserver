@@ -644,4 +644,9 @@ Server const *	Request::getServer(void) const
 	return (m_server);
 }
 
+Location const *	Request::getLocation(void) const
+{
+	return (m_location);
+}
+
 /* ************************************************************************** */

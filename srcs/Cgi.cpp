@@ -101,9 +101,30 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 
 bool	Cgi::handle(std::string & buffer) const
 {
-	(void) buffer; // SOLVE THIBAUD!!
-	Response	rep;
-	
+	Response		rep;
+	std::string 	delimiter = "\r\n";
+	std::string 	delimiter2 = "\r\n\r\n";
+	size_t 			pos = 0;
+	std::string		token;
+	std::string		status = "Status: 500 Internal Server Error";
+
+	if (pos = buffer.find(status))
+	{
+		rep.send_error("500", m_client, Request::getRequestFromClient(*m_client)->getLocation());
+		return (true);
+	}
+	rep.start_header("200");
+	while ((pos = buffer.find(delimiter)) != std::string::npos && pos != buffer.find(delimiter2)) 
+	{
+		token = buffer.substr(0, pos);
+		rep.append_to_header(token);
+		buffer.erase(0, pos + delimiter.length());	}
+	if (buffer.find(delimiter2) != std::string::npos)
+	{
+		token = buffer.substr(0, pos);
+		rep.append_to_header(token);
+		buffer.erase(0, pos + delimiter2.length());
+	}
 	return (true);
 }
 
