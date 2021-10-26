@@ -39,6 +39,7 @@ class Request
 		body_type const &	getBody(void) const;
 		std::string const &	getPath(void) const;
 		Server const *		getServer(void) const;
+		Location const *	getLocation(void) const;
 		bool				getHeaderCompleted(void);
 
 	private:

@@ -52,6 +52,7 @@ class Cgi
 		bool				handle(std::string & buffer) const;
 
 		bool				run(char const *cgi_path, char *const *args);
+		bool				check_status(void) const;
 
 		friend bool	operator<(Cgi const & lhs, Cgi const & rhs);
 		friend bool	operator<=(Cgi const & lhs, Cgi const & rhs);

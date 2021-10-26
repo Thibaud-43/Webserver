@@ -120,15 +120,12 @@ bool	Cgi::run(char const *cgi_path, char *const *args)
 {
 	int		pipefd[2];
 	char	**envp;
-	int		status;
-	int		ret;
 
 	if (pipe(pipefd))
 		return (false);
 	m_fd_out = pipefd[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
-	//ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out); TARPLU
 	envp = getEnv();
 	m_pid = fork();
 	if (m_pid < 0)
@@ -145,6 +142,33 @@ bool	Cgi::run(char const *cgi_path, char *const *args)
 	else
 		del_env(envp);
 	return (true);
+}
+
+bool	Cgi::check_status(void) const
+{
+	int	status;
+	int	ret = waitpid(m_pid, &status, WNOHANG);
+	Request const *	request = Request::getRequestFromClient(*m_client);
+
+	if (ret < 0)
+	{
+		Response::send_error("500", m_client, request->getLocation());
+		Request::removeRequest(*request);
+		return (true);
+	}
+	else if (!ret)
+		return (false);
+	else
+	{
+		if (!WIFEXITED(status))
+		{
+			Response::send_error("500", m_client, request->getLocation());
+			Request::removeRequest(*request);
+			return (true);
+		}
+		ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
+		return (false);
+	}
 }
 
 /*
