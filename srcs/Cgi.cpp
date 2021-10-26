@@ -112,7 +112,7 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 
 bool	Cgi::handle(std::string & buffer) const
 {
-	(void) buffer; // SOLVE THIBAUD!!
+	std::cout << buffer << std::endl;
 	return (true);
 }
 
