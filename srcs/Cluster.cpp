@@ -280,6 +280,14 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 	size_t              read_buffer_size = sizeof(read_buffer);
 	std::string         buff = "";
 
+	Client const 	*client = Client::getClientFromFd(eventFd);
+	Request			*request = Request::getRequestFromClient(*client);
+	Cgi const		*cgi = Cgi::getCgiFromClient(client);
+
+	if (cgi)
+	{
+		
+	}
 
 	for (;;)
 	{
@@ -287,8 +295,6 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 		bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
 		if (bytes_read < 0)
 		{
-			Client const 	*client = Client::getClientFromFd(eventFd);
-			Request			*request = Request::getRequestFromClient(*client);
 			Request::removeRequest(*request);
 			close(eventFd);
 			break;
@@ -303,9 +309,6 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 			read_buffer[bytes_read] = 0;
 
 			buff += read_buffer;
-
-			Client const 	*client = Client::getClientFromFd(eventFd);
-			Request			*request = Request::getRequestFromClient(*client);
 
 			if (!request && buff != "\r\n")
 				request = Request::createRequest(*client);
