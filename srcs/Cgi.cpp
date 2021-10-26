@@ -107,6 +107,8 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 bool	Cgi::handle(std::string & buffer) const
 {
 	(void) buffer; // SOLVE THIBAUD!!
+	Response	rep;
+	
 	return (true);
 }
 
