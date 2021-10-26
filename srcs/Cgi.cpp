@@ -14,14 +14,8 @@ bool		Cgi::isCgiFd(fd_type & fd)
 
 void		Cgi::removeCgi(Cgi const & cgi)
 {
-	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		if (cgi.getClient() == (*it).getClient())
-		{
-			_list.erase(it);
-			return ;
-		}
-	}
+	close(cgi.m_fd_out);
+	_list.erase(cgi);
 }
 
 Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
@@ -49,6 +43,7 @@ Cgi::Cgi(): m_pid(-1), m_fd_out(-1), m_client(NULL), m_env(env_type())
 Cgi::Cgi( const Cgi & src )
 	: m_pid(src.m_pid), m_fd_out(src.m_fd_out), m_client(src.m_client), m_env(src.m_env)
 {
+
 }
 
 Cgi::Cgi(Request const & request, std::string const & cgi_path)
@@ -112,6 +107,27 @@ bool	Cgi::handle(std::string & buffer) const
 	return (true);
 }
 
+bool	Cgi::run(void)
+{
+	int	pipefd[2];
+
+	if (pipe(pipefd))
+		return (false);
+	m_fd_out = pipefd[0];
+	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
+		return (false);
+	ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
+	m_pid = fork();
+	if (m_pid < 0)
+		return (false);
+	else if (!m_pid)
+	{
+		dup2(STDOUT_FILENO, pipefd[1]);
+		// IN PROGRESS
+	}
+	return (true);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
@@ -147,16 +163,6 @@ char	**Cgi::getEnv(void) const
 	}
 	env[i] = 0;
 	return (env);
-}
-
-void	Cgi::setPid(pid_t const & pid)
-{
-	m_pid = pid;
-}
-
-void	Cgi::setFd_out(Cgi::fd_type const & fd)
-{
-	m_fd_out = fd;
 }
 
 /* ************************************************************************** */

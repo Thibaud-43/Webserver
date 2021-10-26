@@ -1,5 +1,18 @@
 #include "ASocket.hpp"
 
+void	ASocket::epollCtlAdd(ASocket::fd_type const & epoll, ASocket::fd_type const & fd)
+{
+	ASocket::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = fd;
+    event.events = EPOLLIN | EPOLLET;
+    if(epoll_ctl(epoll, EPOLL_CTL_ADD, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(epoll);
+    }
+}
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -10,8 +23,13 @@ ASocket::ASocket()
 
 }
 
-ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr), m_event(src.m_event)
+ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_addr(src.m_addr)
 {
+	m_event.data.fd = src.m_event.data.fd;
+	m_event.data.ptr = src.m_event.data.ptr;
+	m_event.data.u32 = src.m_event.data.u32;
+	m_event.data.u64 = src.m_event.data.u64;
+	m_event.events = src.m_event.events;
 }
 
 /*
@@ -31,6 +49,11 @@ ASocket &				ASocket::operator=( ASocket const & rhs )
 	{
         m_fd = rhs.getFd();
 		m_addr = rhs.m_addr;
+		m_event.data.fd = rhs.m_event.data.fd;
+		m_event.data.ptr = rhs.m_event.data.ptr;
+		m_event.data.u32 = rhs.m_event.data.u32;
+		m_event.data.u64 = rhs.m_event.data.u64;
+		m_event.events = rhs.m_event.events;
 	}
 	return *this;
 }
@@ -76,24 +99,17 @@ ASocket::operator fd_type(void) const
 
 void			ASocket::_makeFdNonBlocking(void)
 {
-	int s;
-	s = fcntl (m_fd, F_SETFL, O_NONBLOCK);
-	if (s == -1)
+	if (fcntl(m_fd, F_SETFL, O_NONBLOCK) == -1)
 	{
-		perror ("fcntl");
+		perror("fcntl");
 		exit(1);
-
 	}
-	return ;
 }
 
 void	ASocket::destroy(void)
 {
 	if(close(m_fd))
-    {
         std::cerr << "Failed to close epoll file descriptor" << std::endl;
-        return ;
-    }
 }
 
 void					ASocket::_epollCtlAdd(fd_type & epoll)
@@ -106,10 +122,8 @@ void					ASocket::_epollCtlAdd(fd_type & epoll)
     {
         fprintf(stderr, "Failed to add file descriptor to epoll\n");
         close(epoll);
-        return ;
     }
 }
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
@@ -124,6 +138,5 @@ ASocket::address_type	ASocket::getAddr(void) const
 {
 	return (m_addr);
 }
-
 
 /* ************************************************************************** */

@@ -21,6 +21,7 @@ class Cluster
 
 		Cluster &						operator=( Cluster const & rhs );
 		int								run(void);
+		static fd_type					getEpollFd(void);
 
 		std::vector<Server*> 			getServers(void) const;
 		Tree				 			getTree(void) const;
@@ -28,9 +29,10 @@ class Cluster
 	private:
 		std::vector<Server*>			m_servers;
 		Tree							m_tree;
-		fd_type							m_epoll_fd;
 		event_type						m_events[MAX_EVENTS];
 		int								m_eventCount;
+		
+		static fd_type					_epoll_fd;
 
 		void							_fillCluster(Node* node);
 		void							_createCluster(void);
