@@ -177,6 +177,10 @@ std::string						Location::getStrMethods(void) const
 	}
 	return (str);
 }
+std::pair<Location::redirect_t, std::string> const &	Location::getRedirect(void) const
+{
+	return (m_redirect);
+}
 
 Location::redirect_t const &	Location::getRedirectNum(void) const
 {
@@ -206,55 +210,52 @@ int								Location::getUpload(void) const
 void	Location::fillLocation(Node* node)
 {
 	if (node != NULL)
-		this->setValue(node);
+		this->fillValue(node);
 	if (node->getLeft() != NULL)
 		this->fillLocation(node->getLeft());
 }
 
-void	Location::setValue(Node* node)
+void	Location::fillValue(Node* node)
 {
 	std::string					type = node->getType();
 	std::vector<std::string>	content = node->getContent();
 
-	// std::cout << "------------------" << std::endl;
-	// std::cout << *this << std::endl;
-	// std::cout << "------------------" << std::endl;
 	if (type == "error_page")
-		this->setErrPages(content);
+		this->fillErrPages(content);
 	else if (type == "client_max_body_size")
-		this->setBodySize(content);
+		this->fillBodySize(content);
 	else if (type == "root")
-		this->setRoot(content);
+		this->fillRoot(content);
 	else if (type == "index")
-		this->setIndexes(content);
+		this->fillIndexes(content);
 	else if (type == "methods")
-		this->setMethods(content);
+		this->fillMethods(content);
 	else if (type == "redirect")
-		this->setRedirect(content);
+		this->fillRedirect(content);
 	else if (type == "autoindex")
-		this->setautoindex(content);
+		this->fillAutoindex(content);
 	else if (type == "upload")
-		this->setUpload(content);
+		this->fillUpload(content);
 	else if (type == "cgi")
-		this->setCGIPass(content);
+		this->fillCGIPass(content);
 }
 
 
-void	Location::setUri(std::vector<std::string> content)
+void	Location::fillUri(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
 	this->m_uri = *it;
 }
 
-void	Location::setErrPages(std::vector<std::string> content)
+void	Location::fillErrPages(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
 	m_error_pages[*it] = *(it + 1);
 }
 
-void	Location::setBodySize(std::vector<std::string> content)
+void	Location::fillBodySize(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator	it = content.begin();
 	std::istringstream							iss(*it);
@@ -264,14 +265,14 @@ void	Location::setBodySize(std::vector<std::string> content)
 	this->m_body_size = i;
 }
 
-void	Location::setRoot(std::vector<std::string> content)
+void	Location::fillRoot(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
 	this->m_root = *it;
 }
 
-void	Location::setIndexes(std::vector<std::string> content)
+void	Location::fillIndexes(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 	std::vector<std::string>::const_iterator  ite = content.end();
@@ -280,7 +281,7 @@ void	Location::setIndexes(std::vector<std::string> content)
 		this->m_indexes.push_back(*(it++));
 }
 
-void	Location::setMethods(std::vector<std::string> content)
+void	Location::fillMethods(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 	std::vector<std::string>::const_iterator  ite = content.end();
@@ -291,14 +292,14 @@ void	Location::setMethods(std::vector<std::string> content)
 		this->m_methods.push_back(*(it++));
 }
 
-void	Location::setRedirect(std::vector<std::string> content)
+void	Location::fillRedirect(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
 	m_redirect = std::make_pair(*it, *(it + 1));
 }
 
-void	Location::setautoindex(std::vector<std::string> content)
+void	Location::fillAutoindex(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
@@ -308,7 +309,7 @@ void	Location::setautoindex(std::vector<std::string> content)
 		this->m_autoindex = false;
 }
 
-void	Location::setUpload(std::vector<std::string> content)
+void	Location::fillUpload(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
@@ -319,11 +320,61 @@ void	Location::setUpload(std::vector<std::string> content)
 }
 
 // WHAT S HAPPEN IF SAME MAP
-void	Location::setCGIPass(std::vector<std::string> content)
+void	Location::fillCGIPass(std::vector<std::string> content)
 {
 	std::vector<std::string>::const_iterator  it = content.begin();
 
 	m_cgi_pass[*it] = *(it + 1);
+}
+
+void	Location::setUri(std::string const &content)
+{
+	m_uri = content;
+}
+
+void	Location::setErrPages(std::map<err_code_t, path_t> const &content)
+{
+	m_error_pages = content;
+}
+
+void	Location::setBodySize(body_size_t const &content)
+{
+	m_body_size = content;
+}
+
+void	Location::setRoot(path_t const &content)
+{
+	m_root = content;
+}
+
+void	Location::setIndexes(indexes_t const &content)
+{
+	m_indexes = content;
+}
+
+void	Location::setMethods(methods_t const &content)
+{
+	m_methods = content;
+}
+
+void	Location::setRedirect(std::pair<redirect_t, std::string> const &content)
+{
+	m_redirect = content;
+}
+
+void	Location::setAutoindex(int const &content)
+{
+	m_autoindex = content;
+}
+
+void	Location::setUpload(int const &content)
+{
+	m_upload = content;
+}
+
+void	Location::setCGIPass(cgi_t const &content)
+{
+	m_cgi_pass = content;
 }
 
 

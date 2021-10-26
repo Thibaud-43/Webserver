@@ -31,24 +31,38 @@ class Location
 		indexes_t const &							getIndexes(void) const;
 		methods_t const &							getMethods(void) const;
 		std::string									getStrMethods(void) const;
+		std::pair<redirect_t, std::string> const &	getRedirect(void) const;
 		redirect_t const &							getRedirectNum(void) const;
 		std::string const &							getRedirectPath(void) const;
 		int											getAutoindex(void) const;
 		int											getUpload(void) const;
 		cgi_t const &								getCGIPass(void) const;
 		bool										isAllowed(std::string const & method) const;
+		
+		void	setUri(std::string const &content);
+		void	setErrPages(std::map<err_code_t, path_t> const &content);
+		void	setBodySize(body_size_t const &content);
+		void	setRoot(path_t const &content);
+		void	setIndexes(indexes_t const &content);
+		void	setMethods(methods_t const &content);
+		void	setRedirect(std::pair<redirect_t, std::string> const &content);
+		void	setAutoindex(int const &content);
+		void	setUpload(int const &content);
+		void	setCGIPass(cgi_t const &content);
 
-		void	setValue(Node* node);
-		void	setUri(std::vector<std::string> content);
-		void	setErrPages(std::vector<std::string> content);
-		void	setBodySize(std::vector<std::string> content);
-		void	setRoot(std::vector<std::string> content);
-		void	setIndexes(std::vector<std::string> content);
-		void	setMethods(std::vector<std::string> content);
-		void	setRedirect(std::vector<std::string> content);
-		void	setautoindex(std::vector<std::string> content);
-		void	setUpload(std::vector<std::string> content);
-		void	setCGIPass(std::vector<std::string> content);
+
+		void	fillValue(Node* node);
+		void	fillUri(std::vector<std::string> content);
+		void	fillErrPages(std::vector<std::string> content);
+		void	fillBodySize(std::vector<std::string> content);
+		void	fillRoot(std::vector<std::string> content);
+		void	fillIndexes(std::vector<std::string> content);
+		void	fillMethods(std::vector<std::string> content);
+		void	fillRedirect(std::vector<std::string> content);
+		void	fillAutoindex(std::vector<std::string> content);
+		void	fillUpload(std::vector<std::string> content);
+		void	fillCGIPass(std::vector<std::string> content);
+
 
 		void	fillLocation(Node* node);
 

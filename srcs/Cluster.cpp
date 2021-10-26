@@ -19,6 +19,7 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
         m_tree.parseTokensList();
 		// printBT(m_tree.getRoot());
         this->_fillCluster(m_tree.getRoot());
+		this->_parseServerObject();
         std::cout << *this << std::endl;
     }
     catch(const Tree::ParserFailException& e)
@@ -107,6 +108,48 @@ std::ostream &			operator<<( std::ostream & o, Cluster const & rhs )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+void			Cluster::_parseServerObject(void)
+{
+	if (m_servers.empty() == true)
+		return;
+	std::vector<Server*>::const_iterator it = m_servers.begin();
+	std::vector<Server*>::const_iterator ite = m_servers.end();
+
+	for (; it !=ite; it++)
+	{
+		if ( (*it)->getLocations().empty() == false )
+		{
+			std::vector<Location*> tmpLocationVec = (*it)->getLocations();
+			std::vector<Location*>::const_iterator it1 = tmpLocationVec.begin();
+			std::vector<Location*>::const_iterator ite1 = tmpLocationVec.end();
+			for (; it1 !=ite1; it1++)
+			{
+				this->_inheritDefaultLocation(**it, **it1);
+			}
+		}
+	}
+}
+
+void			Cluster::_inheritDefaultLocation(Server &server, Location &location)
+{
+	if (location.getErrPages().empty() == true)
+		location.setErrPages(server.getParams().getErrPages());
+	if (location.getBodySize() == static_cast<Location::body_size_t>(-1))
+		location.setBodySize(server.getParams().getBodySize());
+	if (location.getRoot().empty() == true)
+		location.setRoot(server.getParams().getRoot());
+	if (location.getIndexes().empty() == true)
+		location.setIndexes(server.getParams().getIndexes());
+	if (location.getMethods().empty() == true)
+		location.setMethods(server.getParams().getMethods());
+	if (location.getRedirectNum().empty() == true)
+		location.setRedirect(server.getParams().getRedirect());
+	if (location.getAutoindex() == 2)
+		location.setAutoindex(server.getParams().getAutoindex());
+	if (location.getUpload() == 2)
+		location.setUpload(server.getParams().getUpload());
+
+}
 
 void			Cluster::_fillCluster(Node* node)
 {

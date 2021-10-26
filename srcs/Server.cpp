@@ -88,7 +88,7 @@ void			Server::fillServer(Node* node)
 		if (node->getType() == "location")
 		{
 			tmpLocation = new Location();
-			tmpLocation->setUri(node->getContent());
+			tmpLocation->fillUri(node->getContent());
 			if (node->getLeft() != NULL)
 				tmpLocation->fillLocation(node->getLeft());
 			this->m_locations.push_back(tmpLocation);
@@ -99,11 +99,7 @@ void			Server::fillServer(Node* node)
 			this->setNames(node->getContent());
 		else
 		{
-			this->m_params.setValue(node);
-			// std::cout << "------------------" << std::endl;
-			// std::cout << node->getType() << std::endl;
-			// std::cout << this->m_params << std::endl;
-			// std::cout << "------------------" << std::endl;
+			this->m_params.fillValue(node);
 		}
 	}
 	if (node->getLeft() != NULL && node->getType() != "location")

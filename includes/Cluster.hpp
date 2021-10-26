@@ -34,6 +34,8 @@ class Cluster
 		
 		static fd_type					_epoll_fd;
 
+		void							_inheritDefaultLocation(Server &server, Location &location);
+		void							_parseServerObject(void);
 		void							_fillCluster(Node* node);
 		void							_createCluster(void);
 		void							_createEpoll(void);
