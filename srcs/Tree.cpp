@@ -56,7 +56,7 @@ void    Tree::parseTokensList(void)
         m_root->setErrorMessage("Empty file.");
         throw Tree::ParserFailException();
     }
-    printBT(m_root);
+    // printBT(m_root);
 }
 
 int    Tree::parseCluster(void)

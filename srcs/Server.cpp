@@ -84,7 +84,6 @@ void			Server::fillServer(Node* node)
 
 	if (node != NULL)
 	{
-		std::cout << node->getType() << std::endl;
 		if (node->getType() == "location")
 		{
 			tmpLocation = new Location();
