@@ -114,19 +114,21 @@ bool							Request::_checkRequestAdvancement(void)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-/*Request::Request(): m_client(Client())
+Request::Request()
+: m_client(NULL), m_server(NULL), m_location(NULL), m_headerCompleted(false)
 {
-
-}*/
-
-Request::Request(Client const * client): m_client(client), m_headerCompleted(false)
-{
-	m_server = NULL;
 }
 
-Request::Request( const Request & src ): m_header(src.m_header), m_body(src.m_body), m_client(src.m_client), m_server(src.m_server), m_headerCompleted(src.m_headerCompleted)
+Request::Request(Client const * client)
+: m_client(client), m_server(NULL), m_location(NULL), m_headerCompleted(false)
 {
+}
 
+Request::Request( const Request & src )
+	: m_header(src.m_header), m_body(src.m_body), m_client(src.m_client), m_server(src.m_server)
+	, m_location(src.m_location), m_path(src.m_path)
+	, m_headerCompleted(src.m_headerCompleted)
+{
 }
 
 
@@ -136,15 +138,6 @@ Request::Request( const Request & src ): m_header(src.m_header), m_body(src.m_bo
 
 Request::~Request()
 {
-
-	/*for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		if (m_client == (*it).getClient())
-		{
-			_list.erase(it);
-			return ;
-		}
-	}*/
 }
 
 

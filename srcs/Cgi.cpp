@@ -22,14 +22,25 @@ Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
-		if ((*it).m_fd_out == fd)
+		if (it->m_fd_out == fd)
 			return (&(*it));
 	}
 	return (NULL);
 }
-void		Cgi::addCgi(Cgi const & cgi)
+
+Cgi const *	Cgi::getCgiFromClient(Client const * client)
 {
-	_list.insert(cgi);
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (it->m_client == client)
+			return (&(*it));
+	}
+	return (NULL);
+}
+
+Cgi const *Cgi::addCgi(Cgi const & cgi)
+{
+	return (&(*_list.insert(cgi).first));
 }
 
 /*
@@ -109,13 +120,15 @@ bool	Cgi::run(char const *cgi_path, char *const *args)
 {
 	int		pipefd[2];
 	char	**envp;
+	int		status;
+	int		ret;
 
 	if (pipe(pipefd))
 		return (false);
 	m_fd_out = pipefd[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
-	ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
+	//ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out); TARPLU
 	envp = getEnv();
 	m_pid = fork();
 	if (m_pid < 0)
