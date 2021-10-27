@@ -278,7 +278,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
 		{
 			Response::send_error("400", m_client);
-			return (true);
+			return (false);
 		}
 		if (m_header.empty())
 			_bufferToRequestLine(buffer);	
@@ -286,7 +286,9 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 		if (m_headerCompleted == true)
 		{
 			if (!_checkHeader(servers))
-				return (true);
+			{
+				return (false);
+			}
 		}
 	}
 	if (m_headerCompleted == true)
@@ -294,13 +296,13 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 		_bufferToBody(buffer);
 		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 			unChunked(m_body);
-		//_printHeader();
-		//_printBody();
+		_printHeader();
+		_printBody();
 		if (!_execute())
-			return (true);
+			return (false);
 		return _checkRequestAdvancement();
 	}
-	return (false);
+	return (true);
 }
 
 bool	Request::_checkHeader(std::vector<Server*> const & servers)
@@ -603,10 +605,12 @@ bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 	if (!cgi.run(argv))
 	{
 		cgi.del_env(argv);
+		Cgi::removeCgi(cgi);
 		return (Response::send_error("500", m_client, m_location));
 	}
 	cgi.del_env(argv);
 	Cgi::addCgi(cgi);
+
 	return (true);
 }
 
@@ -646,11 +650,7 @@ Server const *	Request::getServer(void) const
 		
 Location const *	Request::getLocation(void) const
 {
-	return (m_location);
-}
-
-Location const *	Request::getLocation(void) const
-{
+	std::cout << m_location << std::endl;
 	return (m_location);
 }
 

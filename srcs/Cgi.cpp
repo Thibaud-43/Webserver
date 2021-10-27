@@ -28,6 +28,17 @@ Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
 	return (NULL);
 }
 
+void		Cgi::checkChildsStatus(void)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (!it->check_status())
+		{
+			removeCgi(*it);
+		}
+	}
+}
+
 Cgi const *	Cgi::getCgiFromClient(Client const * client)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
@@ -37,7 +48,6 @@ Cgi const *	Cgi::getCgiFromClient(Client const * client)
 	}
 	return (NULL);
 }
-
 Cgi const *Cgi::addCgi(Cgi const & cgi)
 {
 	return (&(*_list.insert(cgi).first));
@@ -119,9 +129,10 @@ bool	Cgi::handle(std::string & buffer) const
 	std::string 	delimiter2 = "\r\n\r\n";
 	size_t 			pos = 0;
 	std::string		token;
-	std::string		status = "Status: 500 Internal Server Error";
+	std::string		errorStatus = "Status: 500";
+	std::string		locationStatus = "Status: 302";
 
-	if (pos = buffer.find(status))
+	if (pos = buffer.find(errorStatus))
 	{
 		rep.send_error("500", m_client, Request::getRequestFromClient(*m_client)->getLocation());
 		return (true);
@@ -137,21 +148,26 @@ bool	Cgi::handle(std::string & buffer) const
 		token = buffer.substr(0, pos);
 		rep.append_to_header(token);
 		buffer.erase(0, pos + delimiter2.length());
-	}*/
+	}
+	check_status();*/
 	std::cout << buffer << std::endl;
-	//(void)buffer;
-	std::cout << "TEST:" << buffer << std::endl;
-	return (true);
+	Response		rep;
+	rep.start_header("200");
+	rep.add_content_length();
+	rep.debug();
+	rep.send_to_client(m_client);
+	ASocket::epollCtlDel(m_fd_out);
+
+	return (false);
 }
 
 bool	Cgi::run(char *const *args)
 {
-	int		pipefd[2];
 	char	**envp;
 
-	if (pipe(pipefd))
+	if (pipe(m_pipefd))
 		return (false);
-	m_fd_out = pipefd[0];
+	m_fd_out = m_pipefd[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
 	envp = getEnv();
@@ -163,15 +179,16 @@ bool	Cgi::run(char *const *args)
 	}
 	else if (!m_pid)
 	{
-		close(pipefd[0]);
-		if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+		close(m_pipefd[0]);
+		if (dup2(m_pipefd[1], STDOUT_FILENO) < 0)
 			exit(1);
-		if (execve(args[0], args + 1, envp) < 0)
+		close(m_pipefd[1]);
+		if (execve(args[0], args, envp) < 0)
 			exit(1);
 	}
 	else
 	{
-		close(pipefd[1]);
+		close(m_pipefd[1]);
 		del_env(envp);
 	}
 	return (true);
@@ -182,25 +199,26 @@ bool	Cgi::check_status(void) const
 	int	status;
 	int	ret = waitpid(m_pid, &status, WNOHANG);
 	Request const *	request = Request::getRequestFromClient(*m_client);
-
 	if (ret < 0)
 	{
 		Response::send_error("500", m_client, request->getLocation());
 		Request::removeRequest(*request);
-		return (true);
+		return (false);
 	}
 	else if (!ret)
-		return (false);
+	{
+		return (true);
+	}
 	else
 	{
 		if (!WIFEXITED(status))
 		{
 			Response::send_error("500", m_client, request->getLocation());
 			Request::removeRequest(*request);
-			return (true);
+			return (false);
 		}
-		ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
-		return (false);
+		ASocket::epollCtlAdd(m_fd_out);
+		return (true);
 	}
 }
 

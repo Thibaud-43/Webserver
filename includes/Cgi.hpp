@@ -43,6 +43,7 @@ class Cgi
 		static Cgi const *	addCgi(Cgi const & cgi);
 		static Cgi const *	getCgiFromFd(fd_type fd);
 		static Cgi const *	getCgiFromClient(Client const * client);
+		static	void		checkChildsStatus(void);
 		Client const *		getClient(void) const;
 		int					getFd_out(void) const;
 		pid_t				getPid(void) const;
@@ -62,6 +63,7 @@ class Cgi
 
 	private:
 		pid_t   			m_pid;
+		int					m_pipefd[2];
 		fd_type				m_fd_out;
 		Client const *		m_client;
 		env_type			m_env;

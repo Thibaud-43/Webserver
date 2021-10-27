@@ -1,19 +1,44 @@
 #include "ASocket.hpp"
 
-void	ASocket::epollCtlAdd(ASocket::fd_type const & epoll, ASocket::fd_type const & fd)
+ASocket::fd_type	ASocket::_epoll = 0;
+
+ASocket::fd_type const &	ASocket::getEpoll(void)
+{
+	return (_epoll);
+}
+
+void		ASocket::setEpoll(fd_type const & epoll)
+{
+	_epoll = epoll;
+}
+
+void	ASocket::epollCtlAdd(ASocket::fd_type const & fd)
 {
 	ASocket::event_type	event;
 
     memset(&event, 0, sizeof(event));
     event.data.fd = fd;
     event.events = EPOLLIN | EPOLLET;
-    if(epoll_ctl(epoll, EPOLL_CTL_ADD, event.data.fd, &event))
+    if(epoll_ctl(ASocket::getEpoll(), EPOLL_CTL_ADD, event.data.fd, &event))
     {
         fprintf(stderr, "Failed to add file descriptor to epoll\n");
-        close(epoll);
+        close(ASocket::getEpoll());
     }
 }
 
+void	ASocket::epollCtlDel(ASocket::fd_type const & fd)
+{
+	ASocket::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = fd;
+    event.events = EPOLLIN | EPOLLET;
+    if(epoll_ctl(ASocket::getEpoll(), EPOLL_CTL_DEL, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(ASocket::getEpoll());
+    }
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
