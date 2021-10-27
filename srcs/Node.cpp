@@ -158,6 +158,8 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
         }
         else
         {
+            if (it != ite && *it == ";")
+                errorMessage = "too much semicolon.";
             if (errorMessage.empty())
                 errorMessage = "location scope is wrong.";
             return -1;

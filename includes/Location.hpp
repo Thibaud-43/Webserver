@@ -26,6 +26,7 @@ class Location
 
 		std::string const &							getUri(void) const;
 		std::map<err_code_t, path_t> const &		getErrPages(void) const;
+		std::map<err_code_t, path_t> &		getErrPages(void);
 		body_size_t const &							getBodySize(void) const;
 		path_t const &								getRoot(void) const;
 		indexes_t const &							getIndexes(void) const;
@@ -37,6 +38,7 @@ class Location
 		int											getAutoindex(void) const;
 		int											getUpload(void) const;
 		cgi_t const &								getCGIPass(void) const;
+		cgi_t &										getCGIPass(void);
 		bool										isAllowed(std::string const & method) const;
 		
 		void	setUri(std::string const &content);

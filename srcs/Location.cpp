@@ -145,6 +145,11 @@ std::map<Location::err_code_t, Location::path_t> const &	Location::getErrPages(v
 	return (m_error_pages);
 }
 
+std::map<Location::err_code_t, Location::path_t> &	Location::getErrPages(void)
+{
+	return (m_error_pages);
+}
+
 Location::body_size_t const &	Location::getBodySize(void) const
 {
 	return (m_body_size);
@@ -198,6 +203,11 @@ int								Location::getAutoindex(void) const
 }
 
 Location::cgi_t const &			Location::getCGIPass(void) const
+{
+	return (m_cgi_pass);
+}
+
+Location::cgi_t &			Location::getCGIPass(void)
 {
 	return (m_cgi_pass);
 }

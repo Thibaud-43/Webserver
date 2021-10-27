@@ -133,6 +133,8 @@ void			Cluster::_inheritDefaultLocation(Server &server, Location &location)
 {
 	if (location.getErrPages().empty() == true)
 		location.setErrPages(server.getParams().getErrPages());
+	else
+		location.getErrPages().insert(server.getParams().getErrPages().begin(), server.getParams().getErrPages().end()); 
 	if (location.getBodySize() == static_cast<Location::body_size_t>(-1))
 		location.setBodySize(server.getParams().getBodySize());
 	if (location.getRoot().empty() == true)
@@ -149,7 +151,8 @@ void			Cluster::_inheritDefaultLocation(Server &server, Location &location)
 		location.setUpload(server.getParams().getUpload());
 	if (location.getCGIPass().empty() == true)
 		location.setCGIPass(server.getParams().getCGIPass());
-
+	else
+		location.getCGIPass().insert(server.getParams().getCGIPass().begin(), server.getParams().getCGIPass().end());
 }
 
 void			Cluster::_fillCluster(Node* node)
