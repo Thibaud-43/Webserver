@@ -28,6 +28,17 @@ Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
 	return (NULL);
 }
 
+void		Cgi::checkChildsStatus(void)
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (!it->check_status())
+		{
+			removeCgi(*it);
+		}
+	}
+}
+
 Cgi const *	Cgi::getCgiFromClient(Client const * client)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
@@ -37,7 +48,6 @@ Cgi const *	Cgi::getCgiFromClient(Client const * client)
 	}
 	return (NULL);
 }
-
 Cgi const *Cgi::addCgi(Cgi const & cgi)
 {
 	return (&(*_list.insert(cgi).first));
@@ -61,6 +71,7 @@ Cgi::Cgi(Request const & request, std::string const & cgi_path)
 	: m_pid(-1), m_fd_out(-1), m_client(request.getClient()), m_env(Cgi::env_type())
 {
 	Request::header_type const &	header = request.getHeader();
+	char *addr = inet_ntoa(m_client->getAddr().sin_addr);
 
 	if (header.find("Authorization") != header.end())
 		m_env["AUTH_TYPE"] = header.at("Authorization");
@@ -69,16 +80,17 @@ Cgi::Cgi(Request const & request, std::string const & cgi_path)
 	if (header.find("Content-Type") != header.end())
 		m_env["CONTENT_TYPE"] = header.at("Content-Type");
 	m_env["GATEWAY_INTERFACE"] = CGI_VERSION;
-	m_env["PATH_INFO"] = header.at("uri");
-	m_env["PATH_TRANSLATED"] = request.getPath();
-	m_env["QUERY_STRING"] = header.at("query_string");
-	m_env["REMOTE_ADDR"] = request.getServer()->getIp();
-	m_env["REQUEST_METHOD"] = header.at("method");
-	m_env["SCRIPT_NAME"] = cgi_path;
 	m_env["SERVER_NAME"] = header.at("Host");
 	m_env["SERVER_PORT"] = request.getServer()->getPort();
 	m_env["SERVER_PROTOCOL"] = PROTOCOL;
 	m_env["SERVER_SOFTWARE"] = SERV_NAME;
+	m_env["QUERY_STRING"] = header.at("query_string");
+	m_env["REQUEST_METHOD"] = header.at("method");
+	m_env["PATH_INFO"] = request.getPath();
+	m_env["SCRIPT_FILENAME"] = request.getPath();
+	m_env["SCRIPT_NAME"] = cgi_path;
+	m_env["REMOTE_ADDR"] = std::string(addr);
+	m_env["REDIRECT_STATUS"] = "200";
 }
 
 /*
@@ -112,18 +124,50 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 
 bool	Cgi::handle(std::string & buffer) const
 {
+	/*Response		rep;
+	std::string 	delimiter = "\r\n";
+	std::string 	delimiter2 = "\r\n\r\n";
+	size_t 			pos = 0;
+	std::string		token;
+	std::string		errorStatus = "Status: 500";
+	std::string		locationStatus = "Status: 302";
+
+	if (pos = buffer.find(errorStatus))
+	{
+		rep.send_error("500", m_client, Request::getRequestFromClient(*m_client)->getLocation());
+		return (true);
+	}
+	rep.start_header("200");
+	while ((pos = buffer.find(delimiter)) != std::string::npos && pos != buffer.find(delimiter2)) 
+	{
+		token = buffer.substr(0, pos);
+		rep.append_to_header(token);
+		buffer.erase(0, pos + delimiter.length());	}
+	if (buffer.find(delimiter2) != std::string::npos)
+	{
+		token = buffer.substr(0, pos);
+		rep.append_to_header(token);
+		buffer.erase(0, pos + delimiter2.length());
+	}
+	check_status();*/
 	std::cout << buffer << std::endl;
-	return (true);
+	Response		rep;
+	rep.start_header("200");
+	rep.add_content_length();
+	rep.debug();
+	rep.send_to_client(m_client);
+	ASocket::epollCtlDel(m_fd_out);
+
+	return (false);
 }
 
-bool	Cgi::run(char const *cgi_path, char *const *args)
+bool	Cgi::run(char *const *args)
 {
-	int		pipefd[2];
 	char	**envp;
 
-	if (pipe(pipefd))
+	if (pipe(m_pipefd))
 		return (false);
-	m_fd_out = pipefd[0];
+	m_fd_out = m_pipefd[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
 	envp = getEnv();
@@ -135,12 +179,18 @@ bool	Cgi::run(char const *cgi_path, char *const *args)
 	}
 	else if (!m_pid)
 	{
-		dup2(STDOUT_FILENO, pipefd[1]);
-		if (execve(cgi_path, args, envp) < 0)
+		close(m_pipefd[0]);
+		if (dup2(m_pipefd[1], STDOUT_FILENO) < 0)
+			exit(1);
+		close(m_pipefd[1]);
+		if (execve(args[0], args, envp) < 0)
 			exit(1);
 	}
 	else
+	{
+		close(m_pipefd[1]);
 		del_env(envp);
+	}
 	return (true);
 }
 
@@ -149,25 +199,26 @@ bool	Cgi::check_status(void) const
 	int	status;
 	int	ret = waitpid(m_pid, &status, WNOHANG);
 	Request const *	request = Request::getRequestFromClient(*m_client);
-
 	if (ret < 0)
 	{
 		Response::send_error("500", m_client, request->getLocation());
 		Request::removeRequest(*request);
-		return (true);
+		return (false);
 	}
 	else if (!ret)
-		return (false);
+	{
+		return (true);
+	}
 	else
 	{
 		if (!WIFEXITED(status))
 		{
 			Response::send_error("500", m_client, request->getLocation());
 			Request::removeRequest(*request);
-			return (true);
+			return (false);
 		}
-		ASocket::epollCtlAdd(Cluster::getEpollFd(), m_fd_out);
-		return (false);
+		ASocket::epollCtlAdd(m_fd_out);
+		return (true);
 	}
 }
 

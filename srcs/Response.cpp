@@ -185,6 +185,11 @@ std::ostream &			operator<<( std::ostream & o, Response const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+void		Response::debug(void) const
+{
+	std::cout << m_header <<std::endl;
+	std::cout << m_body <<std::endl;
+}
 
 void	Response::append_to_header(std::string const & str)
 {

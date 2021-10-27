@@ -19,7 +19,7 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
         m_tree.parseTokensList();
         this->_fillCluster(m_tree.getRoot());
 		this->_parseServerObject();
-        std::cout << *this << std::endl;
+       // std::cout << *this << std::endl;
     }
     catch(const Tree::ParserFailException& e)
     {
@@ -191,6 +191,7 @@ int				Cluster::run(void)
 	_runServers();
 	while(running)
 	{
+		Cgi::checkChildsStatus();
 		_epollWait();
 		_epollExecute();
 	}
@@ -206,6 +207,7 @@ void							Cluster::_createEpoll(void)
 		std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
 		return ;
 	}
+	ASocket::setEpoll(_epoll_fd);
 }
 
 void							Cluster::_createCluster(void)
@@ -229,7 +231,7 @@ void							Cluster::_runServers(void)
 
 void							Cluster::_epollWait(void)
 {
-	m_eventCount = epoll_wait(_epoll_fd, m_events, MAX_EVENTS, 30000);
+	m_eventCount = epoll_wait(_epoll_fd, m_events, MAX_EVENTS, 0);
 	if (m_eventCount == -1)
 	{
 		std::cerr <<  "Failed epoll_wait\n";
@@ -288,16 +290,17 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 	char                read_buffer[READ_SIZE + 1];
 	size_t              read_buffer_size = sizeof(read_buffer);
 	std::string         buff = "";
-
+	Cgi const 			*cgi = Cgi::getCgiFromFd(eventFd);
+	Request				*request = Request::getRequestFromClient(*cgi->getClient());
 
 	for (;;)
 	{
 		memset(read_buffer, 0, read_buffer_size);
-		bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
+		bytes_read = read(eventFd, read_buffer, read_buffer_size);
 		if (bytes_read < 0)
 		{
-			Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
 			Cgi::removeCgi(*cgi);
+			Request::removeRequest(*request);
 			close(eventFd);
 			break;
 		}
@@ -312,9 +315,11 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 
 			buff += read_buffer;
 
-			Cgi const 	*cgi = Cgi::getCgiFromFd(eventFd);
-			if (cgi && cgi->handle(buff))
+			if (cgi && !cgi->handle(buff))
+			{
 				Cgi::removeCgi(*cgi);
+				Request::removeRequest(*request);
+			}
 			break;
 		}
 	}
@@ -326,16 +331,8 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 	char                read_buffer[READ_SIZE + 1];
 	size_t              read_buffer_size = sizeof(read_buffer);
 	std::string         buff = "";
-
-	Client const 	*client = Client::getClientFromFd(eventFd);
-	Request			*request = Request::getRequestFromClient(*client);
-	Cgi const		*cgi = Cgi::getCgiFromClient(client);
-
-	if (cgi)
-	{
-		
-	}
-
+	Client const 		*client = Client::getClientFromFd(eventFd);
+	Request				*request = Request::getRequestFromClient(*client);
 	for (;;)
 	{
 		memset(read_buffer, 0, read_buffer_size);
@@ -359,8 +356,10 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 
 			if (!request && buff != "\r\n")
 				request = Request::createRequest(*client);
-			if (request && request->manage(buff, m_servers))
-				 Request::removeRequest(*request);
+			if (request && !request->manage(buff, m_servers))
+			{
+				Request::removeRequest(*request);
+			}
 			break;
 		}
 	}

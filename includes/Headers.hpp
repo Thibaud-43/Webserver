@@ -2,31 +2,31 @@
 # define HEADER_HPP
 
 # include <algorithm> 
-# include <arpa/inet.h>
 # include <cstring>
 # include <ctime>
-# include <errno.h>
-# include <dirent.h>
-# include <fcntl.h>
 # include <fstream>
 # include <iostream>
 # include <iterator>
 # include <map>
 # include <list>
-# include <netinet/in.h>
-# include <signal.h>
+# include <vector>
 # include <set>
 # include <sstream>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string>
+# include <errno.h>
+# include <dirent.h>
+# include <fcntl.h>
 # include <sys/epoll.h>
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
-# include <vector>
+# include <netinet/in.h>
+# include <signal.h>
+# include <arpa/inet.h>
 
 # define MAX_SERVER_BODY_SIZE 1024
 # define SERV_NAME "Webserv/1.0.0"

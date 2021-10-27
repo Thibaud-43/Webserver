@@ -27,7 +27,7 @@ class Response
 		void		add_content_length(void);
 		void		fill_body(file_t const & file);
 		void		clear(void);
-
+		void		debug(void)const;
 		Response &		operator=(Response const & rhs);
 		static bool		send_error(status_code_t const & err, Client const * client, Location const * location);
 		static bool		send_error(Response::status_code_t const & err, Client const * client);
