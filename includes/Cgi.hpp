@@ -50,7 +50,10 @@ class Cgi
 		char **				getEnv(void) const;
 		void				del_env(char **envp);
 		bool				handle(std::string & buffer) const;
-
+		void				_bufferToHeader(std::map<std::string, std::string> & header, std::string & buffer) const;
+		void				_bufferToHeaderLine(std::map<std::string, std::string> & header, std::string & token) const;
+		void				_printHeader(std::map<std::string, std::string>	& header) const;
+		void				_checkStatus(std::map<std::string, std::string> &	header, std::string & status) const;
 		bool				run(char *const *args);
 		bool				check_status(void) const;
 

@@ -122,42 +122,88 @@ Cgi &				Cgi::operator=( Cgi const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-bool	Cgi::handle(std::string & buffer) const
+void			Cgi::_bufferToHeaderLine(std::map<std::string, std::string> & header, std::string & token) const
 {
-	/*Response		rep;
-	std::string 	delimiter = "\r\n";
-	std::string 	delimiter2 = "\r\n\r\n";
-	size_t 			pos = 0;
-	std::string		token;
-	std::string		errorStatus = "Status: 500";
-	std::string		locationStatus = "Status: 302";
+	std::string delimiter = ": ";
+	size_t		pos = token.find(delimiter);
+	header.insert(std::pair<std::string, std::string>(token.substr(0, pos), token.substr(pos + delimiter.length(), token.length() - 1)));
+}
 
-	if (pos = buffer.find(errorStatus))
+void			Cgi::_bufferToHeader(std::map<std::string, std::string> & header, std::string & buffer) const
+{
+	std::string delimiter = "\r\n";
+	std::string delimiter2 = "\r\n\r\n";
+	size_t pos = 0;
+	std::string	token;
+
+	if (buffer == delimiter)
 	{
-		rep.send_error("500", m_client, Request::getRequestFromClient(*m_client)->getLocation());
-		return (true);
+		buffer = "";
+		return ;
 	}
-	rep.start_header("200");
 	while ((pos = buffer.find(delimiter)) != std::string::npos && pos != buffer.find(delimiter2)) 
 	{
 		token = buffer.substr(0, pos);
-		rep.append_to_header(token);
-		buffer.erase(0, pos + delimiter.length());	}
+		_bufferToHeaderLine(header, token);
+		buffer.erase(0, pos + delimiter.length());
+	}
 	if (buffer.find(delimiter2) != std::string::npos)
 	{
 		token = buffer.substr(0, pos);
-		rep.append_to_header(token);
+		_bufferToHeaderLine(header, token);
 		buffer.erase(0, pos + delimiter2.length());
 	}
-	check_status();*/
-	std::cout << buffer << std::endl;
-	Response		rep;
-	rep.start_header("200");
-	rep.add_content_length();
-	rep.debug();
-	rep.send_to_client(m_client);
-	ASocket::epollCtlDel(m_fd_out);
+	header.insert(std::pair<std::string, std::string>("body", buffer));
+	buffer.clear();
+}
 
+void			Cgi::_printHeader(std::map<std::string, std::string> &	header) const
+{
+	std::cout << std::endl << std::endl << "CGI HEADER" << std::endl;
+	for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); it++)
+	{
+		std::cout << "[" << it->first << "]='" << it->second << "'" << std::endl; 
+	}
+}
+
+void			Cgi::_checkStatus(std::map<std::string, std::string> &	header, std::string & status) const
+{
+	std::string delimiter = " ";
+	if (header.find("Status") != header.end())
+		status = header["Status"].substr(0, header["Status"].find(delimiter));
+	else
+		status = "200";
+}
+
+
+bool	Cgi::handle(std::string & buffer) const
+{
+	std::map<std::string, std::string>	header;
+	Response							rep;
+	std::string							status;
+	_bufferToHeader(header, buffer);
+	_checkStatus(header, status);
+	if (status != "200" && status != "302")
+	{
+		Response::send_error(status, m_client, Request::getRequestFromClient(*m_client)->getLocation());
+	}
+	else if (status == "302")
+	{
+		Response::redirect("302", header["uri"] + "/" , m_client);
+	}
+	else
+	{
+		rep.start_header("200");
+		for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); it++)
+		{
+			if (it->first != "body")
+				rep.append_to_header(it->first + ": " + it->second);
+			else
+				rep.append_to_body(it->second);
+		}
+		rep.send_to_client(m_client);
+	}
+	ASocket::epollCtlDel(m_fd_out);
 	return (false);
 }
 
