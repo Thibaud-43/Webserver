@@ -185,17 +185,17 @@ bool	Cgi::handle(std::string & buffer) const
 	_bufferToHeader(header, buffer);
 	_checkStatus(header, status);
 	std::cout << status << std::endl;
-	if (status != "200" && status != "302")
+	if (header["body"].empty() && status != "200" && status != "302")
 	{
 		Response::send_error(status, m_client, Request::getRequestFromClient(*m_client)->getLocation());
 	}
-	else if (status == "302")
+	else if (header["body"].empty() && status == "302")
 	{
 		Response::redirect("302", header["Location"] , m_client);
 	}
 	else
 	{
-		rep.start_header("200");
+		rep.start_header(status);
 		for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); it++)
 		{
 			if (it->first != "body")
