@@ -65,19 +65,19 @@ class Request
 		bool								_checkRequestAdvancement(void) const;
 		bool								_checkBodySize(void) const;
 		bool								_checkChunkAdvancement(void) const;
-		bool								_execute(void) const;
 		bool								_checkBufferCharacters(std::string & str);
 		bool								_unChunked(std::string & str);
 
 
 		// TOM
+		void								_execute(void) const;
 		bool								_check_get(void) const;
 		bool								_check_post(void) const;
 		bool								_check_delete(void) const;
-		bool								_delete(void) const;	
-		bool								_get(void) const;
+		void								_delete(void) const;	
+		void								_get(void) const;
 		Location::file_t const *			_get_cgi_path(void) const;
-		bool								_execute_cgi(Location::file_t const & cgi_path) const;
+		void								_execute_cgi(Location::file_t const & cgi_path) const;
 		void								_chunk_size_to_client(std::streamsize const & s) const;
 
 		// DEBUG

@@ -29,10 +29,10 @@ class Response
 		void		clear(void);
 		void		debug(void)const;
 		Response &		operator=(Response const & rhs);
-		static bool		send_error(status_code_t const & err, Client const * client, Location const * location);
-		static bool		send_error(Response::status_code_t const & err, Client const * client);
-		static bool		redirect(status_code_t const & red, std::string const & location, Client const * client);
-		static bool		send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location);
+		static void	send_error(status_code_t const & err, Client const * client, Location const * location);
+		static void	send_error(Response::status_code_t const & err, Client const * client);
+		static void	redirect(status_code_t const & red, std::string const & location, Client const * client);
+		static void	send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location);
 
 	private:
 		static status_t	_status;

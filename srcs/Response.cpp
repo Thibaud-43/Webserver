@@ -32,7 +32,7 @@ Response::status_t	Response::_createStatus(void)
 	return (status);
 }
 
-bool	Response::send_error(Response::status_code_t const & err, Client const * client)
+void	Response::send_error(Response::status_code_t const & err, Client const * client)
 {
 		Response	rep;
 
@@ -51,10 +51,9 @@ bool	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_header("Connection: close");
 		rep.send_to_client(client);
 		Client::closeConnexion(*client);
-		return (false);
 }
 
-bool	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)
+void	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)
 {
 	if (location->getErrPages().find(err) != location->getErrPages().end())
 		return (Response::redirect("302", location->getErrPages().at(err), client));
@@ -80,10 +79,9 @@ bool	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.send_to_client(client);
 		Client::closeConnexion(*client);
 	}	
-	return (false);
 }
 
-bool	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
+void	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
 {
 	Response	rep;
 
@@ -102,10 +100,9 @@ bool	Response::redirect(Response::status_code_t const & red, std::string const &
 	rep.append_to_header("Connection: keep-alive");
 	rep.append_to_header("Location: " + location);
 	rep.send_to_client(client);
-	return (true);
 }
 	
-bool	Response::send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location)
+void	Response::send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location)
 {
 	Location::indexes_t const & indexes = location->getIndexes();
 	File						current;
@@ -140,7 +137,6 @@ bool	Response::send_index(std::string const & directory, std::string const & uri
 	rep.append_to_header("Content-Type: text/html");
 	rep.append_to_header("Connection: keep-alive");
 	rep.send_to_client(client);
-	return (true);
 }
 
 /*
@@ -185,11 +181,6 @@ std::ostream &			operator<<( std::ostream & o, Response const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-void		Response::debug(void) const
-{
-	std::cout << m_header <<std::endl;
-	std::cout << m_body <<std::endl;
-}
 
 void	Response::append_to_header(std::string const & str)
 {
@@ -203,7 +194,6 @@ void	Response::append_to_body(std::string const & str)
 
 void	Response::send_to_client(Client const * client)
 {
-	debug();
 	if (!m_body.empty())
 		add_content_length();
 	client->sendResponse(getContent().data());

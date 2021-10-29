@@ -6,6 +6,7 @@
 # include "Request.hpp"
 # include "Server.hpp"
 # include "Cluster.hpp"
+# include "Location.hpp"
 
 /*		ENV LIST:
 
@@ -48,13 +49,14 @@ class Cgi
 		fd_type				getFd_out(void) const;
 		fd_type				getFd_in(void) const;
 		pid_t				getPid(void) const;
+		std::string			getBody(void) const;
 		char **				getEnv(void) const;
 		void				del_env(char **envp);
 		bool				handle(std::string & buffer) const;
 		void				_bufferToHeader(std::map<std::string, std::string> & header, std::string & buffer) const;
 		void				_bufferToHeaderLine(std::map<std::string, std::string> & header, std::string & token) const;
 		void				_printHeader(std::map<std::string, std::string>	& header) const;
-		void				_checkStatus(std::map<std::string, std::string> &	header, std::string & status) const;
+		void				_checkStatus(std::map<std::string, std::string> & header, std::string & status) const;
 		bool				run(char *const *args);
 		bool				check_status(void) const;
 
@@ -70,6 +72,8 @@ class Cgi
 		fd_type				m_fd_out;
 		fd_type				m_fd_in;
 		Client const *		m_client;
+		Location const *	m_location;
+		std::string const	m_body;
 		env_type			m_env;
 
 		static  list_type   _list ;

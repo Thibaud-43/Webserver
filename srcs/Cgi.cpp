@@ -6,7 +6,7 @@ bool		Cgi::isCgiFd(fd_type & fd)
 {
     for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
     {
-        if (it->m_fd_out == fd)
+        if (it->m_fd_out == fd || it->m_fd_in == fd)
             return (true);
     }
     return (false);
@@ -57,17 +57,19 @@ Cgi const *Cgi::addCgi(Cgi const & cgi)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cgi::Cgi(): m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(NULL), m_env(env_type())
+Cgi::Cgi(): m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(NULL), m_location(NULL), m_env(env_type())
 {
 }
 
 Cgi::Cgi( const Cgi & src )
-	: m_pid(src.m_pid), m_fd_out(src.m_fd_out), m_fd_in(src.m_fd_in), m_client(src.m_client), m_env(src.m_env)
+	: m_pid(src.m_pid), m_fd_out(src.m_fd_out), m_fd_in(src.m_fd_in), m_client(src.m_client)
+	, m_location(src.m_location), m_body(src.m_body), m_env(src.m_env)
 {
 }
 
 Cgi::Cgi(Request const & request, std::string const & cgi_path)
-	: m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(request.getClient()), m_env(Cgi::env_type())
+	: m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(request.getClient())
+	, m_location(request.getLocation()), m_body(request.getBody())
 {
 	Request::header_type const &	header = request.getHeader();
 	std::string const & 			method = header.at("method");
@@ -89,9 +91,10 @@ Cgi::Cgi(Request const & request, std::string const & cgi_path)
 	m_env["SERVER_SOFTWARE"] = SERV_NAME;
 	m_env["QUERY_STRING"] = header.at("query_string");
 	m_env["REQUEST_METHOD"] = header.at("method");
-	m_env["PATH_INFO"] = request.getPath();
+	m_env["PATH_INFO"] = header.at("uri");
 	m_env["SCRIPT_FILENAME"] = request.getPath();
-	m_env["SCRIPT_NAME"] = cgi_path;
+	(void)cgi_path;
+	m_env["SCRIPT_NAME"] = "localhost";
 	m_env["REMOTE_ADDR"] = std::string(addr);
 	m_env["REDIRECT_STATUS"] = "200";
 }
@@ -184,16 +187,13 @@ bool	Cgi::handle(std::string & buffer) const
 	std::map<std::string, std::string>	header;
 	Response							rep;
 	std::string							status;
+
 	_bufferToHeader(header, buffer);
 	_checkStatus(header, status);
 	if (header["body"].empty() && status != "200" && status != "302")
-	{
-		Response::send_error(status, m_client, Request::getRequestFromClient(*m_client)->getLocation());
-	}
+		Response::send_error(status, m_client, m_location);
 	else if (header["body"].empty() && status == "302")
-	{
 		Response::redirect("302", header["Location"] , m_client);
-	}
 	else
 	{
 		rep.start_header(status);
@@ -231,7 +231,7 @@ bool	Cgi::run(char *const *args)
 			return (false);
 		}
 		m_fd_in = pipefd_in[1];
-		if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
+		if (fcntl(m_fd_in, F_SETFL, O_NONBLOCK) == -1)
 		{
 			close(pipefd_out[0]);
 			close(pipefd_out[1]);
@@ -275,7 +275,10 @@ bool	Cgi::run(char *const *args)
 		if (input)
 		{
 			close(pipefd_in[0]);
-			ASocket::epollCtlAdd(m_fd_in);
+
+			std::cout << "FD_IN: " << m_fd_in << "\n";
+
+			ASocket::epollCtlAdd_w(m_fd_in);
 		}
 		close(pipefd_out[1]);
 		del_env(envp);
@@ -318,6 +321,11 @@ bool	Cgi::check_status(void) const
 Client const *	Cgi::getClient(void) const
 {
 	return (m_client);
+}
+
+std::string	Cgi::getBody(void) const
+{
+	return (m_body);
 }
 
 Cgi::fd_type	Cgi::getFd_out(void) const

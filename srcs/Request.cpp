@@ -233,7 +233,8 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 	{
 		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
 		{
-			return (Response::send_error("400", m_client));
+			Response::send_error("400", m_client);
+			return (false);
 		}
 		if (m_header.empty())
 			_bufferToRequestLine(buffer);	
@@ -254,14 +255,15 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 			if (!_unChunked(m_body))
 			{
 				std::cout << "error with unchunk" << std::endl;
-				return (Response::send_error("400", m_client, m_location));
+				Response::send_error("400", m_client, m_location);
+				return (false);
 			}
 		}
 		_printHeader();
 		_printBody();
-		if (!_execute())
-			return (false);
-		return _checkRequestAdvancement();
+		_execute();
+		return (false);
+		//return _checkRequestAdvancement();
 	}
 	return (true);
 }
@@ -376,48 +378,50 @@ void			Request::_linkServer(std::vector<Server*> const & list)
 	return ;
 }
 
-bool	Request::_execute(void) const
+void	Request::_execute(void) const
 {
 	std::string const & method = m_header.at("method");
 
 	if (method == "GET")
 	{
 		if (!_check_get())
-			return (false);
+			return ;
 		Location::file_t const * cgi_path = _get_cgi_path();
 		if (cgi_path)
 		{
 			File	f(*cgi_path);
 			if (f.is_executable())
 				return (_execute_cgi(*cgi_path));
-			return (Response::send_error("500", m_client, m_location));
+			else
+				return (Response::send_error("500", m_client, m_location));
 		}
-		return (_get());
+		else
+			_get();
 	}
 	else if (method == "DELETE")
 	{
 		if (!_check_delete())
-			return (false);
-		return (_delete());
+			return ;
+		_delete();
 	}
 	else if (method == "POST")
 	{
 		if (!_check_post())
-			return (false);
+			return ;
 		Location::file_t const * cgi_path = _get_cgi_path();
 		if (cgi_path)
 		{
 			File	f(*cgi_path);
 			if (f.is_executable())
 				return (_execute_cgi(*cgi_path));
-			return (Response::send_error("500", m_client, m_location));
+			else
+				return (Response::send_error("500", m_client, m_location));
 		}
-		// UPLOAD ??
-		return (_get());
+		else
+			_get();
 	}
 	else
 		Response::send_error("501", m_client, m_location);
-	return (false);
 }
 
 bool	Request::_check_get(void) const
@@ -472,7 +476,7 @@ bool	Request::_check_post(void) const
 		Response::send_error("403", m_client, m_location);
 		return (false);
 	}
-	else if (m_header.find("Transfert-Encoding") != m_header.end() && m_body.size() > m_location->getBodySize())
+	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_body.size() > m_location->getBodySize())
 	{
 		Response::send_error("413", m_client, m_location);
 		return (false);
@@ -507,21 +511,23 @@ bool	Request::_check_delete(void) const
 	return (true);
 }
 
-bool	Request::_delete(void) const
+void	Request::_delete(void) const
 {
 	Response	rep;
 
 	if (remove(m_path.data()))
-		return (Response::send_error("500", m_client, m_location));
-	rep.start_header("200");
-	rep.append_to_header("Connection: keep-alive");
-	rep.append_to_body("<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n<html>\n");
-	rep.add_content_length();
-	rep.send_to_client(m_client);
-	return (true);
+		Response::send_error("500", m_client, m_location);
+	else
+	{
+		rep.start_header("200");
+		rep.append_to_header("Connection: keep-alive");
+		rep.append_to_body("<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n<html>\n");
+		rep.add_content_length();
+		rep.send_to_client(m_client);
+	}
 }
 
-bool	Request::_get() const
+void	Request::_get() const
 {
 	Response		rep;
 	std::ifstream	fstream(m_path.data());
@@ -529,7 +535,10 @@ bool	Request::_get() const
 	File			f(m_path);
 
 	if (!fstream.is_open())
-		return (Response::send_error("500", m_client, m_location));
+	{
+		Response::send_error("500", m_client, m_location);
+		return ;
+	}
 	rep.start_header("200");
 	rep.append_to_header("Connection: keep-alive");
 	try
@@ -568,7 +577,6 @@ bool	Request::_get() const
 	{
 		return (Response::send_error("500", m_client, m_location));
 	}
-	return (true);
 }
 
 void	Request::_chunk_size_to_client(std::streamsize const & s) const
@@ -593,7 +601,7 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 	return (NULL);
 }
 
-bool	Request::_execute_cgi(Location::file_t const & cgi_path) const
+void	Request::_execute_cgi(Location::file_t const & cgi_path) const
 {
 	Cgi				cgi(*this, cgi_path);
 	char 			**argv = new char*[3];
@@ -613,7 +621,6 @@ bool	Request::_execute_cgi(Location::file_t const & cgi_path) const
 	}
 	cgi.del_env(argv);
 	Cgi::addCgi(cgi);
-	return (true);
 }
 
 
@@ -650,21 +657,21 @@ bool							Request::_checkChunkAdvancement(void) const
 bool							Request::_checkRequestAdvancement(void) const
 {
 	header_type::const_iterator		contentLenght = this->getHeader().find("Content-Length");
-	header_type::const_iterator		transfertEncoding = this->getHeader().find("Transfer-Encoding");
+	header_type::const_iterator		transferEncoding = this->getHeader().find("Transfer-Encoding");
 
 	if (!this->getHeaderCompleted())
 	{
 		return false;
 	}
-	else if (contentLenght == this->getHeader().end() && transfertEncoding == this->getHeader().end())
+	else if (contentLenght == this->getHeader().end() && transferEncoding == this->getHeader().end())
 	{
 		return true;
 	}
-	else if (contentLenght != this->getHeader().end() && transfertEncoding == this->getHeader().end())
+	else if (contentLenght != this->getHeader().end() && transferEncoding == this->getHeader().end())
 	{
 		return _checkBodySize();
 	}
-	else if (contentLenght == this->getHeader().end() && transfertEncoding != this->getHeader().end())
+	else if (contentLenght == this->getHeader().end() && transferEncoding != this->getHeader().end())
 	{
 		return _checkChunkAdvancement();;
 	}
@@ -710,7 +717,6 @@ Server const *	Request::getServer(void) const
 		
 Location const *	Request::getLocation(void) const
 {
-	std::cout << m_location << std::endl;
 	return (m_location);
 }
 

@@ -25,6 +25,7 @@ class ASocket
 		static void		setEpoll(fd_type const & epoll);
 		void			destroy(void);
 		static void		epollCtlAdd(fd_type const & fd);
+		static void		epollCtlAdd_w(fd_type const & fd);
 		static void		epollCtlDel(fd_type const & fd);
 
 		operator		fd_type(void) const;

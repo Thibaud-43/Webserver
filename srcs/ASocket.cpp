@@ -26,6 +26,21 @@ void	ASocket::epollCtlAdd(ASocket::fd_type const & fd)
     }
 }
 
+void	ASocket::epollCtlAdd_w(ASocket::fd_type const & fd)
+{
+	ASocket::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = fd;
+    event.events = EPOLLOUT | EPOLLET;
+    if(epoll_ctl(ASocket::getEpoll(), EPOLL_CTL_ADD, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(ASocket::getEpoll());
+    }
+}
+
+
 void	ASocket::epollCtlDel(ASocket::fd_type const & fd)
 {
 	ASocket::event_type	event;
