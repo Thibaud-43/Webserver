@@ -292,7 +292,7 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 	std::string         buff = "";
 	Cgi const 			*cgi = Cgi::getCgiFromFd(eventFd);
 	Request				*request = Request::getRequestFromClient(*cgi->getClient());
-
+	std::cout << "CGI CONECTION" << std::endl;
 	for (;;)
 	{
 		memset(read_buffer, 0, read_buffer_size);

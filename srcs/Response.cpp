@@ -203,6 +203,7 @@ void	Response::append_to_body(std::string const & str)
 
 void	Response::send_to_client(Client const * client)
 {
+	debug();
 	if (!m_body.empty())
 		add_content_length();
 	client->sendResponse(getContent().data());

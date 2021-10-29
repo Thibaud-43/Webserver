@@ -181,15 +181,17 @@ bool	Cgi::handle(std::string & buffer) const
 	std::map<std::string, std::string>	header;
 	Response							rep;
 	std::string							status;
+	std::cout << buffer << std::endl;
 	_bufferToHeader(header, buffer);
 	_checkStatus(header, status);
+	std::cout << status << std::endl;
 	if (status != "200" && status != "302")
 	{
 		Response::send_error(status, m_client, Request::getRequestFromClient(*m_client)->getLocation());
 	}
 	else if (status == "302")
 	{
-		Response::redirect("302", header["uri"] + "/" , m_client);
+		Response::redirect("302", header["Location"] , m_client);
 	}
 	else
 	{
