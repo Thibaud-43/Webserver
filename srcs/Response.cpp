@@ -24,10 +24,10 @@ Response::status_t	Response::_createStatus(void)
 	status["411"] = "Length Required";
 	status["412"] = "Precondition Failed";
 	status["413"] = "Payload Too Large";
-	status["415"] = "Unsupported Media Type";
+	//status["415"] = "Unsupported Media Type";
 	status["416"] = "Range Not Satisfiable";
 	status["500"] = "Internal Server Error";
-	status["501"] = "Not Implemented";
+	//status["501"] = "Not Implemented";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
 }

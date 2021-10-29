@@ -77,7 +77,7 @@ class Request
 		bool								_delete(void) const;	
 		bool								_get(void) const;
 		Location::file_t const *			_get_cgi_path(void) const;
-		bool								_cgi_get(Location::file_t const & cgi_path) const;
+		bool								_execute_cgi(Location::file_t const & cgi_path) const;
 		void								_chunk_size_to_client(std::streamsize const & s) const;
 
 		// DEBUG

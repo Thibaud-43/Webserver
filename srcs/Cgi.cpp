@@ -64,21 +64,24 @@ Cgi::Cgi(): m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(NULL), m_env(env_type
 Cgi::Cgi( const Cgi & src )
 	: m_pid(src.m_pid), m_fd_out(src.m_fd_out), m_fd_in(src.m_fd_in), m_client(src.m_client), m_env(src.m_env)
 {
-
 }
 
 Cgi::Cgi(Request const & request, std::string const & cgi_path)
 	: m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(request.getClient()), m_env(Cgi::env_type())
 {
 	Request::header_type const &	header = request.getHeader();
+	std::string const & 			method = header.at("method");
 	char *addr = inet_ntoa(m_client->getAddr().sin_addr);
 
 	if (header.find("Authorization") != header.end())
 		m_env["AUTH_TYPE"] = header.at("Authorization");
-	if (header.find("Content-Length") != header.end())
-		m_env["CONTENT_LENGTH"] = header.at("Content-Length");
-	if (header.find("Content-Type") != header.end())
-		m_env["CONTENT_TYPE"] = header.at("Content-Type");
+	if (method == "POST")
+	{
+		if (header.find("Content-Length") != header.end())
+			m_env["CONTENT_LENGTH"] = header.at("Content-Length");
+		if (header.find("Content-Type") != header.end())
+			m_env["CONTENT_TYPE"] = header.at("Content-Type");
+	}
 	m_env["GATEWAY_INTERFACE"] = CGI_VERSION;
 	m_env["SERVER_NAME"] = header.at("Host");
 	m_env["SERVER_PORT"] = request.getServer()->getPort();
@@ -210,31 +213,71 @@ bool	Cgi::handle(std::string & buffer) const
 bool	Cgi::run(char *const *args)
 {
 	char	**envp;
+	int		pipefd_out[2];
+	int		pipefd_in[2];
+	bool	input = m_env.find("CONTENT_TYPE") != m_env.end() && m_env.find("CONTENT_LENGTH") != m_env.end();
 
-	if (pipe(m_pipefd))
+	if (pipe(pipefd_out))
 		return (false);
-	m_fd_out = m_pipefd[0];
+	m_fd_out = pipefd_out[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
 		return (false);
+	if (input)
+	{
+		if (pipe(pipefd_in))
+		{
+			close(pipefd_out[0]);
+			close(pipefd_out[1]);
+			return (false);
+		}
+		m_fd_in = pipefd_in[1];
+		if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
+		{
+			close(pipefd_out[0]);
+			close(pipefd_out[1]);
+			close(pipefd_in[0]);
+			close(pipefd_in[1]);
+			return (false);
+		}
+	}
 	envp = getEnv();
 	m_pid = fork();
 	if (m_pid < 0)
 	{
+		close(pipefd_out[0]);
+		close(pipefd_out[1]);
+		if (input)
+		{
+			close(pipefd_in[0]);
+			close(pipefd_in[1]);
+		}
 		del_env(envp);
 		return (false);
 	}
 	else if (!m_pid)
 	{
-		close(m_pipefd[0]);
-		if (dup2(m_pipefd[1], STDOUT_FILENO) < 0)
+		close(pipefd_out[0]);
+		if (dup2(pipefd_out[1], STDOUT_FILENO) < 0)
 			exit(1);
-		close(m_pipefd[1]);
+		close(pipefd_out[1]);
+		if (input)
+		{
+			close(pipefd_in[1]);
+			if (dup2(pipefd_in[0], STDIN_FILENO) < 0)
+				exit(1);
+			close(pipefd_in[0]);
+		}
 		if (execve(args[0], args, envp) < 0)
 			exit(1);
 	}
 	else
 	{
-		close(m_pipefd[1]);
+		if (input)
+		{
+			close(pipefd_in[0]);
+			ASocket::epollCtlAdd(m_fd_in);
+		}
+		close(pipefd_out[1]);
 		del_env(envp);
 	}
 	return (true);

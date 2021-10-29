@@ -67,7 +67,6 @@ class Cgi
 
 	private:
 		pid_t   			m_pid;
-		int					m_pipefd[2];
 		fd_type				m_fd_out;
 		fd_type				m_fd_in;
 		Client const *		m_client;

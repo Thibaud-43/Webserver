@@ -389,7 +389,7 @@ bool	Request::_execute(void) const
 		{
 			File	f(*cgi_path);
 			if (f.is_executable())
-				return (_cgi_get(*cgi_path));
+				return (_execute_cgi(*cgi_path));
 			return (Response::send_error("500", m_client, m_location));
 		}
 		return (_get());
@@ -402,8 +402,18 @@ bool	Request::_execute(void) const
 	}
 	else if (method == "POST")
 	{
-		// VERIFS
-		// POST
+		if (!_check_post())
+			return (false);
+		Location::file_t const * cgi_path = _get_cgi_path();
+		if (cgi_path)
+		{
+			File	f(*cgi_path);
+			if (f.is_executable())
+				return (_execute_cgi(*cgi_path));
+			return (Response::send_error("500", m_client, m_location));
+		}
+		// UPLOAD ??
+		return (_get());
 	}
 	else
 		Response::send_error("501", m_client, m_location);
@@ -462,15 +472,9 @@ bool	Request::_check_post(void) const
 		Response::send_error("403", m_client, m_location);
 		return (false);
 	}
-	else if (m_body.size() > m_location->getBodySize())
+	else if (m_header.find("Transfert-Encoding") != m_header.end() && m_body.size() > m_location->getBodySize())
 	{
 		Response::send_error("413", m_client, m_location);
-		return (false);
-	}
-	else if (m_header.find("Range") != m_header.end())
-	{
-		// RANGE NOT SUPPORTED
-		Response::send_error("416", m_client, m_location);
 		return (false);
 	}
 	else if (file.is_directory())
@@ -483,7 +487,6 @@ bool	Request::_check_post(void) const
 			Response::send_error("403", m_client, m_location);
 		return (false);
 	}
-	
 	return (true);
 }
 
@@ -590,7 +593,7 @@ Location::file_t const *	Request::_get_cgi_path(void) const
 	return (NULL);
 }
 
-bool	Request::_cgi_get(Location::file_t const & cgi_path) const
+bool	Request::_execute_cgi(Location::file_t const & cgi_path) const
 {
 	Cgi				cgi(*this, cgi_path);
 	char 			**argv = new char*[3];
@@ -610,7 +613,6 @@ bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 	}
 	cgi.del_env(argv);
 	Cgi::addCgi(cgi);
-
 	return (true);
 }
 
