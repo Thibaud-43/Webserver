@@ -31,31 +31,6 @@ void		Request::removeRequest(Request const & request)
 	}
 }
 
-bool		Request::unChunked(std::string & str)
-{
-	std::string		delimiter = "\r\n";
-	std::string		chunkSizeStr = str.substr(0, str.find(delimiter));
-	std::string		newStr = "";
-	int				chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
-	int				i = 0;
-	size_t			totalSize = chunkSizeInt;
-
-	while (chunkSizeInt)
-	{
-		i = str.find(delimiter, i) + delimiter.length();
-		newStr += str.substr(i, chunkSizeInt);
-		i += chunkSizeInt + delimiter.length();
-		chunkSizeStr = str.substr(i, str.find(delimiter));
-		chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
-		totalSize += chunkSizeInt;
-	}
-	if (newStr.length() != totalSize)
-	{
-		return (false);
-	}
-	str = newStr;
-	return (true);
-}
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -113,6 +88,37 @@ std::ostream &			operator<<( std::ostream & o, Request const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+
+bool			Request::_unChunked(std::string & str)
+{
+	std::string		delimiter = "\r\n";
+	std::string		chunkSizeStr = str.substr(0, str.find(delimiter));
+	std::string		newStr = "";
+	int				chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
+	int				i = 0;
+	size_t			totalSize = chunkSizeInt;
+
+	while (chunkSizeInt)
+	{
+		i = str.find(delimiter, i) + delimiter.length();
+		newStr += str.substr(i, chunkSizeInt);
+		i += chunkSizeInt + delimiter.length();
+		chunkSizeStr = str.substr(i, str.find(delimiter));
+		chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
+		totalSize += chunkSizeInt;
+	}
+	if (newStr.length() != totalSize)
+	{
+		return (false);
+	}
+	str = newStr;
+	std::stringstream	sstream;
+
+	sstream << totalSize;
+	m_header["Content-Length"] = sstream.str();
+	return (true);
+}
 
 bool		Request::_checkBufferCharacters(std::string & str)
 {
@@ -245,7 +251,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 		_bufferToBody(buffer);
 		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 		{
-			if (!unChunked(m_body))
+			if (!_unChunked(m_body))
 			{
 				std::cout << "error with unchunk" << std::endl;
 				return (Response::send_error("400", m_client, m_location));

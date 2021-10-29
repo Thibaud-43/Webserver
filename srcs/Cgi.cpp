@@ -22,7 +22,7 @@ Cgi	const *	Cgi::getCgiFromFd(fd_type fd)
 {
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
-		if (it->m_fd_out == fd)
+		if (it->m_fd_out == fd || it->m_fd_in == fd)
 			return (&(*it));
 	}
 	return (NULL);
@@ -57,18 +57,18 @@ Cgi const *Cgi::addCgi(Cgi const & cgi)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cgi::Cgi(): m_pid(-1), m_fd_out(-1), m_client(NULL), m_env(env_type())
+Cgi::Cgi(): m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(NULL), m_env(env_type())
 {
 }
 
 Cgi::Cgi( const Cgi & src )
-	: m_pid(src.m_pid), m_fd_out(src.m_fd_out), m_client(src.m_client), m_env(src.m_env)
+	: m_pid(src.m_pid), m_fd_out(src.m_fd_out), m_fd_in(src.m_fd_in), m_client(src.m_client), m_env(src.m_env)
 {
 
 }
 
 Cgi::Cgi(Request const & request, std::string const & cgi_path)
-	: m_pid(-1), m_fd_out(-1), m_client(request.getClient()), m_env(Cgi::env_type())
+	: m_pid(-1), m_fd_out(-1), m_fd_in(-1), m_client(request.getClient()), m_env(Cgi::env_type())
 {
 	Request::header_type const &	header = request.getHeader();
 	char *addr = inet_ntoa(m_client->getAddr().sin_addr);
@@ -280,6 +280,11 @@ Client const *	Cgi::getClient(void) const
 Cgi::fd_type	Cgi::getFd_out(void) const
 {
 	return (m_fd_out);
+}
+
+Cgi::fd_type	Cgi::getFd_in(void) const
+{
+	return (m_fd_in);
 }
 
 pid_t			Cgi::getPid(void) const

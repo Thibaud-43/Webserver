@@ -293,35 +293,43 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 	Cgi const 			*cgi = Cgi::getCgiFromFd(eventFd);
 	Request				*request = Request::getRequestFromClient(*cgi->getClient());
 	std::cout << "CGI CONECTION" << std::endl;
-	for (;;)
+	if (eventFd == cgi->getFd_in())
 	{
-		memset(read_buffer, 0, read_buffer_size);
-		bytes_read = read(eventFd, read_buffer, read_buffer_size);
-		if (bytes_read < 0)
-		{
-			Cgi::removeCgi(*cgi);
-			Request::removeRequest(*request);
-			close(eventFd);
-			break;
-		}
-		else if (bytes_read == read_buffer_size)
-		{
-			read_buffer[bytes_read] = 0;
-			buff += read_buffer;
-		}
-		else
-		{ 
-			read_buffer[bytes_read] = 0;
-
-			buff += read_buffer;
-
-			if (cgi && !cgi->handle(buff))
+		write(eventFd, request->getBody().c_str(), request->getBody().size());
+		close(eventFd);
+	}
+	else
+	{
+		for (;;)
 			{
-				Cgi::removeCgi(*cgi);
-				Request::removeRequest(*request);
+				memset(read_buffer, 0, read_buffer_size);
+				bytes_read = read(eventFd, read_buffer, read_buffer_size);
+				if (bytes_read < 0)
+				{
+					Cgi::removeCgi(*cgi);
+					Request::removeRequest(*request);
+					close(eventFd);
+					break;
+				}
+				else if (bytes_read == read_buffer_size)
+				{
+					read_buffer[bytes_read] = 0;
+					buff += read_buffer;
+				}
+				else
+				{ 
+					read_buffer[bytes_read] = 0;
+
+					buff += read_buffer;
+
+					if (cgi && !cgi->handle(buff))
+					{
+						Cgi::removeCgi(*cgi);
+						Request::removeRequest(*request);
+					}
+					break;
+				}
 			}
-			break;
-		}
 	}
 }
 

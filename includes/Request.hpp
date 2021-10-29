@@ -34,7 +34,6 @@ class Request
 		static	Request *	getRequestFromClient(Client const & client);
 		static  Request *	createRequest(Client const & client);
 		static	void		removeRequest(Request const & request);
-		static	bool		unChunked(std::string & str);
 		header_type const &	getHeader(void) const;
 		body_type const &	getBody(void) const;
 		std::string const &	getPath(void) const;
@@ -68,6 +67,8 @@ class Request
 		bool								_checkChunkAdvancement(void) const;
 		bool								_execute(void) const;
 		bool								_checkBufferCharacters(std::string & str);
+		bool								_unChunked(std::string & str);
+
 
 		// TOM
 		bool								_check_get(void) const;
