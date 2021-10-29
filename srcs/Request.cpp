@@ -31,13 +31,14 @@ void		Request::removeRequest(Request const & request)
 	}
 }
 
-void		Request::unChunked(std::string & str)
+bool		Request::unChunked(std::string & str)
 {
 	std::string		delimiter = "\r\n";
 	std::string		chunkSizeStr = str.substr(0, str.find(delimiter));
 	std::string		newStr = "";
 	int				chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
 	int				i = 0;
+	size_t			totalSize = chunkSizeInt;
 
 	while (chunkSizeInt)
 	{
@@ -46,67 +47,16 @@ void		Request::unChunked(std::string & str)
 		i += chunkSizeInt + delimiter.length();
 		chunkSizeStr = str.substr(i, str.find(delimiter));
 		chunkSizeInt = strtol(chunkSizeStr.c_str(), NULL, 16);
+		totalSize += chunkSizeInt;
+	}
+	if (newStr.length() != totalSize)
+	{
+		return (false);
 	}
 	str = newStr;
+	return (true);
 }
 
-
-bool							Request::_checkBodySize(void)
-{
-	std::stringstream sstream(this->getHeader().at("Content-Length"));
-	size_t lenght;
-	sstream >> lenght;
-	if (this->getBody().size() == lenght)
-	{
-		return (true);
-	}
-	return (false);
-}
-
-bool							Request::_checkChunkAdvancement(void)
-{
-	std::string			s = this->getBody();
-	std::string 		delimiter = "\r\n";
-	std::string 		token;
-	size_t				pos;
-	while((pos = s.find(delimiter)) != std::string::npos)
-	{
-		token = s.substr(0, pos);
-		s.erase(0, pos + delimiter.length());
-		if (token == "0")
-		{
-			return (true);
-		}
-	}
-	return (false);
-}
-
-bool							Request::_checkRequestAdvancement(void)
-{
-	header_type::const_iterator		contentLenght = this->getHeader().find("Content-Length");
-	header_type::const_iterator		transfertEncoding = this->getHeader().find("Transfer-Encoding");
-
-	if (!this->getHeaderCompleted())
-	{
-		return false;
-	}
-	else if (contentLenght == this->getHeader().end() && transfertEncoding == this->getHeader().end())
-	{
-		return true;
-	}
-	else if (contentLenght != this->getHeader().end() && transfertEncoding == this->getHeader().end())
-	{
-		return _checkBodySize();
-	}
-	else if (contentLenght == this->getHeader().end() && transfertEncoding != this->getHeader().end())
-	{
-		return _checkChunkAdvancement();;
-	}
-	else
-	{
-		return false;
-	}
-}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -277,8 +227,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 	{
 		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
 		{
-			Response::send_error("400", m_client);
-			return (false);
+			return (Response::send_error("400", m_client));
 		}
 		if (m_header.empty())
 			_bufferToRequestLine(buffer);	
@@ -295,7 +244,13 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 	{
 		_bufferToBody(buffer);
 		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
-			unChunked(m_body);
+		{
+			if (!unChunked(m_body))
+			{
+				std::cout << "error with unchunk" << std::endl;
+				return (Response::send_error("400", m_client, m_location));
+			}
+		}
 		_printHeader();
 		_printBody();
 		if (!_execute())
@@ -487,6 +442,45 @@ bool	Request::_check_get(void) const
 	return (true);
 }
 
+bool	Request::_check_post(void) const
+{
+	File const	file(m_path);
+
+	if (!file.exist())
+	{
+		Response::send_error("404", m_client, m_location);
+		return (false);
+	}
+	else if (!file.is_readable())
+	{
+		Response::send_error("403", m_client, m_location);
+		return (false);
+	}
+	else if (m_body.size() > m_location->getBodySize())
+	{
+		Response::send_error("413", m_client, m_location);
+		return (false);
+	}
+	else if (m_header.find("Range") != m_header.end())
+	{
+		// RANGE NOT SUPPORTED
+		Response::send_error("416", m_client, m_location);
+		return (false);
+	}
+	else if (file.is_directory())
+	{
+		if (*(m_path.end() - 1) != '/')
+			Response::redirect("302", m_header.at("uri") + "/" , m_client);
+		else if (m_location->getAutoindex())
+			Response::send_index(m_path, m_header.at("uri"), m_client, m_location);
+		else
+			Response::send_error("403", m_client, m_location);
+		return (false);
+	}
+	
+	return (true);
+}
+
 bool	Request::_check_delete(void) const
 {
 	File const	file(m_path);
@@ -614,6 +608,64 @@ bool	Request::_cgi_get(Location::file_t const & cgi_path) const
 	return (true);
 }
 
+
+bool							Request::_checkBodySize(void) const
+{
+	std::stringstream sstream(this->getHeader().at("Content-Length"));
+	size_t lenght;
+	sstream >> lenght;
+	if (this->getBody().size() == lenght)
+	{
+		return (true);
+	}
+	return (false);
+}
+
+bool							Request::_checkChunkAdvancement(void) const
+{
+	std::string			s = this->getBody();
+	std::string 		delimiter = "\r\n";
+	std::string 		token;
+	size_t				pos;
+	while((pos = s.find(delimiter)) != std::string::npos)
+	{
+		token = s.substr(0, pos);
+		s.erase(0, pos + delimiter.length());
+		if (token == "0")
+		{
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool							Request::_checkRequestAdvancement(void) const
+{
+	header_type::const_iterator		contentLenght = this->getHeader().find("Content-Length");
+	header_type::const_iterator		transfertEncoding = this->getHeader().find("Transfer-Encoding");
+
+	if (!this->getHeaderCompleted())
+	{
+		return false;
+	}
+	else if (contentLenght == this->getHeader().end() && transfertEncoding == this->getHeader().end())
+	{
+		return true;
+	}
+	else if (contentLenght != this->getHeader().end() && transfertEncoding == this->getHeader().end())
+	{
+		return _checkBodySize();
+	}
+	else if (contentLenght == this->getHeader().end() && transfertEncoding != this->getHeader().end())
+	{
+		return _checkChunkAdvancement();;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
@@ -633,7 +685,7 @@ Request::body_type const &		Request::getBody(void) const
 	return m_body;
 }
 
-bool				Request::getHeaderCompleted(void)
+bool				Request::getHeaderCompleted(void) const
 {
 	return m_headerCompleted;
 }

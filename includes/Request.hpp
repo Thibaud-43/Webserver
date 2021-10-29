@@ -34,13 +34,13 @@ class Request
 		static	Request *	getRequestFromClient(Client const & client);
 		static  Request *	createRequest(Client const & client);
 		static	void		removeRequest(Request const & request);
-		static	void		unChunked(std::string & str);
+		static	bool		unChunked(std::string & str);
 		header_type const &	getHeader(void) const;
 		body_type const &	getBody(void) const;
 		std::string const &	getPath(void) const;
 		Server const *		getServer(void) const;
 		Location const *	getLocation(void) const;
-		bool				getHeaderCompleted(void);
+		bool				getHeaderCompleted(void) const;
 
 	private:
 		header_type							m_header;
@@ -63,14 +63,15 @@ class Request
 		void								_bufferToHeader(std::string & buffer);
 		void								_bufferToBody(std::string & buffer);
 		void								_bufferToHeaderLine(std::string & token);
-		bool								_checkRequestAdvancement(void);
-		bool								_checkBodySize(void);
-		bool								_checkChunkAdvancement(void);
+		bool								_checkRequestAdvancement(void) const;
+		bool								_checkBodySize(void) const;
+		bool								_checkChunkAdvancement(void) const;
 		bool								_execute(void) const;
 		bool								_checkBufferCharacters(std::string & str);
 
 		// TOM
 		bool								_check_get(void) const;
+		bool								_check_post(void) const;
 		bool								_check_delete(void) const;
 		bool								_delete(void) const;	
 		bool								_get(void) const;

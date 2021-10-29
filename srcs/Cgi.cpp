@@ -181,10 +181,8 @@ bool	Cgi::handle(std::string & buffer) const
 	std::map<std::string, std::string>	header;
 	Response							rep;
 	std::string							status;
-	std::cout << buffer << std::endl;
 	_bufferToHeader(header, buffer);
 	_checkStatus(header, status);
-	std::cout << status << std::endl;
 	if (header["body"].empty() && status != "200" && status != "302")
 	{
 		Response::send_error(status, m_client, Request::getRequestFromClient(*m_client)->getLocation());
