@@ -253,7 +253,6 @@ void							Cluster::_epollExecute(void)
 		}
 		else
 		{
-			std::cout << "EPOLL_FD:" << m_events[i].data.fd << "\n";
 			_epollExecuteOnClientConnection(m_events[i].data.fd);
 		}
 	}
@@ -296,11 +295,15 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 	std::cout << "CGI CONECTION" << std::endl;
 	if (eventFd == cgi->getFd_in())
 	{
+		std::cout << "WRITE IN CGI: " << cgi->getBody() << std::endl;
 		write(eventFd, cgi->getBody().c_str(), cgi->getBody().size());
+		ASocket::epollCtlDel_w(eventFd);
 		close(eventFd);
 	}
 	else
 	{
+		std::cout << "READ IN CGI" << std::endl;
+
 		for (;;)
 			{
 				memset(read_buffer, 0, read_buffer_size);

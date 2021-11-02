@@ -200,7 +200,7 @@ void			Request::_bufferToHeader(std::string & buffer)
 
 void			Request::_bufferToBody(std::string & buffer)
 {
-	m_body = buffer;
+	m_body += buffer;
 }
 
 void			Request::_printHeader(void)
@@ -259,6 +259,8 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 				return (false);
 			}
 		}
+		if (m_header.find("Content-Length") != m_header.end() && !_checkBodySize())
+			return (true);
 		_printHeader();
 		_printBody();
 		_execute();
@@ -629,7 +631,7 @@ bool							Request::_checkBodySize(void) const
 	std::stringstream sstream(this->getHeader().at("Content-Length"));
 	size_t lenght;
 	sstream >> lenght;
-	if (this->getBody().size() == lenght)
+	if (this->getBody().size() - 2 == lenght)
 	{
 		return (true);
 	}

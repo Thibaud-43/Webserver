@@ -1,2 +1,12 @@
-1) ne pas kill le serveur quand send fail
-2) check post
+1) Post
+2) Upload
+3) exit properly
+4) Clock
+
+
+POST /test.php HTTP/1.1
+Host: localhost
+Content-Length: 12
+Content-Type: application/x-www-form-urlencoded
+
+name=thibaud

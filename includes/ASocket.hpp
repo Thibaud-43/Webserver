@@ -27,6 +27,7 @@ class ASocket
 		static void		epollCtlAdd(fd_type const & fd);
 		static void		epollCtlAdd_w(fd_type const & fd);
 		static void		epollCtlDel(fd_type const & fd);
+		static void		epollCtlDel_w(fd_type const & fd);
 
 		operator		fd_type(void) const;
 		friend bool		operator<(ASocket const & lhs, ASocket const & rhs);
