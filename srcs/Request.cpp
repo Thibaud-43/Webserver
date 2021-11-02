@@ -228,49 +228,6 @@ void			Request::_printHex(std::string & token)
 		std::cout << int(*it) << std::endl; 
 	}
 }
-
-/*bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
-{
-	if (m_headerCompleted == false)
-	{
-		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
-		{
-			Response::send_error("400", m_client);
-			return (false);
-		}
-		if (m_header.empty())
-			_bufferToRequestLine(buffer);	
-		_bufferToHeader(buffer);
-		if (m_headerCompleted == true)
-		{
-			if (!_checkHeader(servers))
-			{
-				return (false);
-			}
-		}
-	}
-	if (m_headerCompleted == true)
-	{
-		_bufferToBody(buffer);
-		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
-		{
-			if (!_unChunked(m_body))
-			{
-				std::cout << "error with unchunk" << std::endl;
-				Response::send_error("400", m_client, m_location);
-				return (false);
-			}
-		}
-		if (m_header.find("Content-Length") != m_header.end() && !_checkBodySize())
-			return (true);
-		_printHeader();
-		_printBody();
-		_execute();
-		return (false);
-		return _checkRequestAdvancement();
-	}
-	return (true);
-}*/
 bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 {
 
@@ -714,10 +671,6 @@ void							Request::_checkRequestAdvancement(void)
 	header_type::const_iterator		contentLenght = this->getHeader().find("Content-Length");
 	header_type::const_iterator		transferEncoding = this->getHeader().find("Transfer-Encoding");
 
-	/*if (!this->getHeaderCompleted())
-	{
-		return false;
-	}*/
 	if (contentLenght == this->getHeader().end() && transferEncoding == this->getHeader().end())
 	{
 		m_status = BODY_COMPLETED;
