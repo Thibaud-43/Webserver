@@ -158,6 +158,7 @@ void			Request::_bufferToRequestLine(std::string & buffer)
 	}
 	m_header.insert(std::pair<std::string, std::string>("protocol", s));
 	buffer.erase(0, buffer.find(delimiter1) + delimiter1.length());
+	m_status = REQUEST_LINE_AND_HOST_COMPLETED;
 }		
 
 void			Request::_bufferToHeaderLine(std::string & token)
@@ -195,7 +196,7 @@ void			Request::_bufferToHeader(std::string & buffer)
 	}
 	else
 	{
-		m_status = HEADER_COMPLETED;
+		//m_status = HEADER_COMPLETED;
 	}
 }
 
@@ -272,30 +273,25 @@ void			Request::_printHex(std::string & token)
 }*/
 bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 {
-	if (m_status == BEGIN)
+
+	if (m_status == BEGIN || m_status == REQUEST_LINE_AND_HOST_COMPLETED)
 	{
 		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
 		{
 			Response::send_error("400", m_client);
 			return (false);
 		}
-		if (m_header.empty())
+		if (m_status == BEGIN)
 			_bufferToRequestLine(buffer);
-		_bufferToHeader(buffer);
-	}
-	if (m_status == REQUEST_LINE_AND_HOST_COMPLETED)
-	{
-		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
-		{
-			Response::send_error("400", m_client);
-			return (false);
-		}
 		_bufferToHeader(buffer);
 	}
 	if (m_status == HEADER_COMPLETED)
 	{
+		_printHeader();
 		if (!_checkHeader(servers))
+		{
 			return (false);
+		}
 		if (m_location->getUpload())
 			m_status = START_UPLOAD;
 		else
@@ -309,18 +305,20 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 		{
 			if (!_unChunked(m_body))
 			{
-				std::cout << "error with unchunk" << std::endl;
 				Response::send_error("400", m_client, m_location);
 				return (false);
 			}
 		}
+		_printBody();
 		if (m_status == BODY_COMPLETED || m_status == START_UPLOAD || m_status == UPLOADING)
 		{
+			_execute();
 			if (m_status == START_UPLOAD)
 				m_status = UPLOADING;
+			if (m_status == BODY_COMPLETED)
+				return false;
 		}
-		if (m_status == BODY_COMPLETED)
-			return false;
+
 	}
 	return true;
 }
