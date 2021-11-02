@@ -1,8 +1,6 @@
-1) Post
 2) Upload
 3) exit properly
 4) Clock
-
 
 POST /test.php HTTP/1.1
 Host: localhost
