@@ -225,7 +225,6 @@ void			Request::_printHex(std::string & token)
 }
 bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 {
-
 	if (m_status == BEGIN || m_status == REQUEST_LINE_AND_HOST_COMPLETED)
 	{
 		if (buffer != "\r\n" && _checkBufferCharacters(buffer) == false)
@@ -253,6 +252,7 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 	{
 		_bufferToBody(buffer);
 		_checkRequestAdvancement();
+		_printBody();
 		if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 		{
 			if (!_unChunked(m_body))
@@ -261,12 +261,18 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 				return (false);
 			}
 		}
-		_printBody();
-		if (m_status == START_UPLOAD || m_status == UPLOADING)
+		if (m_status == START_UPLOAD || m_status == UPLOADING || m_status == END_UPLOAD)
 		{
 			_upload();
 			if (m_status == END_UPLOAD)
+			{
+				Response	rep;
+
+				rep.start_header("200");
+				rep.append_to_body("Connection: keep-alive");
+				rep.send_to_client(m_client);
 				return false;
+			}	
 			else
 				m_status = UPLOADING;
 		}
@@ -402,7 +408,7 @@ bool	Request::_upload(void) const
 		Response::send_error("403", m_client, m_location);
 		return (false);
 	}
-	stream.write(m_path.data(), m_path.size());
+	stream << m_body;
 	stream.close();
 	return (true);
 }

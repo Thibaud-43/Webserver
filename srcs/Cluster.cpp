@@ -301,33 +301,33 @@ void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 	else
 	{
 		for (;;)
+		{
+			memset(read_buffer, 0, read_buffer_size);
+			bytes_read = read(eventFd, read_buffer, read_buffer_size);
+			if (bytes_read < 0)
 			{
-				memset(read_buffer, 0, read_buffer_size);
-				bytes_read = read(eventFd, read_buffer, read_buffer_size);
-				if (bytes_read < 0)
+				Cgi::removeCgi(*cgi);
+				close(eventFd);
+				break;
+			}
+			else if (bytes_read == read_buffer_size)
+			{
+				read_buffer[bytes_read] = 0;
+				buff += read_buffer;
+			}
+			else
+			{ 
+				read_buffer[bytes_read] = 0;
+
+				buff += read_buffer;
+
+				if (cgi && !cgi->handle(buff))
 				{
 					Cgi::removeCgi(*cgi);
-					close(eventFd);
-					break;
 				}
-				else if (bytes_read == read_buffer_size)
-				{
-					read_buffer[bytes_read] = 0;
-					buff += read_buffer;
-				}
-				else
-				{ 
-					read_buffer[bytes_read] = 0;
-
-					buff += read_buffer;
-
-					if (cgi && !cgi->handle(buff))
-					{
-						Cgi::removeCgi(*cgi);
-					}
-					break;
-				}
+				break;
 			}
+		}
 	}
 }
 
