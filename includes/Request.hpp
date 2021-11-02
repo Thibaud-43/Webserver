@@ -19,6 +19,7 @@ typedef	enum	e_status
 	GET_BODY,
 	START_UPLOAD,
 	UPLOADING,
+	END_UPLOAD,
 	BODY_COMPLETED
 }				t_status;
 

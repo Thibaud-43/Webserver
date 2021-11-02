@@ -265,7 +265,10 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 		if (m_status == START_UPLOAD || m_status == UPLOADING)
 		{
 			_upload();
-			m_status = UPLOADING;
+			if (m_status == END_UPLOAD)
+				return false;
+			else
+				m_status = UPLOADING;
 		}
 		else if (m_status == BODY_COMPLETED)
 		{
@@ -658,7 +661,10 @@ void							Request::_checkBodySize(void)
 	sstream >> lenght;
 	if (this->getBody().size() - 2 == lenght)
 	{
-		m_status = BODY_COMPLETED;
+		if (m_status == GET_BODY)
+			m_status = BODY_COMPLETED;
+		else
+			m_status = END_UPLOAD;
 	}
 	return;
 }
@@ -675,7 +681,10 @@ void							Request::_checkChunkAdvancement(void)
 		s.erase(0, pos + delimiter.length());
 		if (token == "0")
 		{
-			m_status = BODY_COMPLETED;
+			if (m_status == GET_BODY)
+				m_status = BODY_COMPLETED;
+			else
+				m_status = END_UPLOAD;
 		}
 	}
 	return ;
@@ -688,7 +697,10 @@ void							Request::_checkRequestAdvancement(void)
 
 	if (contentLenght == this->getHeader().end() && transferEncoding == this->getHeader().end())
 	{
-		m_status = BODY_COMPLETED;
+		if (m_status == GET_BODY)
+			m_status = BODY_COMPLETED;
+		else
+			m_status = END_UPLOAD;
 	}
 	else if (contentLenght != this->getHeader().end() && transferEncoding == this->getHeader().end())
 	{
