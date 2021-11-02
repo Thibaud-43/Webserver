@@ -10,6 +10,18 @@
 
 class Cgi;
 
+typedef	enum	e_status
+{
+	BEGIN,
+	REQUEST_LINE_AND_HOST_COMPLETED,
+	HOST_COMPLETED,
+	HEADER_COMPLETED,
+	GET_BODY,
+	START_UPLOAD,
+	UPLOADING,
+	BODY_COMPLETED
+}				t_status;
+
 class Request
 {
 
@@ -39,7 +51,7 @@ class Request
 		std::string const &	getPath(void) const;
 		Server const *		getServer(void) const;
 		Location const *	getLocation(void) const;
-		bool				getHeaderCompleted(void) const;
+		bool				getStatus(void) const;
 
 	private:
 		header_type							m_header;
@@ -48,7 +60,7 @@ class Request
 		Server const *						m_server;
 		Location const *					m_location;
 		std::string							m_path;
-		bool								m_headerCompleted;
+		t_status							m_status;
 
 		static list_type					_list;
 		void								_linkServer(std::vector<Server*> const & list);
@@ -62,9 +74,9 @@ class Request
 		void								_bufferToHeader(std::string & buffer);
 		void								_bufferToBody(std::string & buffer);
 		void								_bufferToHeaderLine(std::string & token);
-		bool								_checkRequestAdvancement(void) const;
-		bool								_checkBodySize(void) const;
-		bool								_checkChunkAdvancement(void) const;
+		void								_checkRequestAdvancement(void) ;
+		void								_checkBodySize(void) ;
+		void								_checkChunkAdvancement(void) ;
 		bool								_checkBufferCharacters(std::string & str);
 		bool								_unChunked(std::string & str);
 

@@ -74,7 +74,6 @@ void                   Client::sendResponse(char const *response) const
     if(response && (send(m_fd, response, strlen(response), 0)) == -1)
 	{
 		perror ("send");
-		exit(1);
 	}
 }
 

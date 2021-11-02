@@ -275,9 +275,6 @@ bool	Cgi::run(char *const *args)
 		if (input)
 		{
 			close(pipefd_in[0]);
-
-			std::cout << "FD_IN: " << m_fd_in << "\n";
-
 			ASocket::epollCtlAdd_w(m_fd_in);
 		}
 		close(pipefd_out[1]);
