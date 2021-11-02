@@ -53,6 +53,7 @@ class Cgi
 		char **				getEnv(void) const;
 		void				del_env(char **envp);
 		bool				handle(std::string & buffer) const;
+		void				_close_fds(int const * pipe_in, int const * pipe_out);
 		void				_bufferToHeader(std::map<std::string, std::string> & header, std::string & buffer) const;
 		void				_bufferToHeaderLine(std::map<std::string, std::string> & header, std::string & token) const;
 		void				_printHeader(std::map<std::string, std::string>	& header) const;

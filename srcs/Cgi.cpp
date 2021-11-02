@@ -213,30 +213,29 @@ bool	Cgi::handle(std::string & buffer) const
 bool	Cgi::run(char *const *args)
 {
 	char	**envp;
-	int		pipefd_out[2];
-	int		pipefd_in[2];
+	int		pipefd_out[2] = {-1, -1};
+	int		pipefd_in[2] = {-1, -1};
 	bool	input = m_env.find("CONTENT_TYPE") != m_env.end() && m_env.find("CONTENT_LENGTH") != m_env.end();
 
 	if (pipe(pipefd_out))
 		return (false);
 	m_fd_out = pipefd_out[0];
 	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
-		return (false);
-	if (input)
 	{
-		if (pipe(pipefd_in))
-		{
-			close(pipefd_out[0]);
-			close(pipefd_out[1]);
-			return (false);
-		}
+		_close_fds(pipefd_in, pipefd_out);
+		return (false);
+	}
+	if (input && pipe(pipefd_in))
+	{
+		_close_fds(pipefd_in, pipefd_out);
+		return (false);
+	}
+	else if (input)
+	{		
 		m_fd_in = pipefd_in[1];
 		if (fcntl(m_fd_in, F_SETFL, O_NONBLOCK) == -1)
 		{
-			close(pipefd_out[0]);
-			close(pipefd_out[1]);
-			close(pipefd_in[0]);
-			close(pipefd_in[1]);
+			_close_fds(pipefd_in, pipefd_out);
 			return (false);
 		}
 	}
@@ -244,13 +243,7 @@ bool	Cgi::run(char *const *args)
 	m_pid = fork();
 	if (m_pid < 0)
 	{
-		close(pipefd_out[0]);
-		close(pipefd_out[1]);
-		if (input)
-		{
-			close(pipefd_in[0]);
-			close(pipefd_in[1]);
-		}
+		_close_fds(pipefd_in, pipefd_out);
 		del_env(envp);
 		return (false);
 	}
@@ -309,6 +302,16 @@ bool	Cgi::check_status(void) const
 		ASocket::epollCtlAdd(m_fd_out);
 		return (true);
 	}
+}
+
+void	Cgi::_close_fds(int const * pipe_in, int const * pipe_out)
+{
+	pipe_in[0] != -1 ? close(pipe_in[0]) : 0;
+	pipe_in[1] != -1 ? close(pipe_in[1]) : 0;
+	pipe_out[0] != -1 ? close(pipe_out[0]) : 0;
+	pipe_out[1] != -1 ? close(pipe_out[1]) : 0;
+	m_fd_in != -1 ? close(m_fd_in) : 0;
+	m_fd_out != -1 ? close(m_fd_out) : 0;
 }
 
 /*
