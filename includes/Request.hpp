@@ -71,6 +71,7 @@ class Request
 
 		// TOM
 		void								_execute(void) const;
+		bool								_upload(void) const;
 		bool								_check_get(void) const;
 		bool								_check_post(void) const;
 		bool								_check_delete(void) const;
@@ -87,7 +88,5 @@ class Request
 		void								_printHex(std::string & token);
 
 };
-
-std::ostream &								operator<<(std::ostream & o, Request const & i);
 
 #endif /* ********************************************************* REQUEST_H */

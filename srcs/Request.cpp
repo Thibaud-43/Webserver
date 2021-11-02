@@ -53,7 +53,6 @@ Request::Request( const Request & src )
 {
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -73,17 +72,14 @@ Request &				Request::operator=( Request const & rhs )
 	{
 		m_header = rhs.m_header;
 		m_body = rhs.m_body;
+		m_client = rhs.m_client;
+		m_server = rhs.m_server;
+		m_location = rhs.m_location;
+		m_path = rhs.m_path;
+		m_headerCompleted = rhs.m_headerCompleted;
 	}
 	return *this;
 }
-
-std::ostream &			operator<<( std::ostream & o, Request const & i )
-{
-	(void)o;
-	(void)i;
-	return o;
-}
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -200,7 +196,7 @@ void			Request::_bufferToHeader(std::string & buffer)
 
 void			Request::_bufferToBody(std::string & buffer)
 {
-	m_body += buffer;
+	m_body = buffer;
 }
 
 void			Request::_printHeader(void)
@@ -259,10 +255,12 @@ bool	Request::manage(std::string & buffer, std::vector<Server*> const & servers)
 				return (false);
 			}
 		}
-		if (m_header.find("Content-Length") != m_header.end() && !_checkBodySize())
+		if (!m_location->getUpload() && m_header.find("Content-Length") != m_header.end() && !_checkBodySize())
 			return (true);
 		_printHeader();
 		_printBody();
+		if (m_location->getUpload())
+			return (_upload());
 		_execute();
 		return (false);
 		//return _checkRequestAdvancement();
@@ -378,6 +376,24 @@ void			Request::_linkServer(std::vector<Server*> const & list)
 	}
 	m_server = (*list.begin());
 	return ;
+}
+
+bool	Request::_upload(void) const
+{
+	std::fstream	stream;
+
+	if (m_status == START_UPLOAD)
+		stream.open(m_path.data(), std::fstream::out | std::fstream::trunc);
+	else
+		stream.open(m_path.data(), std::fstream::out | std::fstream::app);
+	if (!stream.is_open())
+	{
+		Response::send_error("403", m_client, m_location);
+		return (false);
+	}
+	stream.write(m_path.data(), m_path.size());
+	stream.close();
+	return (true);
 }
 
 void	Request::_execute(void) const
@@ -579,6 +595,7 @@ void	Request::_get() const
 	{
 		return (Response::send_error("500", m_client, m_location));
 	}
+	fstream.close();
 }
 
 void	Request::_chunk_size_to_client(std::streamsize const & s) const
