@@ -1,44 +1,16 @@
 #include "Client.hpp"
-Client::list_type Client::_list = list_type();
 
-void	Client::closeConnexion(Client const & client)
-{
-	close(client.getFd());
-	
-    _list.erase(client);
-}
-
-Client	const *	Client::getClientFromFd(fd_type fd)
-{
-	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		if ((*it).m_fd == fd)
-			return (&(*it));
-	}
-	return (NULL);
-}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Client::Client()
+Client::Client(): ASocket()
 {
 }
 
 Client::Client( const Client & src ): ASocket(src)
 {
-	//_list = src._list;
 }
-
-Client::Client(fd_type client_fd, address_type & theirAddr, fd_type epoll)
-{
-	m_fd = client_fd;
-	m_addr = theirAddr;
-	_makeFdNonBlocking();
-	_epollCtlAdd(epoll);
-	_list.insert(*this);
-}
-
 
 
 /*
@@ -49,38 +21,34 @@ Client::~Client()
 {
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
 Client &				Client::operator=( Client const & rhs )
 {
-	if ( this != &rhs )
-	{
-        ASocket::operator=(rhs);
-		this->_list = rhs._list;
-	}
+	(void)rhs;
 	return *this;
 }
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void                   Client::sendResponse(char const *response) const
+bool	Client::alive(void) const
 {
-    if(response && (send(m_fd, response, strlen(response), 0)) == -1)
-	{
-		perror ("send");
-	}
+	return (time(NULL) - m_clock < LIFETIME);
+}
+
+bool	Client::execute(void)
+{
+	// SI RIEN A LIRE -> return true;
+	// SINON CREER UNE REQUEST, ajout request a la list, return (request->execute);
 }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
 
 
 /* ************************************************************************** */

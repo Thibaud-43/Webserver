@@ -251,7 +251,7 @@ void	Response::clear(void)
 std::string	HTTPDate(void)
 {
 	char	buf[100];
-	time_t	now = time(0);
+	time_t	now = time(NULL);
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
 	return (std::string(buf));
 }
