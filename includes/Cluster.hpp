@@ -40,7 +40,6 @@ class Cluster
 		void							_runServers(void);
 		void							_epollWait(void);
 		void							_epollExecute(void);
-		void							_epollExecuteOnListenerConnection(fd_type & eventFd);
 		void							_epollExecuteOnCgiConnection(fd_type & eventFd);
 		void							_epollExecuteOnClientConnection(fd_type & eventFd);
 		void							_closeEpoll(void);

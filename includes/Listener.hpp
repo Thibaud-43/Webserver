@@ -3,6 +3,7 @@
 
 # include "Headers.hpp"
 # include "ASocket.hpp"
+# include "Client.hpp"
 
 class Listener: public ASocket
 {
@@ -10,13 +11,14 @@ class Listener: public ASocket
 	public:
 		Listener();
 		Listener( Listener const & src );
-		Listener(int fd, port_type port, ip_type ip);
+		Listener(int const & fd, port_type const & port, ip_type const & ip);
 		~Listener();
 
+		bool	execute(void);
 
 	private:
 		void							_bind(void);
-		void							_initAddr(port_type port, ip_type ip);
+		void							_initAddr(port_type const & port, ip_type const & ip);
 		void							_listen(void);
 		static list_type				_list;
 

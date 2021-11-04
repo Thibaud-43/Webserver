@@ -15,7 +15,7 @@ Listener::Listener( const Listener & src ): ASocket(src)
     //_list = src._list;
 }
 
-Listener::Listener(int fd, port_type port, ip_type ip): ASocket(fd)
+Listener::Listener(int const & fd, port_type const & port, ip_type const & ip): ASocket(fd)
 {
     _initAddr(port, ip);
     _bind();
@@ -52,6 +52,37 @@ Listener &				Listener::operator=( Listener const & rhs )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+bool	Listener::execute(void)
+{
+    for (;;)
+	{
+		struct sockaddr_in their_addr;
+		socklen_t size = sizeof(struct sockaddr);
+
+		int fd = accept(getFd(), (struct sockaddr*)&their_addr, &size);
+		if (fd == -1) 
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK) 
+			{
+				break;
+			} 
+			else 
+			{
+				perror("accept()");
+				return ;
+			}
+		}
+		else
+		{
+            Client	*client = new Client(fd);
+            ASocket::addSocket(client);
+        }
+
+	}
+}
+
+
 void            Listener::_bind(void)
 {
     if (bind(getFd(), (struct sockaddr *)&m_addr, sizeof(address_type)) == -1) 
@@ -61,7 +92,7 @@ void            Listener::_bind(void)
     }
 }
 
-void            Listener::_initAddr(port_type port, ip_type ip)
+void            Listener::_initAddr(port_type const & port, ip_type const & ip)
 {
     short   sport;
 

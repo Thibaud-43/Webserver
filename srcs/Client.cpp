@@ -4,14 +4,18 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Client::Client(): ASocket()
+Client::Client(): ASocket(), m_buff("")
 {
 }
 
-Client::Client( const Client & src ): ASocket(src)
+Client::Client( const Client & src ): ASocket(src), m_buff(src.m_buff)
 {
 }
 
+Client::Client( const int & fd): ASocket(fd), m_buff("")
+{
+
+}
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -34,10 +38,48 @@ bool	Client::alive(void) const
 	return (time(NULL) - m_clock < LIFETIME);
 }
 
+bool	Client::_fillBuffer(void)
+{
+	size_t              bytes_read;
+	char                read_buffer[READ_SIZE + 1];
+	size_t              read_buffer_size = sizeof(read_buffer);
+	std::string         buff = "";
+
+	for (;;)
+	{
+		memset(read_buffer, 0, read_buffer_size);
+		bytes_read = recv(getFd(), read_buffer, read_buffer_size, 0);
+		if (bytes_read < 0)
+		{
+			close(getFd());
+			return false;
+		}
+		else if (bytes_read == 0)
+		{
+			return true;
+		}
+		else if (bytes_read == read_buffer_size)
+		{
+			read_buffer[bytes_read] = 0;
+			buff += read_buffer;
+		}
+		else
+		{ 
+			read_buffer[bytes_read] = 0;
+			buff += read_buffer;
+			return true;
+		}
+	}
+}
+
 bool	Client::execute(void)
 {
-	// SI RIEN A LIRE -> return true;
-	// SINON CREER UNE REQUEST, ajout request a la list, return (request->execute);
+	if (!_fillBuffer())
+		return false;
+	if (m_buff.empty())
+		return true;
+	
+	
 }
 
 /*

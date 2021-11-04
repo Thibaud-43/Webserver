@@ -190,7 +190,7 @@ int				Cluster::run(void)
 	_runServers();
 	while(running)
 	{
-		Cgi::checkChildsStatus();
+		//Cgi::checkChildsStatus();
 		_epollWait();
 		_epollExecute();
 	}
@@ -229,33 +229,7 @@ void							Cluster::_epollExecute(void)
 	}
 }
 
-void							Cluster::_epollExecuteOnListenerConnection(fd_type & eventFd)
-{
-	for (;;)
-	{
-		struct sockaddr_in their_addr;
-		socklen_t size = sizeof(struct sockaddr);
-
-		int client = accept(eventFd, (struct sockaddr*)&their_addr, &size);
-		if (client == -1) 
-		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK) 
-			{
-				break;
-			} 
-			else 
-			{
-				perror("accept()");
-				return ;
-			}
-		}
-		else
-			Client	socket(client, their_addr, _epoll_fd);
-	}
-	
-}
-
-void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
+/*void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
 {
 	size_t              bytes_read;
 	char                read_buffer[READ_SIZE + 1];
@@ -341,7 +315,7 @@ void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
 			break;
 		}
 	}
-}
+}*/
 
 void							Cluster::_closeEpoll(void)
 {
