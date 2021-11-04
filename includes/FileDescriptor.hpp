@@ -20,7 +20,7 @@ class FileDescriptor
 		// AJOUTEZ METHODES
 
 	private:
-		int		m_fd;
+		int const	m_fd;
 
 		static	int	_epoll_fd;
 };

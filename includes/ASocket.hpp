@@ -14,6 +14,7 @@ class ASocket
 
 		ASocket();
 		ASocket(ASocket const & src);
+		ASocket(int const & fd);
 		~ASocket();
 		
 		ASocket &		operator=(ASocket const & rhs );
