@@ -1,16 +1,5 @@
 #include "Request.hpp"
 
-std::map<std::string, Request::RequestFunction>	Request::functionMap = Request::_initMap();
-
-std::map<std::string, Request::RequestFunction>	Request::_initMap(void)
-{
-	std::map<std::string, Request::RequestFunction>	map;
-	map["GET"] = &_requestToGet;
-	map["POST"] = &_requestToPost;
-	map["DELETE"] = &_requestToDelete;
-}
-
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -230,6 +219,7 @@ bool	Request::_checkRequestLine(void)
 
 bool	Request::execute(ASocket **ptr)
 {
+	std::string		method = "";
 	if (!_fillBuffer())
 		return false;
 	if (m_buff.find("\r\n\r\n") == std::string::npos)
@@ -238,7 +228,14 @@ bool	Request::execute(ASocket **ptr)
 	_bufferToHeader();
 	_printHeader();
 	_checkHeader();
-	functionMap[m_header["method"]](ptr);
+	method = m_header["method"];
+	if (method == "GET")
+		_requestToGet(ptr);
+	else if (method == "POST")
+		_requestToPost(ptr);
+	else
+		_requestToDelete(ptr);
+	return (*ptr)->execute(ptr);
 }
 
 bool	Request::_send(Response const & rep) const

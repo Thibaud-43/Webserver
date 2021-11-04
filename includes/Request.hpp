@@ -12,7 +12,6 @@ class Request: public Client
 
 	public:
 		typedef std::map<std::string, std::string>	header_type;
-		typedef void (*RequestFunction)(ASocket **ptr);
 
 		Request();
 		Request(Request const & src);
@@ -40,12 +39,9 @@ class Request: public Client
 		void		_linkLocation(void);
 		void		_linkPath(void);
 
-		static	std::map<std::string, RequestFunction>	functionMap;
-		static	std::map<std::string, Request::RequestFunction>	_initMap(void);
-
-		static void	_requestToGet(ASocket **ptr);
-		static void	_requestToDelete(ASocket **ptr);
-		static void	_requestToPost(ASocket **ptr);
+		void		_requestToDelete(ASocket **ptr);
+		void		_requestToGet(ASocket **ptr);
+		void		_requestToPost(ASocket **ptr);
 
 };
 
