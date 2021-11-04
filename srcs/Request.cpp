@@ -1,13 +1,15 @@
 #include "Request.hpp"
+#include "Get.hpp"
+#include "Delete.hpp"
 
 std::map<std::string, Request::RequestFunction>	Request::functionMap = Request::_initMap();
 
 std::map<std::string, Request::RequestFunction>	Request::_initMap(void)
 {
 	std::map<std::string, Request::RequestFunction>	map;
-	map["GET"] = &_requestToGet;
-	map["POST"] = &_requestToPost;
-	map["DELETE"] = &_requestToDelete;
+	map["GET"] = &Request::_requestToGet;
+	map["POST"] = &Request::_requestToPost;
+	map["DELETE"] = &Request::_requestToDelete;
 }
 
 
@@ -75,11 +77,11 @@ void			Request::_linkPath(void)
 	std::string	uri = m_header["uri"];
 
 	if (uri == m_location->getUri())
-		m_path = m_location->getRoot();
+		m_path.setPath(m_location->getRoot());
 	else
 	{
 		uri.erase(uri.begin(), uri.begin() + m_location->getUri().size());	
-		m_path = m_location->getRoot() + uri;
+		m_path.setPath(m_location->getRoot() + uri);
 	}
 }
 

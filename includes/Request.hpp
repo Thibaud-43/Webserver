@@ -24,7 +24,7 @@ class Request: public Client
 	protected:
 		Server const *		m_server;
 		Location const *	m_location;
-		std::string			m_path;
+		File				m_path;
 		header_type			m_header;
 
 		bool		_send(Response const & rep) const;
@@ -44,9 +44,9 @@ class Request: public Client
 		static	std::map<std::string, RequestFunction>	functionMap;
 		static	std::map<std::string, Request::RequestFunction>	_initMap(void);
 
-		static void	_requestToGet(ASocket **ptr);
-		static void	_requestToDelete(ASocket **ptr);
-		static void	_requestToPost(ASocket **ptr);
+		void	_requestToGet(ASocket **ptr);
+		void	_requestToDelete(ASocket **ptr);
+		void	_requestToPost(ASocket **ptr);
 
 };
 

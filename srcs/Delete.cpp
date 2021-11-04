@@ -48,34 +48,24 @@ bool	Delete::execute(ASocket ** ptr)
 bool	Delete::_check(void) const
 {
 	Response	rep;
-	File const	file(m_path);
 
 	if (m_header.find("Content-Length") != m_header.end() || m_header.find("Transfer-encoding") != m_header.end())
-	{
 		rep = Response::create_error("413", m_location);
-		_send(rep);
-		return (false);
-	}
-	if (!file.exist())
-	{
+	else if (!m_path.exist())
 		rep = Response::create_error("404", m_location);
-		_send(rep);
-		return (false);
-	}
-	else if (!file.is_writable())
-	{
+	else if (!m_path.is_writable())
 		rep = Response::create_error("403", m_location);
-		_send(rep);
-		return (false);
-	}
-	return (true);
+	else
+		return (true);
+	_send(rep);
+	return (false);
 }
 
 bool	Delete::_delete(void) const
 {
 	Response	rep;
 
-	if (remove(m_path.c_str()))
+	if (remove(m_path.getPath().c_str()))
 	{
 		rep = Response::create_error("500", m_location);
 		_send(rep);

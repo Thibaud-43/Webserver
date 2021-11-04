@@ -13,11 +13,16 @@ class Get: public Request
 		~Get();
 
 		virtual bool execute(ASocket ** ptr);
+	
+	protected:
+		Location::file_t const *	m_cgi_pass; 
 
 	private:
-		bool	_check(void) const;
-		bool	_manageDir(void);
-		bool	_get(void) const;
+		bool						_check(void) const;
+		Location::file_t const *	_cgiPass(void) const; 
+		bool						_manageDir(ASocket ** ptr);
+		bool						_start_cgi(ASocket ** ptr);
+		bool						_get(ASocket ** ptr);
 	
 };
 
