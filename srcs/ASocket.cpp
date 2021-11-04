@@ -59,7 +59,11 @@ ASocket::~ASocket()
 
 ASocket &				ASocket::operator=( ASocket const & rhs )
 {
-	(void)rhs;
+	if (this != &rhs)
+	{
+		m_fd = rhs.m_fd;
+		m_clock = rhs.m_clock;
+	}
 	return *this;
 }
 

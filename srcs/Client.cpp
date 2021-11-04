@@ -27,7 +27,10 @@ Client::~Client()
 
 Client &				Client::operator=( Client const & rhs )
 {
-	(void)rhs;
+	if (this != &rhs)
+	{
+		ASocket::operator=(rhs);
+	}
 	return *this;
 }
 

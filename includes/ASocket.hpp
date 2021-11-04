@@ -9,7 +9,6 @@ class ASocket
 	public:
 		typedef FileDescriptor				fd_type;
 		typedef std::map<int, ASocket *>	list_type;
-
 		typedef struct sockaddr_in			address_type;
 		typedef struct epoll_event			event_type;
 
@@ -17,6 +16,7 @@ class ASocket
 		ASocket(ASocket const & src);
 		~ASocket();
 		
+		ASocket &		operator=(ASocket const & rhs );
 		int				getFd(void) const;
 		virtual bool	execute(void) = 0;
 		virtual bool	alive(void) const = 0;
@@ -35,7 +35,6 @@ class ASocket
 	private:
 		static	list_type	_list;
 		
-		ASocket &		operator=(ASocket const & rhs );
 };
 
 #endif /* ********************************************************* ASOCKET_H */

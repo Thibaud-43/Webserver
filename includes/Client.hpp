@@ -13,13 +13,14 @@ class Client: public ASocket
 		Client();
 		Client(Client const & src);
 		~Client();
+		
+		Client &		operator=(Client const & rhs);
 
 	protected:
+		std::string		m_buff;
+
 		bool			alive(void) const;
 		virtual bool	execute(void);
-
-	private:
-		Client &		operator=(Client const & rhs);
 
 };
 
