@@ -1,5 +1,5 @@
 #include "Client.hpp"
-
+#include "Request.hpp"
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -43,7 +43,6 @@ bool	Client::_fillBuffer(void)
 	size_t              bytes_read;
 	char                read_buffer[READ_SIZE + 1];
 	size_t              read_buffer_size = sizeof(read_buffer);
-	std::string         buff = "";
 
 	for (;;)
 	{
@@ -61,12 +60,12 @@ bool	Client::_fillBuffer(void)
 		else if (bytes_read == read_buffer_size)
 		{
 			read_buffer[bytes_read] = 0;
-			buff += read_buffer;
+			m_buff += read_buffer;
 		}
 		else
 		{ 
 			read_buffer[bytes_read] = 0;
-			buff += read_buffer;
+			m_buff += read_buffer;
 			return true;
 		}
 	}
@@ -74,12 +73,15 @@ bool	Client::_fillBuffer(void)
 
 bool	Client::execute(ASocket * ptr)
 {
+	Request		*request;
 	if (!_fillBuffer())
 		return false;
 	if (m_buff.empty())
 		return true;
-	
-	
+	request = new Request(*this);
+	ptr = request;
+	ASocket::addSocket(request);
+	return request->execute(ptr);
 }
 
 /*
