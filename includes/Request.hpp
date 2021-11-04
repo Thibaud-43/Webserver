@@ -27,7 +27,16 @@ class Request: public Client
 		header_type			m_header;
 
 		bool		_send(Response const & rep) const;
-		void		_convertToClient(ASocket ** ptr);
+
+		template<typename T>
+		void		_convert(ASocket ** ptr)
+		{
+			T	*elem = new T(*this);
+
+			if (ptr)
+				*ptr = elem;
+				ASocket::addSocket(elem);
+		}
 
 	private:
 		void		_bufferToRequestLine(void);
@@ -39,9 +48,6 @@ class Request: public Client
 		bool		_checkHost(void);
 		void		_linkLocation(void);
 		void		_linkPath(void);
-		void		_requestToDelete(ASocket **ptr);
-		void		_requestToGet(ASocket **ptr);
-		void		_requestToPost(ASocket **ptr);
 
 };
 

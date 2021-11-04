@@ -85,7 +85,7 @@ bool	Get::_manageDir(ASocket ** ptr)
 	}
 	if (!_send(rep))
 		return (false);
-	_convertToClient(ptr);
+	_convert<Client>(ptr);
 	return (true);
 }
 
@@ -101,6 +101,11 @@ Location::file_t const *	Get::_cgiPass(void) const
 			return (&(it->second));
 	}
 	return (NULL);
+}
+
+bool	Get::_start_cgi(ASocket ** ptr)
+{
+
 }
 
 /*

@@ -37,30 +37,6 @@ Request::~Request()
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void			Request::_requestToDelete(ASocket **ptr)
-{
-	Delete	*del = new Delete(*this);
-	if (ptr)
-		*ptr = del;
-	ASocket::addSocket(del);
-}
-
-void			Request::_requestToPost(ASocket **ptr)
-{
-	Post	*post = new Post(*this);
-	if (ptr)
-		*ptr = post;
-	ASocket::addSocket(post);
-}
-
-void			Request::_requestToGet(ASocket **ptr)
-{
-	Get	*get = new Get(*this);
-	if (ptr)
-		*ptr = get;
-	ASocket::addSocket(get);
-}
-
 void			Request::_linkPath(void)
 {
 	std::string	uri = m_header["uri"];
@@ -232,11 +208,11 @@ bool	Request::execute(ASocket **ptr)
 	_checkHeader();
 	method = m_header["method"];
 	if (method == "GET")
-		_requestToGet(ptr);
+		_convert<Get>(ptr);
 	else if (method == "POST")
-		_requestToPost(ptr);
+		_convert<Post>(ptr);
 	else
-		_requestToDelete(ptr);
+		_convert<Delete>(ptr);
 	return (*ptr)->execute(ptr);
 }
 
@@ -249,14 +225,6 @@ bool	Request::_send(Response const & rep) const
 	return (true);
 }
 
-void	Request::_convertToClient(ASocket ** ptr)
-{
-	Client	*client = new Client(*this);
-
-	if (ptr)
-		*ptr = client;
-	ASocket::addSocket(client);
-}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
