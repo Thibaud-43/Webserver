@@ -34,7 +34,7 @@ bool	Client::alive(void) const
 	return (time(NULL) - m_clock < LIFETIME);
 }
 
-bool	Client::execute(void)
+bool	Client::execute(ASocket *ptr)
 {
 	// SI RIEN A LIRE -> return true;
 	// SINON CREER UNE REQUEST, ajout request a la list, return (request->execute);

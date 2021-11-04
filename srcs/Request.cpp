@@ -5,13 +5,19 @@
 */
 
 Request::Request()
+: Client(), m_server(NULL), m_location(NULL), m_path(std::string()), m_header(header_type())
 {
 }
 
-Request::Request( const Request & src )
+Request::Request(const Request & src)
+: Client(src), m_server(src.m_server), m_location(src.m_location), m_path(src.m_path), m_header(src.m_header)
 {
 }
 
+Request::Request(const Client & src)
+: Client(src), m_server(NULL), m_location(NULL), m_path(std::string()), m_header(header_type())
+{
+}
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -21,31 +27,19 @@ Request::~Request()
 {
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-
-Request &				Request::operator=( Request const & rhs )
-{
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
-	return *this;
-}
-
-std::ostream &			operator<<( std::ostream & o, Request const & i )
-{
-	//o << "Value = " << i.getValue();
-	return o;
-}
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool	Request::execute(ASocket *ptr)
+{
+	// FILL buffer
+	// IF /r/n/r/n in m_buff -> PARSING HEADER
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
