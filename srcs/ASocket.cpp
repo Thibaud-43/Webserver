@@ -28,6 +28,7 @@ void	ASocket::removeSocket(ASocket * socket)
 
 	if (it != _list.end())
 	{
+		close(it->second->getFd());
 		delete it->second;
 		_list.erase(it);
 	}

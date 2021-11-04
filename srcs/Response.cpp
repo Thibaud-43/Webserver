@@ -24,10 +24,8 @@ Response::status_t	Response::_createStatus(void)
 	status["411"] = "Length Required";
 	status["412"] = "Precondition Failed";
 	status["413"] = "Payload Too Large";
-	//status["415"] = "Unsupported Media Type";
 	status["416"] = "Range Not Satisfiable";
 	status["500"] = "Internal Server Error";
-	//status["501"] = "Not Implemented";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
 }
@@ -37,7 +35,6 @@ void	Response::send_error(Response::status_code_t const & err, Client const * cl
 		Response	rep;
 
 		rep.start_header(err);
-		// AUTRES LIGNES POUR AUTRES ERREURS ?
 		rep.append_to_body("<html>\n");
 		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
 		rep.append_to_body("<body bgcolor=\"white\">\n");
@@ -50,7 +47,6 @@ void	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_header("Content-Type: text/html");
 		rep.append_to_header("Connection: close");
 		rep.send_to_client(client);
-
 }
 
 void	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)
@@ -64,7 +60,6 @@ void	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.start_header(err);
 		if (err == "405")
 			rep.append_to_header("Allow: " + location->getStrMethods());
-		// AUTRES LIGNES POUR AUTRES ERREURS ?
 		rep.append_to_body("<html>\n");
 		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
 		rep.append_to_body("<body bgcolor=\"white\">\n");

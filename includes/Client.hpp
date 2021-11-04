@@ -16,6 +16,7 @@ class Client: public ASocket
 		~Client();
 
 		bool			alive(void) const;
+		void			sendResponse(char const * response) const;
 		virtual bool	execute(ASocket * ptr);
 	
 	protected:

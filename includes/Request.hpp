@@ -5,6 +5,7 @@
 # include "Client.hpp"
 # include "Server.hpp"
 # include "Location.hpp"
+# include "Response.hpp"
 
 class Request: public Client
 {

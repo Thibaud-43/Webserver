@@ -84,6 +84,12 @@ bool	Client::execute(ASocket * ptr)
 	return request->execute(ptr);
 }
 
+bool Client::sendResponse(char const * response) const
+{
+	if (response && send(getFd(), response, strlen(response), 0) == -1)
+
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
