@@ -61,16 +61,6 @@ ASocket::~ASocket()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-ASocket &				ASocket::operator=( ASocket const & rhs )
-{
-	if (this != &rhs)
-	{
-		m_fd = rhs.m_fd;
-		m_clock = rhs.m_clock;
-	}
-	return *this;
-}
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */

@@ -25,15 +25,6 @@ Client::~Client()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Client &				Client::operator=( Client const & rhs )
-{
-	if (this != &rhs)
-	{
-		ASocket::operator=(rhs);
-	}
-	return *this;
-}
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */

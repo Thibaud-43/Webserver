@@ -14,8 +14,6 @@ class Client: public ASocket
 		Client(Client const & src);
 		~Client();
 		
-		Client &		operator=(Client const & rhs);
-
 	protected:
 		std::string		m_buff;
 
