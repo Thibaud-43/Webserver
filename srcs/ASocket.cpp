@@ -38,23 +38,19 @@ void	ASocket::removeSocket(ASocket * socket)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ASocket::ASocket(): m_fd(ASocket::fd_type()), m_clock(time(NULL))
+ASocket::ASocket(): m_fd(ASocket::fd_type()), m_server(NULL), m_clock(time(NULL))
 {
 
 }
 
-ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_clock(src.m_clock)
+ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_server(src.m_server), m_clock(src.m_clock)
 {
 
 }
 
-ASocket::ASocket( const int & fd ): m_fd(fd), m_clock(time(NULL))
+ASocket::ASocket( const int & fd, Server const * server): m_fd(fd), m_server(server), m_clock(time(NULL))
 {
 
-}
-
-ASocket::ASocket(int const & fd): m_fd(fd), m_clock(time(NULL))
-{
 }
 
 /*

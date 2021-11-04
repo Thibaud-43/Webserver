@@ -22,7 +22,6 @@ class Cluster
 		Cluster &						operator=( Cluster const & rhs );
 		int								run(void);
 		static fd_type					getEpollFd(void);
-
 		std::vector<Server*> 			getServers(void) const;
 		Tree				 			getTree(void) const;
 

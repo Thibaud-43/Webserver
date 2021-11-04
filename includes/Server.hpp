@@ -44,6 +44,7 @@ class Server
 		void	setCGIPass(std::vector<std::string> const &content);
 		void	setValue(Node* node);
 
+
 	private:
 		std::string						m_ip;
 		std::string						m_port;

@@ -3,6 +3,7 @@
 
 # include "Headers.hpp"
 # include "FileDescriptor.hpp"
+# include "Server.hpp"
 
 class ASocket
 {
@@ -16,11 +17,11 @@ class ASocket
 
 		ASocket();
 		ASocket(ASocket const & src);
-		ASocket(int const & fd);
+		ASocket(int const & fd, Server const * server);
 		~ASocket();
 		
 		int				getFd(void) const;
-		virtual bool	execute(ASocket *ptr) = 0;
+		virtual bool	execute(ASocket **ptr) = 0;
 		virtual bool	alive(void) const = 0;
 		
 		static ASocket *	getSocket(int const & fd);
@@ -29,9 +30,9 @@ class ASocket
 
 
 	protected:
-		fd_type		m_fd;
-		time_t		m_clock;
-		
+		fd_type			m_fd;
+		Server	const * m_server;
+		time_t			m_clock;
 		void	resetClock(void);
 
 	private:

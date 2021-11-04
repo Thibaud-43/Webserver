@@ -12,7 +12,7 @@ Client::Client( const Client & src ): ASocket(src), m_buff(src.m_buff)
 {
 }
 
-Client::Client( const int & fd): ASocket(fd), m_buff("")
+Client::Client( const int & fd, Server const * server): ASocket(fd, server), m_buff("")
 {
 
 }
@@ -71,23 +71,20 @@ bool	Client::_fillBuffer(void)
 	}
 }
 
-bool	Client::execute(ASocket * ptr)
+bool	Client::execute(ASocket ** ptr)
 {
 	Request		*request;
+	if (ptr)
+		*ptr = this;
 	if (!_fillBuffer())
 		return false;
 	if (m_buff.empty())
 		return true;
 	request = new Request(*this);
-	ptr = request;
+	if (ptr)
+		*ptr = request;
 	ASocket::addSocket(request);
 	return request->execute(ptr);
-}
-
-bool Client::sendResponse(char const * response) const
-{
-	if (response && send(getFd(), response, strlen(response), 0) == -1)
-
 }
 
 /*

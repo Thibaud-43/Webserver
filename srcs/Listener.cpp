@@ -1,5 +1,6 @@
 
 #include "Listener.hpp"
+
 Listener::list_type Listener::_list = list_type();
 
 /*
@@ -15,7 +16,7 @@ Listener::Listener( const Listener & src ): ASocket(src)
     //_list = src._list;
 }
 
-Listener::Listener(int const & fd, port_type const & port, ip_type const & ip): ASocket(fd)
+Listener::Listener(int const & fd, Server const * server, port_type const & port, ip_type const & ip): ASocket(fd, server)
 {
     _initAddr(port, ip);
     _bind();
@@ -53,8 +54,16 @@ Listener &				Listener::operator=( Listener const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-bool	Listener::execute(void)
+bool	Listener::alive(void) const
 {
+	return true;
+}
+
+
+bool	Listener::execute(ASocket ** ptr)
+{
+	if (ptr)
+		*ptr = this;
     for (;;)
 	{
 		struct sockaddr_in their_addr;
@@ -75,7 +84,9 @@ bool	Listener::execute(void)
 		}
 		else
 		{
-            Client	*client = new Client(fd);
+            Client	*client = new Client(fd, m_server);
+			if (ptr)
+				*ptr = client;
             ASocket::addSocket(client);
         }
 
