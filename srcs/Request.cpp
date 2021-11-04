@@ -145,15 +145,13 @@ void			Request::_printHeader(void)
 
 bool	Request::_checkHeader(void)
 {
-	Response	rep;
 	if (_checkRequestLine() == false || _checkHost() == false)
 		return (false);
 	_linkLocation();
 	_linkPath();
 	if (!m_location->isAllowed(m_header["method"]))
 	{
-		rep.create_error("400", &m_server->getParams());
-		_send(rep);
+		_send(Response::create_error("400", &m_server->getParams()));
 		return (false);
 	}
 	return (true);
@@ -161,12 +159,9 @@ bool	Request::_checkHeader(void)
 
 bool	Request::_checkHost(void)
 {
-	Response	rep;
-
 	if (m_header["Host"].empty())
 	{
-		rep.create_error("400", NULL);
-		_send(rep);
+		_send(Response::create_error("400", NULL));
 		return (false);
 	}
 	return (true);
@@ -174,23 +169,19 @@ bool	Request::_checkHost(void)
 
 bool	Request::_checkRequestLine(void)
 {
-	Response	rep;
 	if (m_header.empty() || m_header["protocol"].empty() || m_header["method"].empty() || m_header["uri"].empty())
 	{
-		rep.create_error("400", NULL);
-		_send(rep);
+		_send(Response::create_error("400", NULL));
 		return (false);
 	}
 	if (m_header["protocol"] != PROTOCOL)
 	{
-		rep.create_error("505", NULL);
-		_send(rep);
+		_send(Response::create_error("505", NULL));
 		return (false);
 	}
 	if (m_header["method"] != "GET" && m_header["method"] != "POST" && m_header["method"] != "DELETE")
 	{
-		rep.create_error("400", NULL);
-		_send(rep);
+		_send(Response::create_error("400", NULL));
 		return (false);
 	}
 	return (true);
