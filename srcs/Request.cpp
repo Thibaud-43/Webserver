@@ -1,4 +1,6 @@
 #include "Request.hpp"
+#include "Delete.hpp"
+#include "Get.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
