@@ -20,7 +20,7 @@ class ASocket
 		~ASocket();
 		
 		int				getFd(void) const;
-		virtual bool	execute(void) = 0;
+		virtual bool	execute(ASocket *ptr) = 0;
 		virtual bool	alive(void) const = 0;
 		
 		static ASocket *	getSocket(int const & fd);

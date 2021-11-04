@@ -16,7 +16,7 @@ class Client: public ASocket
 		~Client();
 
 		bool			alive(void) const;
-		virtual bool	execute(void);
+		virtual bool	execute(ASocket * ptr);
 	
 	protected:
 		std::string		m_buff;

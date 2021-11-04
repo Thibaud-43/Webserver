@@ -10,19 +10,21 @@ class Request: public Client
 {
 
 	public:
+		typedef std::map<std::string, std::string>	header_type;
 
 		Request();
 		Request(Request const & src);
 		Request(Client const & src);
 		~Request();
 
-		Request &		operator=( Request const & rhs );
+		virtual bool	execute(ASocket *ptr);
 
-	private:
-
+	protected:
+		Server		*m_server;
+		Location	*m_location;
+		std::string	m_path;
+		header_type	m_header;
 
 };
-
-std::ostream &			operator<<( std::ostream & o, Request const & i );
 
 #endif /* ********************************************************* REQUEST_H */

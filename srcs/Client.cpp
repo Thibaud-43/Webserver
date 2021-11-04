@@ -72,7 +72,7 @@ bool	Client::_fillBuffer(void)
 	}
 }
 
-bool	Client::execute(void)
+bool	Client::execute(ASocket * ptr)
 {
 	if (!_fillBuffer())
 		return false;
