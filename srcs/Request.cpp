@@ -168,6 +168,15 @@ bool	Request::execute(ASocket *ptr)
 	// IF /r/n/r/n in m_buff -> PARSING HEADER
 }
 
+bool	Request::_send(Response const & rep) const
+{
+	std::string	content = rep.getContent();
+
+	if (send(getFd(), content.c_str(), content.size(), 0) == -1)
+		return (false);
+	return (true);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

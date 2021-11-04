@@ -37,9 +37,12 @@ Delete::~Delete()
 
 bool	Delete::_check(void) const
 {
+	Response	rep;
+
 	if (m_header.find("Content-Length") != m_header.end() || m_header.find("Transfer-encoding") != m_header.end())
 	{
-		Response::send_error("413", )
+		rep = Response::create_error("413", m_location);
+		_send(rep);
 		return (false);
 	}
 }

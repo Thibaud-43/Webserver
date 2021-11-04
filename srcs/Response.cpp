@@ -30,29 +30,10 @@ Response::status_t	Response::_createStatus(void)
 	return (status);
 }
 
-void	Response::send_error(Response::status_code_t const & err, Client const * client)
+Response	Response::create_error(status_code_t const & err, Location const * location)
 {
-		Response	rep;
-
-		rep.start_header(err);
-		rep.append_to_body("<html>\n");
-		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
-		rep.append_to_body("<body bgcolor=\"white\">\n");
-		rep.append_to_body("<center><h1>" + err + " " + Response::_status[err] + "</h1></center>\n");
-		rep.append_to_body("<hr><center>");
-		rep.append_to_body(SERV_NAME);
-		rep.append_to_body("</center>\n");
-		rep.append_to_body("</body>\n");
-		rep.append_to_body("</html>\n");
-		rep.append_to_header("Content-Type: text/html");
-		rep.append_to_header("Connection: close");
-		rep.send_to_client(client);
-}
-
-void	Response::send_error(Response::status_code_t const & err, Client const * client, Location const * location)
-{
-	if (location->getErrPages().find(err) != location->getErrPages().end())
-		return (Response::redirect("302", location->getErrPages().at(err), client));
+	if (location && location->getErrPages().find(err) != location->getErrPages().end())
+		return (Response::create_redirect("302", location->getErrPages().at(err)));
 	else
 	{
 		Response	rep;
@@ -71,11 +52,11 @@ void	Response::send_error(Response::status_code_t const & err, Client const * cl
 		rep.append_to_body("</html>\n");
 		rep.append_to_header("Content-Type: text/html");
 		rep.append_to_header("Connection: close");
-		rep.send_to_client(client);
+		return (rep);
 	}	
 }
 
-void	Response::redirect(Response::status_code_t const & red, std::string const & location, Client const * client)
+Response	Response::create_redirect(Response::status_code_t const & red, std::string const & location)
 {
 	Response	rep;
 
@@ -93,10 +74,10 @@ void	Response::redirect(Response::status_code_t const & red, std::string const &
 	rep.add_content_length();
 	rep.append_to_header("Connection: keep-alive");
 	rep.append_to_header("Location: " + location);
-	rep.send_to_client(client);
+	return (rep);
 }
 	
-void	Response::send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location)
+Response	Response::create_index(std::string const & directory, Location const * location, std::string const & uri)
 {
 	Location::indexes_t const & indexes = location->getIndexes();
 	File						current;
@@ -105,7 +86,7 @@ void	Response::send_index(std::string const & directory, std::string const & uri
 	{
 		current.setPath(directory + *it);
 		if (current.is_regular())
-			return (Response::redirect("301", uri + *it, client));
+			return (Response::create_redirect("301", uri + *it));
 	}
 	Response						rep;
 	std::vector<std::string> const	files = File::currentFiles(directory);
@@ -130,7 +111,7 @@ void	Response::send_index(std::string const & directory, std::string const & uri
 	rep.append_to_body("</html>\n");
 	rep.append_to_header("Content-Type: text/html");
 	rep.append_to_header("Connection: keep-alive");
-	rep.send_to_client(client);
+	return (rep);
 }
 
 /*
@@ -184,13 +165,6 @@ void	Response::append_to_header(std::string const & str)
 void	Response::append_to_body(std::string const & str)
 {
 	m_body.append(str);
-}
-
-void	Response::send_to_client(Client const * client)
-{
-	if (!m_body.empty())
-		add_content_length();
-	client->sendResponse(getContent().data());
 }
 
 void	Response::add_content_length(void)

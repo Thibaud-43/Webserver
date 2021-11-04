@@ -25,6 +25,9 @@ class Request: public Client
 		Location	*m_location;
 		std::string	m_path;
 		header_type	m_header;
+
+		bool		_send(Response const & rep) const;
+
 	private:
 		void		_bufferToRequestLine(void);
 		void		_bufferToHeader(void);

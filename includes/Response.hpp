@@ -19,20 +19,18 @@ class Response
 		Response(Response const & src);
 		~Response();
 
-		std::string	getContent(void) const;
-		void		start_header(status_code_t const & status);
-		void		append_to_header(std::string const & str);
-		void		append_to_body(std::string const & str);
-		void		send_to_client(Client const * client);
-		void		add_content_length(void);
-		void		fill_body(file_t const & file);
-		void		clear(void);
-		void		debug(void)const;
+		std::string		getContent(void) const;
+		void			start_header(status_code_t const & status);
+		void			append_to_header(std::string const & str);
+		void			append_to_body(std::string const & str);
+		void			add_content_length(void);
+		void			fill_body(file_t const & file);
+		void			clear(void);
+		void			debug(void)const;
 		Response &		operator=(Response const & rhs);
-		static void	send_error(status_code_t const & err, Client const * client, Location const * location);
-		static void	send_error(Response::status_code_t const & err, Client const * client);
-		static void	redirect(status_code_t const & red, std::string const & location, Client const * client);
-		static void	send_index(std::string const & directory, std::string const & uri, Client const * client, Location const * location);
+		static Response	create_error(status_code_t const & err, Location const * location);
+		static Response	create_redirect(status_code_t const & red, std::string const & location);
+		static Response	create_index(std::string const & directory, Location const * location, std::string const & uri);
 
 	private:
 		static status_t	_status;
