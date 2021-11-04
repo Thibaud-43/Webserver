@@ -110,7 +110,20 @@ void			Server::fillServer(Node* node)
 
 int				Server::run(fd_type epoll)
 {
-    Listener	socket(epoll, m_port, m_ip);
+	int yes=1;
+	int fd;
+	if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
+	{
+        perror("socket");
+        exit(1);
+    }
+    if (setsockopt(getFd(),SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) 
+	{
+        perror("setsockopt");
+        exit(1);
+    }
+    Listener	*socket = new Listener(fd, m_port, m_ip);
+	ASocket::addSocket(socket);
     return 1;
 }
 

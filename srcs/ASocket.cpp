@@ -39,10 +39,17 @@ void	ASocket::removeSocket(ASocket * socket)
 
 ASocket::ASocket(): m_fd(ASocket::fd_type()), m_clock(time(NULL))
 {
+
 }
 
 ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_clock(src.m_clock)
 {
+
+}
+
+ASocket::ASocket( const int & fd ): m_fd(fd), m_clock(time(NULL))
+{
+
 }
 
 ASocket::ASocket(int const & fd): m_fd(fd), m_clock(time(NULL))
@@ -78,5 +85,6 @@ int		ASocket::getFd(void) const
 {
 	return (m_fd.value());
 }
+
 
 /* ************************************************************************** */

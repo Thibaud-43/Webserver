@@ -186,8 +186,7 @@ int				Cluster::run(void)
 {
 	int running = 1;
 
-	_createCluster();
-	_createEpoll();
+	FileDescriptor::setEpollFd();
 	_runServers();
 	while(running)
 	{
@@ -197,28 +196,6 @@ int				Cluster::run(void)
 	}
 	_closeEpoll();
 	return 0;
-}
-
-void							Cluster::_createEpoll(void)
-{
-	_epoll_fd = epoll_create1(0);
-	if(_epoll_fd < 0)
-	{
-		std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
-		return ;
-	}
-	ASocket::setEpoll(_epoll_fd);
-}
-
-void							Cluster::_createCluster(void)
-{
-	Server		test("100", "0.0.0.0");
-	Server      test2("90", "0.0.0.0");
-	Server      test3("80", "0.0.0.0");
-
-	// m_servers.push_back(test);
-	// m_servers.push_back(test2);
-	// m_servers.push_back(test3);
 }
 
 void							Cluster::_runServers(void)
@@ -241,20 +218,14 @@ void							Cluster::_epollWait(void)
 
 void							Cluster::_epollExecute(void)
 {
+	ASocket *socket;
 	for( int i = 0; i < m_eventCount; i++)
 	{
-		if (Listener::isListenerFd(m_events[i].data.fd))
-		{
-			_epollExecuteOnListenerConnection(m_events[i].data.fd);
-		}
-		else if (Cgi::isCgiFd(m_events[i].data.fd))
-		{
-			_epollExecuteOnCgiConnection(m_events[i].data.fd);
-		}
-		else
-		{
-			_epollExecuteOnClientConnection(m_events[i].data.fd);
-		}
+		socket = ASocket::getSocket(m_events[i].data.fd);
+		if (socket)
+			socket->execute();
+		//else
+			//cgi
 	}
 }
 
