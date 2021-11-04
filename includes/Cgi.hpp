@@ -9,7 +9,8 @@ class Cgi: public Get, public Post
 {
 
 	public:
-		typedef std::set<Cgi *>	list_type;
+		typedef std::set<Cgi const *>				list_type;
+		typedef std::map<std::string, std::string>	env_type;
 
 		Cgi();
 		Cgi(Cgi const & src);
@@ -20,16 +21,22 @@ class Cgi: public Get, public Post
 		virtual bool		execute(ASocket ** ptr);
 		int					getFdIn(void) const;
 		int					getFdOut(void) const;
+		bool				start(void);
+		bool				manage(int const & fd) const;
+		// check_status 
 
 		static Cgi const *	getCgi(int const & fd);
-		static Cgi const *	addCgi(Cgi * cgi);
-		static void			removeCgi(Cgi * cgi);
+		static Cgi const *	addCgi(Cgi const * cgi);
+		static void			removeCgi(Cgi const * cgi);
 
 	private:
-		int		m_fd_in;
-		int		m_fd_out;
+		int			m_fd_in;
+		int			m_fd_out;
+		env_type	m_env;
 
 		static	list_type	_list;
+
+		void		_setEnv(void);
 };
 
 #endif /* ************************************************************* CGI_H */
