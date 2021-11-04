@@ -177,6 +177,14 @@ bool	Request::_send(Response const & rep) const
 	return (true);
 }
 
+void	Request::_convertToClient(ASocket ** ptr)
+{
+	Client	*client = new Client(*this);
+
+	if (ptr)
+		*ptr = client;
+	ASocket::addSocket(client);
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

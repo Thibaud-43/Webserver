@@ -13,8 +13,11 @@ class Delete: public Request
 		Delete(Request const & src);
 		~Delete();
 
+		virtual bool execute(ASocket ** ptr);
+
 	private:
 		bool	_check(void) const;
+		bool	_delete(void) const;
 
 };
 

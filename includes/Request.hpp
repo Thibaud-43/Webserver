@@ -27,6 +27,7 @@ class Request: public Client
 		header_type	m_header;
 
 		bool		_send(Response const & rep) const;
+		void		_convertToClient(ASocket ** ptr);
 
 	private:
 		void		_bufferToRequestLine(void);
