@@ -11,9 +11,12 @@ class ASocket
 		typedef std::map<int, ASocket *>	list_type;
 		typedef struct sockaddr_in			address_type;
 		typedef struct epoll_event			event_type;
+		typedef	std::string					port_type;
+		typedef	std::string					ip_type;
 
 		ASocket();
 		ASocket(ASocket const & src);
+		ASocket(const int & fd);
 		~ASocket();
 		
 		ASocket &		operator=(ASocket const & rhs );

@@ -2,9 +2,14 @@
 
 int	FileDescriptor::_epoll_fd = -1;
 
-void	FileDescriptor::setEpollFd(int const fd)
+void	FileDescriptor::setEpollFd(void)
 {
-	_epoll_fd = fd;
+	_epoll_fd = epoll_create1(0);
+	if(_epoll_fd < 0)
+	{
+		std::cerr << strerror(errno) << "    " << "Failed to create epoll file descriptor\n";
+		return ;
+	}
 }
 
 /*
@@ -35,7 +40,7 @@ FileDescriptor::~FileDescriptor()
 FileDescriptor &				FileDescriptor::operator=( FileDescriptor const & rhs )
 {
 	if ( this != &rhs )
-		m_fd = rhs.m_fd;
+
 	return *this;
 }
 
@@ -43,9 +48,58 @@ FileDescriptor &				FileDescriptor::operator=( FileDescriptor const & rhs )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-// AJOUTEZ METHODES
+
+void	FileDescriptor::epollCtlAdd(void)
+{
+	FileDescriptor::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = m_fd;
+    event.events = EPOLLIN | EPOLLET;
+    if(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(_epoll_fd);
+    }
+}
+
+void	FileDescriptor::epollCtlAdd_w(void)
+{
+	FileDescriptor::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = m_fd;
+    event.events = EPOLLOUT | EPOLLET;
+    if(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(_epoll_fd);
+    }
+}
 
 
+void	FileDescriptor::epollCtlDel(void)
+{
+	FileDescriptor::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = m_fd;
+    event.events = EPOLLIN | EPOLLET;
+    if(epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(_epoll_fd);
+    }
+}
+
+void			FileDescriptor::makeFdNonBlocking(void)
+{
+	if (fcntl(m_fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		perror("fcntl");
+		exit(1);
+	}
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

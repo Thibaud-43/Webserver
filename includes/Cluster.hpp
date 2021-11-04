@@ -6,8 +6,8 @@
 # include "Tree.hpp"
 # include "Node.hpp"
 # include "Client.hpp"
-# include "Request.hpp"
-# include "Cgi.hpp"
+//# include "Request.hpp"
+//# include "Cgi.hpp"
 
 class Cluster
 {
@@ -37,8 +37,6 @@ class Cluster
 		void							_inheritDefaultLocation(Server &server, Location &location);
 		void							_parseServerObject(void);
 		void							_fillCluster(Node* node);
-		void							_createCluster(void);
-		void							_createEpoll(void);
 		void							_runServers(void);
 		void							_epollWait(void);
 		void							_epollExecute(void);
