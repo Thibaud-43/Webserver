@@ -24,7 +24,7 @@ class FileDescriptor
 		void					epollCtlDel(void);
 		void					makeFdNonBlocking(void);
 	private:
-		int	const m_fd;
+		int const	m_fd;
 
 		static	int	_epoll_fd;
 };

@@ -52,6 +52,10 @@ ASocket::ASocket( const int & fd ): m_fd(fd), m_clock(time(NULL))
 
 }
 
+ASocket::ASocket(int const & fd): m_fd(fd), m_clock(time(NULL))
+{
+}
+
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
