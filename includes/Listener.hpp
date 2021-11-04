@@ -11,10 +11,12 @@ class Listener: public ASocket
 	public:
 		Listener();
 		Listener( Listener const & src );
-		Listener(int const & fd, port_type const & port, ip_type const & ip);
+		Listener(int const & fd, Server const * server, port_type const & port, ip_type const & ip);
 		~Listener();
 
-		bool	execute(void);
+		bool	execute(ASocket **ptr);
+		bool	alive(void) const;
+
 
 	private:
 		void							_bind(void);

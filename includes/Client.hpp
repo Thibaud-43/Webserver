@@ -12,12 +12,11 @@ class Client: public ASocket
 	public:
 		Client();
 		Client(Client const & src);
-		Client(int const & fd);
+		Client(int const & fd, Server const * server);
 		~Client();
 
 		bool			alive(void) const;
-		void			sendResponse(char const * response) const;
-		virtual bool	execute(ASocket * ptr);
+		virtual bool	execute(ASocket ** ptr);
 	
 	protected:
 		std::string		m_buff;

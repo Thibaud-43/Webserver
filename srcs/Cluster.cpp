@@ -223,7 +223,7 @@ void							Cluster::_epollExecute(void)
 	{
 		socket = ASocket::getSocket(m_events[i].data.fd);
 		if (socket)
-			socket->execute();
+			socket->execute(&socket);
 		//else
 			//cgi
 	}
