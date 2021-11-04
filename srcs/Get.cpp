@@ -1,20 +1,20 @@
-#include "Delete.hpp"
+#include "Get.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Delete::Delete()
+Get::Get()
 : Request()
 {
 }
 
-Delete::Delete(Delete const & src)
+Get::Get( const Get & src )
 : Request(src)
 {
 }
 
-Delete::Delete(Request const & src)
+Get::Get(Request const & src)
 : Request(src)
 {
 }
@@ -23,29 +23,42 @@ Delete::Delete(Request const & src)
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Delete::~Delete()
+Get::~Get()
 {
 }
+
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
+
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-bool	Delete::execute(ASocket ** ptr)
+bool	Get::execute(ASocket ** ptr)
 {
+	File	file(m_path);
+
 	if (ptr)
 		*ptr = this;
-	if (!_check() || !_delete())
+	if (!_check())
 		return (false);
-	_convertToClient(ptr);
-	return (true);
+	if (file.is_directory())
+	{
+		if (_manageDir())
+		{
+			_convertToClient(ptr);
+			return (true);
+		}
+		return (false);
+	}
+	// CGI
+	// GET
 }
 
-bool	Delete::_check(void) const
+bool	Get::_check(void) const
 {
 	Response	rep;
 	File const	file(m_path);
@@ -62,40 +75,39 @@ bool	Delete::_check(void) const
 		_send(rep);
 		return (false);
 	}
-	else if (!file.is_writable())
+	else if (!file.is_readable())
 	{
 		rep = Response::create_error("403", m_location);
 		_send(rep);
 		return (false);
 	}
-	return (true);
+	else if (m_header.find("Range") != m_header.end())
+	{
+		rep = Response::create_error("416", m_location);
+		_send(rep);
+		return (false);
+	}
+	return (true);	
 }
 
-bool	Delete::_delete(void) const
+bool	Get::_manageDir(void)
 {
 	Response	rep;
 
-	if (remove(m_path.c_str()))
+	if (*(m_path.end() - 1) != '/')
+		rep = Response::create_redirect("302", m_header.at("uri") + "/");
+	else if (m_location->getAutoindex())
+		rep = Response::create_index(m_path, m_location, m_header.at("uri"));
+	else
 	{
-		rep = Response::create_error("500", m_location);
+		rep = Response::create_error("403", m_location);
 		_send(rep);
 		return (false);
 	}
-	rep.start_header("200");
-	rep.append_to_body("<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n<html>\n");
-	rep.add_content_length();
-	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
-	{
-		rep.append_to_header("Connection: close");
-		_send(rep);
-		return (false);
-	}
-	rep.append_to_header("Connection: keep-alive");
 	if (!_send(rep))
 		return (false);
 	return (true);
 }
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

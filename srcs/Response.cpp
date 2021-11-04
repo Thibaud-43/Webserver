@@ -39,7 +39,7 @@ Response	Response::create_error(status_code_t const & err, Location const * loca
 		Response	rep;
 
 		rep.start_header(err);
-		if (err == "405")
+		if (location && err == "405")
 			rep.append_to_header("Allow: " + location->getStrMethods());
 		rep.append_to_body("<html>\n");
 		rep.append_to_body("<head><title>" + err + " " + Response::_status[err] + "</title></head>\n");
