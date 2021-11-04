@@ -4,7 +4,7 @@
 # include "Headers.hpp"
 # include "Request.hpp"
 
-class Post: public Request
+class Post: public virtual Request
 {
 	public:
 		Post();

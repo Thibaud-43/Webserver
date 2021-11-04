@@ -1,4 +1,5 @@
 #include "Get.hpp"
+#include "Cgi.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -105,7 +106,121 @@ Location::file_t const *	Get::_cgiPass(void) const
 
 bool	Get::_start_cgi(ASocket ** ptr)
 {
+	File	f(*m_cgi_pass);
+	
+	if (!f.is_executable())
+	{
+		_send(Response::create_error("500", m_location));
+		return (false);
+	}
+	_convert<Cgi>(ptr);
+	return ((*ptr)->execute(ptr));
+}
 
+bool	Get::_get(ASocket ** ptr)
+{
+	Response	rep;
+	bool		ret;
+
+	rep.start_header("200");
+	rep.append_to_header("Content-type: text");
+	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
+	{
+		ret = false;
+		rep.append_to_header("Connection: close");
+	}
+	else
+		rep.append_to_header("Connection: keep-alive");
+	if (m_path.size() > MAX_SERVER_BODY_SIZE)
+	{
+		rep.append_to_header("Transfer-Encoding: chunked");
+		_send(rep);
+		if (!_sendChunkedFile())
+			return (false);
+	}
+	else 
+	{
+		rep.append_to_header("Content-length: " + _ltostr(m_path.size()));
+		_send(rep);
+		if (!_sendFile())
+			return (false);
+	}
+	if (ret)
+		_convert<Client>(ptr);
+	return (ret);
+}
+
+bool	Get::_sendChunkedFile(void) const
+{
+	std::ifstream	fstream(m_path.getPath().data());
+	char			buff[MAX_SERVER_BODY_SIZE + 1];
+	std::string		body;
+
+	if (!fstream.is_open())
+	{
+		_send(Response::create_error("500", m_location));
+		return (false);
+	}
+	try
+	{
+		fstream.read(buff, MAX_SERVER_BODY_SIZE);
+		while (fstream.gcount())
+		{
+			if (!_chunk_size_to_client(fstream.gcount()))
+				return (false);
+			buff[fstream.gcount()] = 0;
+			body = buff;
+			body += "\r\n";
+			if (!_send(body))
+				return (false);
+			fstream.read(buff, MAX_SERVER_BODY_SIZE - 1);
+		}
+		if (!_send("0\r\n\r\n"))
+			return (false);
+	}
+	catch(const std::exception& e)
+	{
+		return (false);
+	}
+	return (true);
+}
+
+bool	Get::_sendFile(void) const
+{
+	std::ifstream	fstream(m_path.getPath().data());
+	char			buff[MAX_SERVER_BODY_SIZE + 1];
+
+	if (!fstream.is_open())
+	{
+		_send(Response::create_error("500", m_location));
+		return (false);
+	}
+	try
+	{
+		fstream.read(buff, MAX_SERVER_BODY_SIZE);
+	}
+	catch(const std::exception& e)
+	{
+		return (false);
+	}
+	buff[fstream.gcount()] = 0;
+	return (_send(buff));
+}
+
+std::string	Get::_ltostr(size_t const & len) const
+{
+	std::stringstream	ss;
+
+	ss << len;
+	return (ss.str());
+}
+
+bool	Get::_chunk_size_to_client(std::streamsize const & size) const
+{
+	std::stringstream stream;
+
+	stream << std::hex << size << "\r\n";
+	return (_send(stream.str()));
 }
 
 /*

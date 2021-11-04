@@ -41,7 +41,7 @@ bool	Delete::execute(ASocket ** ptr)
 		*ptr = this;
 	if (!_check() || !_delete())
 		return (false);
-	_convertToClient(ptr);
+	_convert<Client>(ptr);
 	return (true);
 }
 

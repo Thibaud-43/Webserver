@@ -226,6 +226,13 @@ bool	Request::_send(Response const & rep) const
 	return (true);
 }
 
+bool	Request::_send(std::string const & rep) const
+{
+	if (send(getFd(), rep.c_str(), rep.size(), 0) == -1)
+		return (false);
+	return (true);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

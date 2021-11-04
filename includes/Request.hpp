@@ -27,6 +27,7 @@ class Request: public Client
 		header_type			m_header;
 
 		bool		_send(Response const & rep) const;
+		bool		_send(std::string const & rep) const;
 
 		template<typename T>
 		void		_convert(ASocket ** ptr)
