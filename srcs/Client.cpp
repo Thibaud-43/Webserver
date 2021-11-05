@@ -61,6 +61,11 @@ bool	Client::_fillBuffer(void)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
+			if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
+			{
+				_send(Response::create_error("431", NULL));
+				return false;
+			}
 		}
 		else
 		{ 
@@ -85,6 +90,22 @@ bool	Client::execute(ASocket ** ptr)
 		*ptr = request;
 	ASocket::addSocket(request);
 	return request->execute(ptr);
+}
+
+bool	Client::_send(Response const & rep) const
+{
+	std::string	content = rep.getContent();
+
+	if (send(getFd(), content.c_str(), content.size(), 0) == -1)
+		return (false);
+	return (true);
+}
+
+bool	Client::_send(std::string const & rep) const
+{
+	if (send(getFd(), rep.c_str(), rep.size(), 0) == -1)
+		return (false);
+	return (true);
 }
 
 /*

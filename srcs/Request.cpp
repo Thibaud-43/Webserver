@@ -208,22 +208,6 @@ bool	Request::execute(ASocket **ptr)
 	return (*ptr)->execute(ptr);
 }
 
-bool	Request::_send(Response const & rep) const
-{
-	std::string	content = rep.getContent();
-
-	if (send(getFd(), content.c_str(), content.size(), 0) == -1)
-		return (false);
-	return (true);
-}
-
-bool	Request::_send(std::string const & rep) const
-{
-	if (send(getFd(), rep.c_str(), rep.size(), 0) == -1)
-		return (false);
-	return (true);
-}
-
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

@@ -35,5 +35,7 @@
 # define MAX_EVENTS 10
 # define MYPORT 3490
 # define PROTOCOL "HTTP/1.1"
+# define HEADER_SIZE_LIMIT  20000
+# define PROTOCOL "HTTP/1.1"
 
 #endif

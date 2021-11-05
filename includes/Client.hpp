@@ -3,6 +3,7 @@
 
 # include "Headers.hpp"
 # include "ASocket.hpp"
+# include "Client.hpp"
 
 # define LIFETIME 60 // SECONDS
 
@@ -17,12 +18,13 @@ class Client: public ASocket
 
 		bool			alive(void) const;
 		virtual bool	execute(ASocket ** ptr);
-	
+
 	protected:
 		std::string		m_buff;
 
-
-		bool			_fillBuffer(void);
+		bool			_send(Response const & rep) const;
+		bool			_send(std::string const & rep) const;
+		virtual bool	_fillBuffer(void);
 
 
 };

@@ -16,6 +16,7 @@ class Post: public virtual Request
 		virtual bool	execute(ASocket ** ptr);
 
 	private:
+		bool	_fillBuffer(void);
 
 };
 

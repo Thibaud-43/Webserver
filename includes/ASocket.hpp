@@ -23,6 +23,7 @@ class ASocket
 		int				getFd(void) const;
 		virtual bool	execute(ASocket **ptr) = 0;
 		virtual bool	alive(void) const = 0;
+		void			resetClock(void);
 		
 		static ASocket *	getSocket(int const & fd);
 		static void			addSocket(ASocket * socket);
@@ -33,7 +34,6 @@ class ASocket
 		fd_type			m_fd;
 		Server	const * m_server;
 		time_t			m_clock;
-		void	resetClock(void);
 
 	private:
 		static	list_type	_list;
