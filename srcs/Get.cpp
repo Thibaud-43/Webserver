@@ -1,5 +1,5 @@
 #include "Get.hpp"
-#include "Cgi.hpp"
+#include "CgiGet.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -113,7 +113,7 @@ bool	Get::_start_cgi(ASocket ** ptr)
 		_send(Response::create_error("500", m_location));
 		return (false);
 	}
-	_convert<Cgi>(ptr);
+	_convert<CgiGet>(ptr);
 	return ((*ptr)->execute(ptr));
 }
 
@@ -131,7 +131,7 @@ bool	Get::_get(ASocket ** ptr)
 	}
 	else
 		rep.append_to_header("Connection: keep-alive");
-	if (m_path.size() > MAX_SERVER_BODY_SIZE)
+	if (m_path.size() > READ_SIZE)
 	{
 		rep.append_to_header("Transfer-Encoding: chunked");
 		_send(rep);
@@ -153,7 +153,7 @@ bool	Get::_get(ASocket ** ptr)
 bool	Get::_sendChunkedFile(void) const
 {
 	std::ifstream	fstream(m_path.getPath().data());
-	char			buff[MAX_SERVER_BODY_SIZE + 1];
+	char			buff[READ_SIZE + 1];
 	std::string		body;
 
 	if (!fstream.is_open())
@@ -163,7 +163,7 @@ bool	Get::_sendChunkedFile(void) const
 	}
 	try
 	{
-		fstream.read(buff, MAX_SERVER_BODY_SIZE);
+		fstream.read(buff, READ_SIZE);
 		while (fstream.gcount())
 		{
 			if (!_chunk_size_to_client(fstream.gcount()))
@@ -173,7 +173,7 @@ bool	Get::_sendChunkedFile(void) const
 			body += "\r\n";
 			if (!_send(body))
 				return (false);
-			fstream.read(buff, MAX_SERVER_BODY_SIZE - 1);
+			fstream.read(buff, READ_SIZE - 1);
 		}
 		if (!_send("0\r\n\r\n"))
 			return (false);
@@ -188,7 +188,7 @@ bool	Get::_sendChunkedFile(void) const
 bool	Get::_sendFile(void) const
 {
 	std::ifstream	fstream(m_path.getPath().data());
-	char			buff[MAX_SERVER_BODY_SIZE + 1];
+	char			buff[READ_SIZE + 1];
 
 	if (!fstream.is_open())
 	{
@@ -197,7 +197,7 @@ bool	Get::_sendFile(void) const
 	}
 	try
 	{
-		fstream.read(buff, MAX_SERVER_BODY_SIZE);
+		fstream.read(buff, READ_SIZE);
 	}
 	catch(const std::exception& e)
 	{

@@ -25,6 +25,7 @@ Response::status_t	Response::_createStatus(void)
 	status["412"] = "Precondition Failed";
 	status["413"] = "Payload Too Large";
 	status["416"] = "Range Not Satisfiable";
+	status["431"] = "Request Header Fields Too Large",
 	status["500"] = "Internal Server Error";
 	status["505"] = "HTTP Version Not Supported";
 	return (status);
