@@ -3,6 +3,7 @@
 
 # include "Headers.hpp"
 # include "Request.hpp"
+# include "Unchunker.hpp"
 
 class Post: public virtual Request
 {
@@ -17,6 +18,7 @@ class Post: public virtual Request
 
 	protected:
 		std::string	m_body;
+		Unchunker	m_unchunker;
 		bool		_fillBuffer(void);
 
 };

@@ -51,9 +51,10 @@ bool	CgiPost::execute(ASocket ** ptr)
 	}
 	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 	{
-		
+		if (!_fillBuffer())
+			return false;
+		m_unchunker(m_buff, m_body);
 	}
-	// UNCHUNK ?
 }
 
 bool	CgiPost::manage(int const & fd) const
