@@ -17,7 +17,7 @@ Location::Location(std::string const &flag)
 	m_methods.push_back("GET");
 	m_methods.push_back("POST");
 	m_methods.push_back("DELETE");
-	m_body_size = 1000000;
+	m_body_size = MAX_SERVER_BODY_SIZE;
 	m_uri = "/";
 	m_root = "/var/www/";
 	m_autoindex = true;

@@ -28,10 +28,10 @@
 # include <signal.h>
 # include <arpa/inet.h>
 
-# define MAX_SERVER_BODY_SIZE 1024
+# define MAX_SERVER_BODY_SIZE 1024000
 # define SERV_NAME "Webserv/1.0.0"
 # define CGI_VERSION "CGI/1.1"
-# define READ_SIZE 4096
+# define READ_SIZE 1024
 # define MAX_EVENTS 10
 # define MYPORT 3490
 # define PROTOCOL "HTTP/1.1"

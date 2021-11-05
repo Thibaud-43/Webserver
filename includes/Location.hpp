@@ -71,7 +71,7 @@ class Location
 	private:
 		std::string							m_uri; // DEFAULT empty
 		std::map<err_code_t, path_t>		m_error_pages; // DEFAULT empty-empty
-		body_size_t							m_body_size; // DEFAULT 1 000 000
+		body_size_t							m_body_size; // DEFAULT MAX_SERVER_BODY_SIZE
 		path_t								m_root; // DEFAULT .
 		std::vector<file_t>					m_indexes; // DEFAULT index.htm
 		methods_t							m_methods; // DEFAULT GET HEAD POST DELETE PUT

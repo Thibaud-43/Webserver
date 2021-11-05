@@ -77,11 +77,8 @@ bool	Post::execute(ASocket ** ptr)
 {
 	if (ptr)
 		*ptr = this;
-	// check_post (peut-etre pas ici)
-	// RECV -> buff
-	// Unchunk ?
-	// Upload ? -> convert to upload & exec
-	// CGI ? wait for full body (unchunk ?) -- convert to CGI -- exec
+	// Upload ? check -- convert to upload & exec
+	// CGI ? check -- convert to CGI -- exec
 }
 
 /*
