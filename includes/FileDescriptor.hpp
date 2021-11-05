@@ -18,11 +18,11 @@ class FileDescriptor
 
 		static void				setEpollFd(void);
 		
-		// AJOUTEZ METHODES
 		void					epollCtlAdd(void);
 		void					epollCtlAdd_w(void);
 		void					epollCtlDel(void);
 		void					makeFdNonBlocking(void);
+
 	private:
 		int const	m_fd;
 

@@ -15,8 +15,13 @@ class Post: public virtual Request
 
 		virtual bool	execute(ASocket ** ptr);
 
+	protected:
+		Location::file_t const *	m_cgi_pass; 
+		bool						_fillBuffer(void);
+	
 	private:
-		bool	_fillBuffer(void);
+		bool						_check(void) const;
+		Location::file_t const *	_cgiPass(void) const;
 
 };
 

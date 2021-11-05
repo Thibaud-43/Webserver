@@ -16,6 +16,8 @@ class CgiGet: public ACgi, public Get
 		virtual bool	execute(ASocket ** ptr);
 		virtual bool	manage(int const & fd) const;
 		virtual bool	start(void);
+		char **			getArgs(void) const;
+		bool			checkStatus(void);
 
 	private:
 		void	_setEnv(void);

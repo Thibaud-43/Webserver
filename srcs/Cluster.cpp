@@ -1,4 +1,5 @@
 #include "Cluster.hpp"
+#include "ACgi.hpp"
 
 Cluster::fd_type Cluster::_epoll_fd = -1;
 
@@ -190,7 +191,7 @@ int				Cluster::run(void)
 	_runServers();
 	while(running)
 	{
-		//Cgi::checkChildsStatus();
+		ASocket::clean();
 		_epollWait();
 		_epollExecute();
 	}
@@ -219,6 +220,8 @@ void							Cluster::_epollWait(void)
 void							Cluster::_epollExecute(void)
 {
 	ASocket *socket;
+	ACgi	*cgi;
+
 	for( int i = 0; i < m_eventCount; i++)
 	{
 		socket = ASocket::getSocket(m_events[i].data.fd);
@@ -227,8 +230,12 @@ void							Cluster::_epollExecute(void)
 			socket->resetClock();
 			socket->execute(&socket);
 		}
-		//else
-			//cgi
+		else if ((cgi = ASocket::getCgi(m_events[i].data.fd)))
+		{
+			cgi->manage(m_events[i].data.fd);
+		}
+		else
+			std::cerr << "Y'A UN SOUCIS LA\n";
 	}
 }
 

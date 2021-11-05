@@ -19,7 +19,6 @@ Unchunker::Unchunker(size_t const & max_size)
 {
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -27,7 +26,6 @@ Unchunker::Unchunker(size_t const & max_size)
 Unchunker::~Unchunker()
 {
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------

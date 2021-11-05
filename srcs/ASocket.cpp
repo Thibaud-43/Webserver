@@ -1,4 +1,5 @@
 #include "ASocket.hpp"
+#include "ACgi.hpp"
 
 ASocket::list_type ASocket::_list = ASocket::list_type();
 
@@ -15,8 +16,11 @@ void	ASocket::addSocket(ASocket * socket)
 
 	if (it != _list.end())
 	{
-		delete it->second;
-		it->second = socket;
+		if (it->second != socket)
+		{
+			delete it->second;
+			it->second = socket;
+		}
 	}
 	else
 		_list[socket->getFd()] = socket;
@@ -34,21 +38,65 @@ void	ASocket::removeSocket(ASocket * socket)
 	}
 }
 
+void	ASocket::clean(void)
+{
+	ACgi				*cgi = NULL;
+	list_type::iterator	del;
+
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (!it->second->alive())
+		{
+			if (cgi = dynamic_cast<ACgi *>(it->second))
+				cgi->clear();
+			del = it;
+			it--;
+			close(it->second->getFd());
+			delete it->second;
+			_list.erase(del);
+		}
+		else if ((cgi = dynamic_cast<ACgi *>(it->second)) && !cgi->checkStatus())
+		{
+			cgi->clear();
+			del = it;
+			it--;
+			close(it->second->getFd());
+			delete it->second;
+			_list.erase(del);
+		}
+	}
+}
+
+ACgi *	ASocket::getCgi(int const & fd)
+{
+	ACgi	*cgi;
+
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		if (cgi = dynamic_cast<ACgi *>(it->second))
+			return (cgi);
+	}
+	return (NULL);
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-ASocket::ASocket(): m_fd(ASocket::fd_type()), m_server(NULL), m_clock(time(NULL))
+ASocket::ASocket()
+: m_fd(ASocket::fd_type()), m_server(NULL), m_clock(time(NULL))
 {
 
 }
 
-ASocket::ASocket( const ASocket & src ): m_fd(src.m_fd), m_server(src.m_server), m_clock(src.m_clock)
+ASocket::ASocket( const ASocket & src )
+: m_fd(src.m_fd), m_server(src.m_server), m_clock(src.m_clock)
 {
 
 }
 
-ASocket::ASocket( const int & fd, Server const * server): m_fd(fd), m_server(server), m_clock(time(NULL))
+ASocket::ASocket( const int & fd, Server const * server)
+: m_fd(fd), m_server(server), m_clock(time(NULL))
 {
 
 }

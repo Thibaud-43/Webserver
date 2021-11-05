@@ -43,15 +43,22 @@ bool	CgiPost::execute(ASocket ** ptr)
 	// UNCHUNK ?
 }
 
-bool	CgiPost::manage(int const & fd) const
+bool	CgiPost::manage(int const & fd)
 {
-	// SI FD == fd_in -> write buffer to fd_in
-	// SI FD == fd_out -> construct & response -- send rep -- convert to client
+	if (fd == m_fd_in)
+	{
+		write(fd, m_body.data(), m_body.size());
+		m_body.clear();
+	}
+	else
+	{
+		// SI FD == fd_out -> construct & response -- send rep -- convert to client
+	}
 }
 
 bool	CgiPost::start(void)
 {
-	// Start Cgi -- pipes - fork - execve
+		
 }
 
 void	CgiPost::_setEnv(void)
@@ -80,6 +87,38 @@ void	CgiPost::_setEnv(void)
 	m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
 	m_env["REMOTE_ADDR"] = std::string(addr);
 	m_env["REDIRECT_STATUS"] = "200"; // PAS SUR
+}
+
+bool	CgiPost::checkStatus(void)
+{
+	int				status;
+	int				ret = waitpid(m_pid, &status, WNOHANG);
+	FileDescriptor	fd_out(m_fd_out);
+	
+	if (ret < 0)
+	{
+		_send(Response::create_error("500", m_location));
+		return (false);
+	}
+	else if (!ret)
+		return (true);
+	else
+	{
+		if (!WIFEXITED(status))
+		{
+			_send(Response::create_error("500", m_location));
+			m_pid = -1;
+			return (false);
+		}
+		else if (m_fd_in > 0)
+		{
+			close(m_fd_in);
+			m_fd_in = -1;
+		}
+		fd_out.epollCtlAdd();
+		m_pid = -1;
+		return (true);
+	}
 }
 
 /*

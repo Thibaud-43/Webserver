@@ -7,7 +7,6 @@
 # include "Node.hpp"
 # include "Client.hpp"
 //# include "Request.hpp"
-//# include "Cgi.hpp"
 
 class Cluster
 {

@@ -1,45 +1,18 @@
 #include "ACgi.hpp"
 
-ACgi::list_type ACgi::_list = ACgi::list_type();
-
-ACgi const	*	ACgi::getCgi(int const & fd)
-{
-	for (list_type::const_iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		if (fd == (*it)->getFdIn() || fd == (*it)->getFdOut())
-			return (*it);
-	}
-	return (NULL);
-}
-
-ACgi const *	ACgi::addCgi(ACgi const * cgi)
-{
-	return (*_list.insert(cgi).first);
-}
-
-void	ACgi::removeCgi(ACgi const * cgi)
-{
-	if (cgi->getFdIn() >= 0)
-		close(cgi->getFdIn());
-	if (cgi->getFdOut() >= 0)
-		close(cgi->getFdOut());
-	_list.erase(cgi);
-}
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
 ACgi::ACgi()
-: m_fd_in(-1), m_fd_out(-1), m_env(env_type())
+: m_fd_in(-1), m_fd_out(-1), m_env(env_type()), m_pid(-1)
 {
 }
 
 ACgi::ACgi( const ACgi & src )
-: m_fd_in(src.m_fd_in), m_fd_out(src.m_fd_out), m_env(src.m_env)
+: m_fd_in(src.m_fd_in), m_fd_out(src.m_fd_out), m_env(src.m_env), m_pid(-1)
 {
 }
-
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -48,7 +21,6 @@ ACgi::ACgi( const ACgi & src )
 ACgi::~ACgi()
 {
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -59,6 +31,44 @@ ACgi::~ACgi()
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void	ACgi::_close_pipes(int const pipefd_out[2])
+{
+	close(pipefd_out[0]);
+	close(pipefd_out[1]);
+}
+
+void	ACgi::_close_pipes(int const pipefd_out[2], int const pipefd_in[2])
+{
+	close(pipefd_out[0]);
+	close(pipefd_in[0]);
+	close(pipefd_out[1]);
+	close(pipefd_in[1]);
+}
+
+void	ACgi::del_env(char ** env) const
+{
+	size_t	i = 0;
+
+	if (env)
+	{	
+		while (env[i])
+		{
+			delete [] env[i];
+			i++;
+		}
+		delete [] env;
+	}
+}
+
+void	ACgi::clear(void)
+{
+	if (m_pid >= 0)
+		kill(m_pid, 0);
+	if (m_fd_in >= 0)
+		close(m_fd_in);
+	if (m_fd_out >= 0)
+		close(m_fd_out);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
@@ -72,6 +82,11 @@ int		ACgi::getFdIn(void) const
 int		ACgi::getFdOut(void) const
 {
 	return (m_fd_out);
+}
+
+pid_t	ACgi::getPid(void) const
+{
+	return (m_pid);
 }
 
 char	**ACgi::getEnv(void) const
@@ -92,19 +107,5 @@ char	**ACgi::getEnv(void) const
 	return (env);
 }
 
-void	ACgi::del_env(char ** env) const
-{
-	size_t	i = 0;
-
-	if (env)
-	{	
-		while (env[i])
-		{
-			delete [] env[i];
-			i++;
-		}
-		delete [] env;
-	}
-}
 
 /* ************************************************************************** */

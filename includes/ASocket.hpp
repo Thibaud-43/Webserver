@@ -26,9 +26,10 @@ class ASocket
 		void			resetClock(void);
 		
 		static ASocket *	getSocket(int const & fd);
+		static ACgi *		getCgi(int const & fd);
 		static void			addSocket(ASocket * socket);
 		static void			removeSocket(ASocket * socket);
-
+		static void			clean(void);
 
 	protected:
 		fd_type			m_fd;

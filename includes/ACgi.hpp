@@ -6,7 +6,6 @@
 class ACgi
 {
 	public:
-		typedef std::set<ACgi const *>				list_type;
 		typedef std::map<std::string, std::string>	env_type;
 
 		ACgi();
@@ -15,24 +14,23 @@ class ACgi
 		
 		int				getFdIn(void) const;
 		int				getFdOut(void) const;
+		pid_t			getPid(void) const;
 		char			**getEnv(void) const;
 		void			del_env(char ** env) const;
+		void			clear(void);
 		virtual bool	start(void) = 0;
 		virtual bool	manage(int const & fd) const = 0;
-		
-		static ACgi const *	getCgi(int const & fd);
-		static ACgi const *	addCgi(ACgi const * cgi);
-		static void			removeCgi(ACgi const * cgi);
+		virtual bool	checkStatus(void) = 0;
 
 	protected:
 		int			m_fd_in;
 		int			m_fd_out;
+		pid_t		m_pid;
 		env_type	m_env;
 		
-		static	list_type	_list;
-		
 		virtual void	_setEnv(void) = 0;
-
+		void			_close_pipes(int const pipefd_out[2]);
+		void			_close_pipes(int const pipefd_out[2], int const pipefd_in[2]);
 };
 
 #endif /* ************************************************************ ACGI_H */
