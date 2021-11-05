@@ -1,20 +1,32 @@
 #include "Client.hpp"
 #include "Request.hpp"
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Client::Client(): ASocket(), m_buff("")
+Client::Client()
+: ASocket(), m_buff(std::string())
 {
+	memset(&m_remote_addr, 0, sizeof(m_remote_addr));
 }
 
-Client::Client( const Client & src ): ASocket(src), m_buff(src.m_buff)
+Client::Client( const Client & src )
+: ASocket(src), m_buff(src.m_buff)
 {
+	m_remote_addr.sin_addr.s_addr = src.m_remote_addr.sin_addr.s_addr;
+	m_remote_addr.sin_family = src.m_remote_addr.sin_family;
+	m_remote_addr.sin_port = src.m_remote_addr.sin_port;
+	memset(&m_remote_addr.sin_zero, 0, sizeof(m_remote_addr.sin_zero));
 }
 
-Client::Client( const int & fd, Server const * server): ASocket(fd, server), m_buff("")
+Client::Client( const int & fd, Server const * server, struct sockaddr_in const & remote_addr)
+: ASocket(fd, server), m_buff(std::string())
 {
-
+	m_remote_addr.sin_addr.s_addr = remote_addr.sin_addr.s_addr;
+	m_remote_addr.sin_family = remote_addr.sin_family;
+	m_remote_addr.sin_port = remote_addr.sin_port;
+	memset(&m_remote_addr.sin_zero, 0, sizeof(m_remote_addr.sin_zero));
 }
 
 /*

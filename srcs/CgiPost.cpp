@@ -55,6 +55,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 			return false;
 		m_unchunker(m_buff, m_body);
 	}
+	return (true);
 }
 
 bool	CgiPost::manage(int const & fd)
@@ -68,17 +69,72 @@ bool	CgiPost::manage(int const & fd)
 	{
 		// SI FD == fd_out -> construct & response -- send rep -- convert to client
 	}
+	return (true);
 }
 
 bool	CgiPost::start(void)
 {
-		
+	char	**envp;
+	char	**argv;
+	int		pipefd_out[2];
+	int		pipefd_in[2];
+
+	if (pipe(pipefd_out))
+		return (false);
+	m_fd_out = pipefd_out[0];
+	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
+	{
+		_close_pipes(pipefd_out);
+		return (false);
+	}
+	if (pipe(pipefd_in))
+	{
+		_close_pipes(pipefd_out);
+		return (false);
+	}
+		m_fd_in = pipefd_in[1];
+	if (fcntl(m_fd_in, F_SETFL, O_NONBLOCK) == -1)
+	{
+		_close_pipes(pipefd_out, pipefd_in);
+		return (false);
+	}
+	envp = getEnv();
+	argv = getArgs();
+	m_pid = fork();
+	if (m_pid < 0)
+	{
+		_close_pipes(pipefd_out, pipefd_in);
+		del_env(envp);
+		del_env(argv);
+		return (false);
+	}
+	else if (!m_pid)
+	{
+		if (dup2(pipefd_out[1], STDOUT_FILENO) < 0)
+			exit(1);
+		if (dup2(pipefd_in[0], STDIN_FILENO) < 0)
+			exit(1);
+		_close_pipes(pipefd_out, pipefd_in);
+		if (execve(argv[0], argv, envp) < 0)
+			exit(1);
+	}
+	else
+	{
+		FileDescriptor	f(m_fd_in);
+
+		f.epollCtlAdd_w();
+		close(pipefd_in[0]);
+		close(pipefd_out[1]);
+		del_env(envp);
+		del_env(argv);
+	}
+	return (true);
 }
 
 void	CgiPost::_setEnv(void)
 {
 	std::string const & 			method = m_header.at("method");
-	char *addr = inet_ntoa(m_client->getAddr().sin_addr); // A MODIFER
+	char *addr = inet_ntoa(m_remote_addr.sin_addr);
 
 	if (m_header.find("Authorization") != m_header.end())
 		m_env["AUTH_TYPE"] = m_header.at("Authorization");
@@ -100,7 +156,7 @@ void	CgiPost::_setEnv(void)
 	m_env["SCRIPT_FILENAME"] = m_path.getPath();
 	m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
 	m_env["REMOTE_ADDR"] = std::string(addr);
-	m_env["REDIRECT_STATUS"] = "200"; // PAS SUR
+	m_env["REDIRECT_STATUS"] = "200";
 }
 
 bool	CgiPost::checkStatus(void)
@@ -138,5 +194,19 @@ bool	CgiPost::checkStatus(void)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+char **	CgiPost::getArgs(void) const
+{
+	char 			**argv = new char*[3];
+	
+	argv[0] = new char[m_cgi_pass->size() + 1];
+	m_cgi_pass->copy(argv[0], m_cgi_pass->size());
+	argv[0][m_cgi_pass->size()] = 0;
+	argv[1] = new char[m_path.getPath().size() + 1];
+	m_path.getPath().copy(argv[1], m_path.getPath().size());
+	argv[1][m_path.size()] = 0;
+	argv[2] = 0;
+	return (argv);
+}
 
 /* ************************************************************************** */

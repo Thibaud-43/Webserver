@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+# include "Listener.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -109,7 +109,7 @@ void			Server::fillServer(Node* node)
 }
 
 
-int				Server::run(fd_type epoll)
+int				Server::run()
 {
 	int yes=1;
 	int fd;

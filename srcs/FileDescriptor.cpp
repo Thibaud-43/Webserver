@@ -16,11 +16,18 @@ void	FileDescriptor::setEpollFd(void)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-FileDescriptor::FileDescriptor(int const fd = -1): m_fd(fd)
+FileDescriptor::FileDescriptor(void)
+: m_fd(-1)
 {
 }
 
-FileDescriptor::FileDescriptor(const FileDescriptor & src): m_fd(src.m_fd)
+FileDescriptor::FileDescriptor(const FileDescriptor & src)
+: m_fd(src.m_fd)
+{
+}
+
+FileDescriptor::FileDescriptor(int const fd)
+: m_fd(fd)
 {
 }
 
@@ -36,13 +43,6 @@ FileDescriptor::~FileDescriptor()
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-
-FileDescriptor &				FileDescriptor::operator=( FileDescriptor const & rhs )
-{
-	if ( this != &rhs )
-
-	return *this;
-}
 
 /*
 ** --------------------------------- METHODS ----------------------------------

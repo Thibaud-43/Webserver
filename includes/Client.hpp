@@ -3,7 +3,7 @@
 
 # include "Headers.hpp"
 # include "ASocket.hpp"
-# include "Client.hpp"
+# include "Response.hpp"
 
 # define LIFETIME 60 // SECONDS
 
@@ -13,14 +13,15 @@ class Client: public ASocket
 	public:
 		Client();
 		Client(Client const & src);
-		Client(int const & fd, Server const * server);
+		Client(int const & fd, Server const * server, struct sockaddr_in const & remote_addr);
 		~Client();
 
 		bool			alive(void) const;
 		virtual bool	execute(ASocket ** ptr);
 
 	protected:
-		std::string		m_buff;
+		std::string			m_buff;
+		struct sockaddr_in	m_remote_addr;
 
 		bool			_send(Response const & rep) const;
 		bool			_send(std::string const & rep) const;

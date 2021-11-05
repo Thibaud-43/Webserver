@@ -9,11 +9,11 @@ class FileDescriptor
 	public:
 		typedef struct epoll_event		event_type;
 
-		FileDescriptor(int const fd = -1);
+		FileDescriptor(void);
 		FileDescriptor(FileDescriptor const & src);
+		FileDescriptor(int const fd);
 		~FileDescriptor();
 
-		FileDescriptor &		operator=( FileDescriptor const & rhs );
 		int						value(void) const;
 
 		static void				setEpollFd(void);

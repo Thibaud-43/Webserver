@@ -43,14 +43,16 @@ bool	CgiGet::execute(ASocket ** ptr)
 		*ptr = this;
 	// RCV to buffer
 	// UNCHUNK ?
+	return (true);
 }
 
-bool	CgiGet::manage(int const & fd) const
+bool	CgiGet::manage(int const & fd)
 {
 	if (fd == m_fd_out)
 	{
 		// SI FD == fd_out -> construct & response -- send rep -- convert to client
 	}
+	return (true);
 }
 
 bool	CgiGet::start(void)
@@ -93,8 +95,7 @@ bool	CgiGet::start(void)
 
 void	CgiGet::_setEnv(void)
 {
-	std::string const & 			method = m_header.at("method");
-	char *addr = inet_ntoa(m_client->getAddr().sin_addr); // A MODIFER
+	char *addr = inet_ntoa(m_remote_addr.sin_addr);
 
 	if (m_header.find("Authorization") != m_header.end())
 		m_env["AUTH_TYPE"] = m_header.at("Authorization");
@@ -109,7 +110,7 @@ void	CgiGet::_setEnv(void)
 	m_env["SCRIPT_FILENAME"] = m_path.getPath();
 	m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
 	m_env["REMOTE_ADDR"] = std::string(addr);
-	m_env["REDIRECT_STATUS"] = "200"; // PAS SUR
+	m_env["REDIRECT_STATUS"] = "200";
 }
 
 bool	CgiGet::checkStatus(void)
@@ -159,6 +160,7 @@ char **	CgiGet::getArgs(void) const
 	m_path.getPath().copy(argv[1], m_path.getPath().size());
 	argv[1][m_path.size()] = 0;
 	argv[2] = 0;
+	return (argv);
 }
 
 /* ************************************************************************** */

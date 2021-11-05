@@ -4,7 +4,6 @@
 # include "Headers.hpp"
 # include "Location.hpp"
 # include "Node.hpp"
-# include "Listener.hpp"
 
 class Server
 {
@@ -18,7 +17,7 @@ class Server
 
 		Server &	operator=( Server const & rhs );
 
-		int		run(fd_type epoll);
+		int		run();
 		void	fillServer(Node* node);
 		void	fillLocation(Node* node);
 

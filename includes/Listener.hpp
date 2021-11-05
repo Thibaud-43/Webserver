@@ -3,11 +3,10 @@
 
 # include "Headers.hpp"
 # include "ASocket.hpp"
-# include "Client.hpp"
+# include "Server.hpp"
 
 class Listener: public ASocket
 {
-
 	public:
 		Listener();
 		Listener( Listener const & src );
@@ -25,8 +24,6 @@ class Listener: public ASocket
 		static list_type				_list;
 
         address_type					m_addr;
-
-		Listener &						operator=( Listener const & rhs );
 };
 
 #endif /* ******************************************************** LISTENER_H */

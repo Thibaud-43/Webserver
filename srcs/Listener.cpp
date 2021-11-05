@@ -1,5 +1,5 @@
-
 #include "Listener.hpp"
+# include "Client.hpp"
 
 Listener::list_type Listener::_list = list_type();
 
@@ -9,11 +9,15 @@ Listener::list_type Listener::_list = list_type();
 
 Listener::Listener()
 {
+	memset(&m_addr, 0, sizeof(m_addr));
 }
 
 Listener::Listener( const Listener & src ): ASocket(src)
 {
-    //_list = src._list;
+	m_addr.sin_addr.s_addr = src.m_addr.sin_addr.s_addr;
+	m_addr.sin_family = src.m_addr.sin_family;
+	m_addr.sin_port = src.m_addr.sin_port;
+	memset(&m_addr.sin_zero, 0, sizeof(m_addr.sin_zero));
 }
 
 Listener::Listener(int const & fd, Server const * server, port_type const & port, ip_type const & ip): ASocket(fd, server)
@@ -24,7 +28,6 @@ Listener::Listener(int const & fd, Server const * server, port_type const & port
     _listen();
     m_fd.epollCtlAdd();
 }
-
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -39,16 +42,6 @@ Listener::~Listener()
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-
-Listener &				Listener::operator=( Listener const & rhs )
-{
-	if ( this != &rhs )
-	{
-        ASocket::operator=(rhs);
-		this->_list = rhs._list;
-	}
-	return *this;
-}
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -79,18 +72,18 @@ bool	Listener::execute(ASocket ** ptr)
 			else 
 			{
 				perror("accept()");
-				return ;
+				return (false);
 			}
 		}
 		else
 		{
-            Client	*client = new Client(fd, m_server);
+            Client	*client = new Client(fd, m_server, their_addr);
 			if (ptr)
 				*ptr = client;
             ASocket::addSocket(client);
         }
-
 	}
+	return (true);
 }
 
 

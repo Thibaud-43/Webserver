@@ -96,7 +96,7 @@ Location::file_t const *	Get::_cgiPass(void) const
 
 	for (Location::cgi_t::const_iterator it = cgi.begin() ; it != cgi.end(); it++)
 	{
-		if (it->first.size() > m_path.size())
+		if (it->first.size() > static_cast<size_t>(m_path.size()))
 			break ;
 		else if (m_path.getPath().find(it->first, m_path.size() - it->first.size()) != std::string::npos)
 			return (&(it->second));

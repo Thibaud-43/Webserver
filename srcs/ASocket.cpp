@@ -47,7 +47,7 @@ void	ASocket::clean(void)
 	{
 		if (!it->second->alive())
 		{
-			if (cgi = dynamic_cast<ACgi *>(it->second))
+			if ((cgi = dynamic_cast<ACgi *>(it->second)))
 				cgi->clear();
 			del = it;
 			it--;
@@ -73,7 +73,7 @@ ACgi *	ASocket::getCgi(int const & fd)
 
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
-		if (cgi = dynamic_cast<ACgi *>(it->second))
+		if ((cgi = dynamic_cast<ACgi *>(it->second)) && (fd == cgi->getFdIn() || fd == cgi->getFdOut()))
 			return (cgi);
 	}
 	return (NULL);

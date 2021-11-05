@@ -6,7 +6,7 @@
 bool	Request::_decrement(size_t const & n)
 {
 	if (m_header.find("Content-Length") == m_header.end())
-		return ;
+		return true;
 	size_t   s_str;
     std::istringstream(m_header["Content-Length"]) >> s_str;
 	s_str -= n;

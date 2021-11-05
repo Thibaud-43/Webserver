@@ -203,7 +203,7 @@ void							Cluster::_runServers(void)
 {
 	for (std::vector<Server*>::iterator i = m_servers.begin(); i != m_servers.end(); i++)
 	{
-		(*(*i)).run(_epoll_fd);
+		(*(*i)).run();
 	}
 }
 

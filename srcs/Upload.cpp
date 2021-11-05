@@ -5,17 +5,17 @@
 */
 
 Upload::Upload()
-: Request(), m_stream(std::fstream())
+: Request()
 {
 }
 
 Upload::Upload(Upload const & src)
-: Request(src), m_stream(std::fstream())
+: Request(src)
 {
 }
 
 Upload::Upload(Request const & src)
-: Request(src), m_stream(std::fstream())
+: Request(src)
 {
 }
 
@@ -40,7 +40,7 @@ bool	Upload::execute(ASocket ** ptr)
 		*ptr = this;
 	if (!m_stream.is_open())
 	{
-		m_stream.open(m_path.getPath(), std::fstream::out | std::fstream::trunc);
+		m_stream.open(m_path.getPath().data(), std::fstream::out | std::fstream::trunc);
 		if (!m_stream.is_open())
 			return (false);
 	}
@@ -48,6 +48,7 @@ bool	Upload::execute(ASocket ** ptr)
 	// buff >> file
 	// clear buff
 	// END ? close & convert<Client>
+	return (true); // ?
 }
 
 /*

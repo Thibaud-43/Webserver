@@ -2,7 +2,6 @@
 # define RESPONSE_HPP
 
 # include "Headers.hpp"
-# include "Client.hpp"
 # include "Location.hpp"
 # include "File.hpp"
 

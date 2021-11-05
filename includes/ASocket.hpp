@@ -5,6 +5,8 @@
 # include "FileDescriptor.hpp"
 # include "Server.hpp"
 
+class ACgi;
+
 class ASocket
 {
 	public:
@@ -18,7 +20,7 @@ class ASocket
 		ASocket();
 		ASocket(ASocket const & src);
 		ASocket(int const & fd, Server const * server);
-		~ASocket();
+		virtual ~ASocket();
 		
 		int				getFd(void) const;
 		virtual bool	execute(ASocket **ptr) = 0;
