@@ -1,21 +1,22 @@
 #include "Post.hpp"
 
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
 Post::Post()
-: Request(), m_cgi_pass(_cgiPass()) 
+: Request(), m_cgi_pass(_cgiPass()), m_body(std::string())
 {
 }
 
 Post::Post(Post const & src)
-: Request(src), m_cgi_pass(_cgiPass())
+: Request(src), m_cgi_pass(_cgiPass()), m_body(src.m_body)
 {
 }
 
 Post::Post(Request const & src)
-: Request(src), m_cgi_pass(_cgiPass())
+: Request(src), m_cgi_pass(_cgiPass()), m_body(std::string())
 {
 }
 
@@ -58,14 +59,24 @@ bool	Post::_fillBuffer(void)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
-			if (m_buff.size() >= m_location->getBodySize())
+			if (!_decrement(m_buff.size()))
+			{
+				_send(Response::create_error("413", &m_server->getParams()));
+				return (false);		
+			}
+			else if (m_buff.size() >= m_location->getBodySize())
 			{
 				_send(Response::create_error("413", NULL));
 				return false;
 			}
 		}
 		else
-		{ 
+		{
+			if (!_decrement(m_buff.size()))
+			{
+				_send(Response::create_error("413", &m_server->getParams()));
+				return (false);		
+			}
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
 			return true;

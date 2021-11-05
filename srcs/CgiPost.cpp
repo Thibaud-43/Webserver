@@ -39,8 +39,22 @@ bool	CgiPost::execute(ASocket ** ptr)
 {
 	if (ptr)
 		*ptr = this;
-	// RCV to buffer
-	// UNCHUNK ?
+	if (m_header.find("Content-Length") != m_header.end())
+	{
+		if (!_fillBuffer())
+			return false;
+		if (m_header["Content-Length"] == "0")
+		{
+			m_body = m_buff;
+			m_buff.clear();
+		}
+	}
+	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
+	{
+		if (!_fillBuffer())
+			return false;
+		m_unchunker(m_buff, m_body);
+	}
 }
 
 bool	CgiPost::manage(int const & fd)

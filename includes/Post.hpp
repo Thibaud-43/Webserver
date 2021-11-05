@@ -3,6 +3,7 @@
 
 # include "Headers.hpp"
 # include "Request.hpp"
+# include "Unchunker.hpp"
 
 class Post: public virtual Request
 {
@@ -18,6 +19,8 @@ class Post: public virtual Request
 	protected:
 		Location::file_t const *	m_cgi_pass; 
 		bool						_fillBuffer(void);
+		std::string					m_body;
+		Unchunker					m_unchunker;
 	
 	private:
 		bool						_check(void) const;
