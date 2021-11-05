@@ -35,6 +35,7 @@ class Request: public Client
 				*ptr = elem;
 				ASocket::addSocket(elem);
 		}
+		bool		_decrement(size_t const & n);
 
 	private:
 		void		_bufferToRequestLine(void);
@@ -46,7 +47,6 @@ class Request: public Client
 		bool		_checkHost(void);
 		void		_linkLocation(void);
 		void		_linkPath(void);
-
 };
 
 #endif /* ********************************************************* REQUEST_H */

@@ -15,8 +15,9 @@ class Post: public virtual Request
 
 		virtual bool	execute(ASocket ** ptr);
 
-	private:
-		bool	_fillBuffer(void);
+	protected:
+		std::string	m_body;
+		bool		_fillBuffer(void);
 
 };
 

@@ -3,6 +3,21 @@
 #include "Get.hpp"
 #include "Post.hpp"
 
+bool	Request::_decrement(size_t const & n)
+{
+	if (m_header.find("Content-Length") == m_header.end())
+		return ;
+	size_t   s_str;
+    std::istringstream(m_header["Content-Length"]) >> s_str;
+	s_str -= n;
+	if (s_str < 0)
+		return false;
+	std::stringstream ss;
+	ss << s_str;
+	m_header["Content-Length"] = ss.str();
+	return true;
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -154,6 +169,11 @@ bool	Request::_checkHeader(void)
 		_send(Response::create_error("400", &m_server->getParams()));
 		return (false);
 	}
+	if (!_decrement(m_buff.size()))
+	{
+		_send(Response::create_error("413", &m_server->getParams()));
+		return (false);		
+	}
 	return (true);
 }
 
@@ -197,7 +217,8 @@ bool	Request::execute(ASocket **ptr)
 	_bufferToRequestLine();
 	_bufferToHeader();
 	_printHeader();
-	_checkHeader();
+	if(!_checkHeader())
+		return false;
 	method = m_header["method"];
 	if (method == "GET")
 		_convert<Get>(ptr);
