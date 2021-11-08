@@ -144,7 +144,10 @@ Response::~Response()
 Response &				Response::operator=( Response const & rhs )
 {
 	if ( this != &rhs )
+	{
 		m_header = rhs.m_header;
+		m_header = rhs.m_body;
+	}
 	return *this;
 }
 
