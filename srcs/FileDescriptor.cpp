@@ -17,6 +17,20 @@ int const & FileDescriptor::getEpollFd(void)
     return _epoll_fd;
 }
 
+void	FileDescriptor::epollCtlDel(int const & fd)
+{
+	FileDescriptor::event_type	event;
+
+    memset(&event, 0, sizeof(event));
+    event.data.fd = fd;
+    event.events = EPOLLIN | EPOLLET;
+    if(epoll_ctl(fd, EPOLL_CTL_DEL, event.data.fd, &event))
+    {
+        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        close(_epoll_fd);
+    }
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */

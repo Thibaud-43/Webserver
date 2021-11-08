@@ -20,7 +20,13 @@ class CgiGet: public ACgi, public Get
 		bool			checkStatus(void);
 
 	private:
-		void	_setEnv(void);
+		bool			_fillBuffer(void);
+		bool			_handle(void);
+		void			_bufferToHeader(std::map<std::string, std::string> & header);
+		void			_bufferToHeaderLine(std::map<std::string, std::string> & header, std::string & token);
+		void			_checkStatus(std::map<std::string, std::string> &	header, std::string & status);
+
+		void			_setEnv(void);
 
 };
 
