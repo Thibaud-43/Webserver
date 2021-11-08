@@ -33,6 +33,7 @@ class Request: public Client
 
 			if (ptr)
 				*ptr = elem;
+			ASocket::removeSocket(this);
 			ASocket::addSocket(elem);
 		}
 		bool		_decrement(size_t const & n);

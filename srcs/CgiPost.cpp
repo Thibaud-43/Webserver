@@ -60,16 +60,21 @@ bool	CgiPost::execute(ASocket ** ptr)
 
 bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 {
+	if (ptr)
+		*ptr = this;
 	if (fd == m_fd_in)
 	{
 		write(fd, m_body.data(), m_body.size());
 		m_body.clear();
 	}
-	else
+	else if (fd == m_fd_out)
 	{
-		// SI FD == fd_out -> construct & response -- send rep -- convert to client
+		// SI FD == fd_out -> construct & response -- send rep
+		*ptr = NULL;
+		_convert<Client>(NULL);
+		return (true);
 	}
-	return (true);
+	return (false);
 }
 
 bool	CgiPost::start(void)
