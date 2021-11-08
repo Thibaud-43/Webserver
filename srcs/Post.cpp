@@ -97,6 +97,29 @@ bool	Post::_check(void) const
 	return (false);
 }
 
+bool	Post::_start_cgi(ASocket ** ptr)
+{
+	File	f(*m_cgi_pass);
+	CgiPost	*cgi;
+	
+	if (!f.is_executable())
+	{
+		_send(Response::create_error("500", m_location));
+		return (false);
+	}
+	_convert<CgiPost>(ptr);
+	cgi = dynamic_cast<CgiPost *>(*ptr);
+	if (!cgi->start())
+		return (false);
+	return ((*ptr)->execute(ptr));
+}
+
+bool	Post::_upload(ASocket ** ptr)
+{
+	_convert<Upload>(ptr);
+	return ((*ptr)->execute(ptr));
+}
+
 bool	Post::execute(ASocket ** ptr)
 {
 	if (ptr)
@@ -104,21 +127,14 @@ bool	Post::execute(ASocket ** ptr)
 	if (!_check())
 		return (false);
 	if (m_cgi_pass)
-	{
-		_convert<CgiPost>(ptr);
-		return ((*ptr)->execute(ptr));
-	}
+		return (_start_cgi(ptr));
 	else if (m_location->getUpload())
-	{
-		_convert<Upload>(ptr);
-		return ((*ptr)->execute(ptr));
-	}
+		return (_upload(ptr));
 	else 
 	{
 		_send(Response::create_error("403", m_location));
 		return (false);
 	}
-	return (true);
 }
 
 Location::file_t const *	Post::_cgiPass(void) const

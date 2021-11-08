@@ -143,13 +143,10 @@ void	CgiPost::_setEnv(void)
 
 	if (m_header.find("Authorization") != m_header.end())
 		m_env["AUTH_TYPE"] = m_header.at("Authorization");
-	if (method == "POST")
-	{
-		if (m_header.find("Content-Length") != m_header.end())
-			m_env["CONTENT_LENGTH"] = m_header.at("Content-Length");
-		if (m_header.find("Content-Type") != m_header.end())
-			m_env["CONTENT_TYPE"] = m_header.at("Content-Type");
-	}
+	if (m_header.find("Content-Length") != m_header.end())
+		m_env["CONTENT_LENGTH"] = m_header.at("Content-Length");
+	if (m_header.find("Content-Type") != m_header.end())
+		m_env["CONTENT_TYPE"] = m_header.at("Content-Type");
 	m_env["GATEWAY_INTERFACE"] = CGI_VERSION;
 	m_env["SERVER_NAME"] = m_header.at("Host");
 	m_env["SERVER_PORT"] = m_server->getPort();

@@ -25,6 +25,8 @@ class Post: public virtual Request
 	private:
 		bool						_check(void) const;
 		Location::file_t const *	_cgiPass(void) const;
+		bool						_start_cgi(ASocket ** ptr);
+		bool						_upload(ASocket ** ptr);
 
 };
 
