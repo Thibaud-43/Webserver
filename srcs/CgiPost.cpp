@@ -38,6 +38,131 @@ CgiPost::~CgiPost()
 ** --------------------------------- METHODS ----------------------------------
 */
 
+
+void			CgiPost::_checkStatus(std::map<std::string, std::string> &	header, std::string & status)
+{
+	std::string delimiter = " ";
+	if (header.find("Status") != header.end())
+		status = header["Status"].substr(0, header["Status"].find(delimiter));
+	else
+		status = "200";
+}
+
+void			CgiPost::_bufferToHeaderLine(std::map<std::string, std::string> & header, std::string & token)
+{
+	std::string delimiter = ": ";
+	size_t		pos = token.find(delimiter);
+	header.insert(std::pair<std::string, std::string>(token.substr(0, pos), token.substr(pos + delimiter.length(), token.length() - 1)));
+}
+
+void			CgiPost::_bufferToHeader(std::map<std::string, std::string> & header)
+{
+	std::string delimiter = "\r\n";
+	std::string delimiter2 = "\r\n\r\n";
+	size_t pos = 0;
+	std::string	token;
+
+	if (m_buff == delimiter)
+	{
+		m_buff = "";
+		return ;
+	}
+	while ((pos = m_buff.find(delimiter)) != std::string::npos && pos != m_buff.find(delimiter2)) 
+	{
+		token = m_buff.substr(0, pos);
+		_bufferToHeaderLine(header, token);
+		m_buff.erase(0, pos + delimiter.length());
+	}
+	if (m_buff.find(delimiter2) != std::string::npos)
+	{
+		token = m_buff.substr(0, pos);
+		_bufferToHeaderLine(header, token);
+		m_buff.erase(0, pos + delimiter2.length());
+	}
+	header.insert(std::pair<std::string, std::string>("body", m_buff));
+	m_buff.clear();
+}
+
+bool	CgiPost::_handle(void)
+{
+	std::map<std::string, std::string>	header;
+	Response							rep;
+	std::string							status;
+
+	_bufferToHeader(header);
+	_checkStatus(header, status);
+	if (header["body"].empty() && status != "200" && status != "302")
+	{
+		_send(Response::create_error(status, m_location));
+		return false;
+	}
+	else if (header["body"].empty() && status == "302")
+	{
+		if (!_send(Response::create_redirect("302", header["Location"])))
+			return false;
+		close(m_fd_out);
+		m_fd_out = -1;
+		return true;
+	}
+	else
+	{
+		rep.start_header(status);
+		for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); it++)
+		{
+			if (it->first != "body")
+				rep.append_to_header(it->first + ": " + it->second);
+			else
+				rep.append_to_body(it->second);
+		}
+		rep.add_content_length();
+		_send(rep);
+		close(m_fd_out);
+		m_fd_out = -1;
+		return (true);
+	}
+	return (false);
+}
+
+bool	CgiPost::_fillBuffer(void)
+{
+	size_t              bytes_read;
+	char                read_buffer[READ_SIZE + 1];
+
+	for (;;)
+	{
+		memset(read_buffer, 0, READ_SIZE);
+		bytes_read = read(m_fd_out, read_buffer, READ_SIZE);
+		std::cout << "Bytes read: " << bytes_read << std::endl;
+		if (bytes_read < 0)
+		{
+			close(getFd());
+			return false;
+		}
+		else if (bytes_read == 0)
+		{
+			return true;
+		}
+		else if (bytes_read == READ_SIZE)
+		{
+			read_buffer[bytes_read] = 0;
+			m_buff += read_buffer;
+			if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
+			{
+				_send(Response::create_error("431", NULL));
+				return false;
+			}
+		}
+		else
+		{ 
+			read_buffer[bytes_read] = 0;
+			m_buff += read_buffer;
+			return true;
+		}
+
+	}
+}
+
+
 bool	CgiPost::execute(ASocket ** ptr)
 {
 	if (ptr)
@@ -73,7 +198,10 @@ bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 	}
 	else if (fd == m_fd_out)
 	{
-		// SI FD == fd_out -> construct & response -- send rep
+		if (!_fillBuffer())
+			return false;
+		if (!_handle())
+			return false;
 		*ptr = NULL;
 		_convert<Client>(NULL);
 		return (true);
