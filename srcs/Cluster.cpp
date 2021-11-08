@@ -232,7 +232,7 @@ void							Cluster::_epollExecute(void)
 		}
 		else if ((cgi = ASocket::getCgi(m_events[i].data.fd)))
 		{
-			cgi->manage(m_events[i].data.fd);
+			cgi->manage(&cgi, m_events[i].data.fd);
 		}
 		else
 			std::cerr << "Y'A UN SOUCIS LA\n";

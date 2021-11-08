@@ -58,7 +58,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 	return (true);
 }
 
-bool	CgiPost::manage(int const & fd)
+bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 {
 	if (fd == m_fd_in)
 	{

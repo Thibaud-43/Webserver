@@ -3,6 +3,8 @@
 
 # include "Headers.hpp"
 
+class ASocket;
+
 class ACgi
 {
 	public:
@@ -19,7 +21,7 @@ class ACgi
 		void			del_env(char ** env) const;
 		void			clear(void);
 		virtual bool	start(void) = 0;
-		virtual bool	manage(int const & fd) = 0;
+		virtual bool	manage(ACgi ** ptr, int const & fd) = 0;
 		virtual bool	checkStatus(void) = 0;
 
 	protected:

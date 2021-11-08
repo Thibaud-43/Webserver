@@ -46,7 +46,7 @@ bool	CgiGet::execute(ASocket ** ptr)
 	return (true);
 }
 
-bool	CgiGet::manage(int const & fd)
+bool	CgiGet::manage(ACgi **ptr, int const & fd)
 {
 	if (fd == m_fd_out)
 	{

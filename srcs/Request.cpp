@@ -224,7 +224,7 @@ bool	Request::execute(ASocket **ptr)
 		_convert<Get>(ptr);
 	else if (method == "POST")
 		_convert<Post>(ptr);
-	else
+	else if (method == "DELETE")
 		_convert<Delete>(ptr);
 	return (*ptr)->execute(ptr);
 }
