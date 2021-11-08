@@ -133,7 +133,6 @@ bool	CgiGet::_fillBuffer(void)
 	{
 		memset(read_buffer, 0, READ_SIZE);
 		bytes_read = read(m_fd_out, read_buffer, READ_SIZE);
-		std::cout << "Bytes read: " << bytes_read << std::endl;
 		if (bytes_read < 0)
 		{
 			close(getFd());
@@ -175,7 +174,6 @@ bool	CgiGet::manage(ACgi **ptr, int const & fd)
 	(void)ptr;
 	if (fd == m_fd_out)
 	{
-		// SI FD == fd_out -> construct & response -- send rep
 		if (!_fillBuffer())
 			return false;
 		if (!_handle())
@@ -241,7 +239,7 @@ void	CgiGet::_setEnv(void)
 	m_env["REQUEST_METHOD"] = "POST";
 	m_env["PATH_INFO"] = m_header.at("uri");
 	m_env["SCRIPT_FILENAME"] = m_path.getPath();
-	m_env["SCRIPT_NAME"] = m_header.at("Host"); // PAS SUR
+	m_env["SCRIPT_NAME"] = m_header.at("Host");
 	m_env["REMOTE_ADDR"] = std::string(addr);
 	m_env["REDIRECT_STATUS"] = "200";
 }
