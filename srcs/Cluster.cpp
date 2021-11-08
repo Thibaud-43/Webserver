@@ -221,11 +221,13 @@ void							Cluster::_epollExecute(void)
 		if (socket)
 		{
 			socket->resetClock();
-			socket->execute(&socket);
+			if (socket->execute(&socket))
+				ASocket::removeSocket(socket);
 		}
 		else if ((cgi = ASocket::getCgi(m_events[i].data.fd)))
 		{
-			cgi->manage(&cgi, m_events[i].data.fd);
+			if (cgi->manage(&cgi, m_events[i].data.fd))
+				ASocket::removeCgi(cgi);
 		}
 		else
 			std::cerr << "Y'A UN SOUCIS LA\n";

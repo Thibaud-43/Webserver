@@ -31,6 +31,7 @@ class ASocket
 		static ACgi *		getCgi(int const & fd);
 		static void			addSocket(ASocket * socket);
 		static void			removeSocket(ASocket * socket);
+		static void			removeCgi(ACgi * cgi);
 		static void			clean(void);
 
 	protected:

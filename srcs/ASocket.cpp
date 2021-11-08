@@ -38,6 +38,22 @@ void	ASocket::removeSocket(ASocket * socket)
 	}
 }
 
+void	ASocket::removeCgi(ACgi * cgi)
+{
+	ASocket							*socket;
+	ASocket::list_type::iterator	it;
+
+	if (!(socket = dynamic_cast<ASocket *>(cgi)))
+		return ;
+	it = _list.find(socket->getFd());
+	if (it != _list.end())
+	{
+		close(it->second->getFd());
+		delete it->second;
+		_list.erase(it);
+	}
+}
+
 void	ASocket::clean(void)
 {
 	ACgi				*cgi = NULL;
