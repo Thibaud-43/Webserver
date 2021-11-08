@@ -23,17 +23,17 @@ bool	Request::_decrement(size_t const & n)
 */
 
 Request::Request()
-: Client(), m_server(NULL), m_location(NULL), m_path(std::string()), m_header(header_type())
+: Client(),  m_location(NULL), m_path(std::string()), m_header(header_type())
 {
 }
 
 Request::Request(const Request & src)
-: Client(src), m_server(src.m_server), m_location(src.m_location), m_path(src.m_path), m_header(src.m_header)
+: Client(src), m_location(src.m_location), m_path(src.m_path), m_header(src.m_header)
 {
 }
 
 Request::Request(const Client & src)
-: Client(src), m_server(NULL), m_location(NULL), m_path(std::string()), m_header(header_type())
+: Client(src), m_location(NULL), m_path(std::string()), m_header(header_type())
 {
 }
 
@@ -211,9 +211,13 @@ bool	Request::execute(ASocket **ptr)
 {
 	std::string		method = "";
 	if (!_fillBuffer())
+	{
 		return false;
+	}
 	if (m_buff.find("\r\n\r\n") == std::string::npos)
+	{
 		return true;
+	}
 	_bufferToRequestLine();
 	_bufferToHeader();
 	_printHeader();
