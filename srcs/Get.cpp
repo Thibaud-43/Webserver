@@ -77,10 +77,7 @@ bool	Get::_manageDir(ASocket ** ptr)
 	if (*(m_path.getPath().end() - 1) != '/')
 		rep = Response::create_redirect("302", m_header.at("uri") + "/");
 	else if (m_location->getAutoindex())
-	{
 		rep = Response::create_index(m_path.getPath(), m_location, m_header.at("uri"));
-		std::cout << rep.getContent();
-	}
 	else
 	{
 		rep = Response::create_error("403", m_location);
