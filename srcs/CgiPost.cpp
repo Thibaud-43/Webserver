@@ -60,6 +60,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 
 bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 {
+	(void)ptr;
 	if (fd == m_fd_in)
 	{
 		write(fd, m_body.data(), m_body.size());

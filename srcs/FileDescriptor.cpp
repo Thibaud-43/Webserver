@@ -12,6 +12,11 @@ void	FileDescriptor::setEpollFd(void)
 	}
 }
 
+int const & FileDescriptor::getEpollFd(void)
+{
+    return _epoll_fd;
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -99,6 +104,7 @@ void			FileDescriptor::makeFdNonBlocking(void)
 		perror("fcntl");
 		exit(1);
 	}
+    
 }
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

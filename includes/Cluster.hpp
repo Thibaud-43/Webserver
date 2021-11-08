@@ -29,8 +29,6 @@ class Cluster
 		Tree							m_tree;
 		event_type						m_events[MAX_EVENTS];
 		int								m_eventCount;
-		
-		static fd_type					_epoll_fd;
 
 		void							_inheritDefaultLocation(Server &server, Location &location);
 		void							_parseServerObject(void);

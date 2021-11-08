@@ -1,13 +1,6 @@
 #include "Cluster.hpp"
 #include "ACgi.hpp"
 
-Cluster::fd_type Cluster::_epoll_fd = -1;
-
-Cluster::fd_type	Cluster::getEpollFd(void)
-{
-	return _epoll_fd;
-}
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -209,11 +202,11 @@ void							Cluster::_runServers(void)
 
 void							Cluster::_epollWait(void)
 {
-	m_eventCount = epoll_wait(_epoll_fd, m_events, MAX_EVENTS, 0);
+	m_eventCount = epoll_wait(FileDescriptor::getEpollFd(), m_events, MAX_EVENTS, 0);
 	if (m_eventCount == -1)
 	{
-		std::cerr <<  "Failed epoll_wait\n";
-		return ;
+		perror("failed epoll_wait");
+		exit(0) ;
 	}
 }
 
@@ -239,97 +232,9 @@ void							Cluster::_epollExecute(void)
 	}
 }
 
-/*void							Cluster::_epollExecuteOnCgiConnection(fd_type & eventFd)
-{
-	size_t              bytes_read;
-	char                read_buffer[READ_SIZE + 1];
-	size_t              read_buffer_size = sizeof(read_buffer);
-	std::string         buff = "";
-	Cgi const 			*cgi = Cgi::getCgiFromFd(eventFd);
-
-	if (eventFd == cgi->getFd_in())
-	{
-		write(eventFd, cgi->getBody().c_str(), cgi->getBody().size());
-		ASocket::epollCtlDel_w(eventFd);
-		close(eventFd);
-	}
-	else
-	{
-		for (;;)
-		{
-			memset(read_buffer, 0, read_buffer_size);
-			bytes_read = read(eventFd, read_buffer, read_buffer_size);
-			if (bytes_read < 0)
-			{
-				Cgi::removeCgi(*cgi);
-				close(eventFd);
-				break;
-			}
-			else if (bytes_read == read_buffer_size)
-			{
-				read_buffer[bytes_read] = 0;
-				buff += read_buffer;
-			}
-			else
-			{ 
-				read_buffer[bytes_read] = 0;
-
-				buff += read_buffer;
-
-				if (cgi && !cgi->handle(buff))
-				{
-					Cgi::removeCgi(*cgi);
-				}
-				break;
-			}
-		}
-	}
-}
-
-void							Cluster::_epollExecuteOnClientConnection(fd_type & eventFd)
-{
-	size_t              bytes_read;
-	char                read_buffer[READ_SIZE + 1];
-	size_t              read_buffer_size = sizeof(read_buffer);
-	std::string         buff = "";
-	Client const 		*client = Client::getClientFromFd(eventFd);
-	Request				*request = Request::getRequestFromClient(*client);
-
-	for (;;)
-	{
-		memset(read_buffer, 0, read_buffer_size);
-		bytes_read = recv(eventFd, read_buffer, read_buffer_size, 0);
-		if (bytes_read < 0)
-		{
-			Request::removeRequest(*request);
-			close(eventFd);
-			break;
-		}
-		else if (bytes_read == read_buffer_size)
-		{
-			read_buffer[bytes_read] = 0;
-			buff += read_buffer;
-		}
-		else
-		{ 
-			read_buffer[bytes_read] = 0;
-
-			buff += read_buffer;
-
-			if (!request && buff != "\r\n")
-				request = Request::createRequest(*client);
-			if (request && !request->manage(buff, m_servers))
-			{
-				Request::removeRequest(*request);
-			}
-			break;
-		}
-	}
-}*/
-
 void							Cluster::_closeEpoll(void)
 {
-	if(close(_epoll_fd))
+	if(close(FileDescriptor::getEpollFd()))
 	{
 		std::cerr << "Failed to close epoll file descriptor\n" << std::endl;
 		return ;

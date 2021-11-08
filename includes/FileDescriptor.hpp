@@ -17,6 +17,7 @@ class FileDescriptor
 		int						value(void) const;
 
 		static void				setEpollFd(void);
+		static int const & 		getEpollFd(void);
 		
 		void					epollCtlAdd(void);
 		void					epollCtlAdd_w(void);
