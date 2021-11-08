@@ -108,7 +108,6 @@ ASocket::ASocket()
 ASocket::ASocket( const ASocket & src )
 : m_fd(src.m_fd), m_server(src.m_server), m_clock(src.m_clock)
 {
-
 }
 
 ASocket::ASocket( const int & fd, Server const * server)

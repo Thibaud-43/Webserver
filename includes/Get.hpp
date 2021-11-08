@@ -4,7 +4,7 @@
 # include "Headers.hpp"
 # include "Request.hpp"
 
-class Get: public virtual Request
+class Get: public Request
 {
 	public:
 		Get();

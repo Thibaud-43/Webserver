@@ -5,7 +5,7 @@
 # include "ACgi.hpp"
 # include "Get.hpp"
 
-class CgiGet: public ACgi, public Get
+class CgiGet: public Get, public ACgi
 {
 	public:
 		CgiGet();

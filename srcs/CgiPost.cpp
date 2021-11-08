@@ -7,16 +7,19 @@
 CgiPost::CgiPost()
 : ACgi(), Post()
 {
+	_setEnv();
 }
 
 CgiPost::CgiPost(const CgiPost & src)
 : ACgi(src), Post(src)
 {
+	_setEnv();
 }
 
 CgiPost::CgiPost(const Post & src)
 : ACgi(), Post(src)
 {
+	_setEnv();
 }
 
 /*
@@ -152,11 +155,12 @@ void	CgiPost::_setEnv(void)
 	m_env["SERVER_PORT"] = m_server->getPort();
 	m_env["SERVER_PROTOCOL"] = PROTOCOL;
 	m_env["SERVER_SOFTWARE"] = SERV_NAME;
-	m_env["QUERY_STRING"] = m_header.at("query_string");
-	m_env["REQUEST_METHOD"] = m_header.at("method");
+	if (m_header.find("query_string") != m_header.end())
+		m_env["QUERY_STRING"] = m_header.at("query_string");
+	m_env["REQUEST_METHOD"] = "POST";
 	m_env["PATH_INFO"] = m_header.at("uri");
-	m_env["SCRIPT_FILENAME"] = m_path.getPath();
-	m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
+	//m_env["SCRIPT_FILENAME"] = "/";
+	m_env["SCRIPT_NAME"] = m_path.getPath();
 	m_env["REMOTE_ADDR"] = std::string(addr);
 	m_env["REDIRECT_STATUS"] = "200";
 }

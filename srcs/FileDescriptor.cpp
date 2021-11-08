@@ -77,7 +77,7 @@ void	FileDescriptor::epollCtlAdd(void)
     event.events = EPOLLIN | EPOLLET;
     if(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event))
     {
-        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        std::cerr << "Failed to add read file descriptor " << m_fd << " to epoll\n";
         close(_epoll_fd);
     }
 }
@@ -91,7 +91,7 @@ void	FileDescriptor::epollCtlAdd_w(void)
     event.events = EPOLLOUT | EPOLLET;
     if(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event))
     {
-        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        std::cerr << "Failed to add write file descriptor " << m_fd << " to epoll\n";
         close(_epoll_fd);
     }
 }
@@ -106,7 +106,7 @@ void	FileDescriptor::epollCtlDel(void)
     event.events = EPOLLIN | EPOLLET;
     if(epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event))
     {
-        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        std::cerr << "Failed to add file descriptor to epoll\n";
         close(_epoll_fd);
     }
 }

@@ -5,7 +5,7 @@
 # include "Request.hpp"
 # include "Unchunker.hpp"
 
-class Post: public virtual Request
+class Post: public Request
 {
 
 	public:
