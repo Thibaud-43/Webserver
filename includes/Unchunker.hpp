@@ -15,6 +15,7 @@ class Unchunker
 
 		bool			operator()(std::string & buffer, std::string & body);
 		bool const &	getEnd(void) const;
+		size_t const &	getTotalSize(void) const;
 
 	private:
 		std::string		m_chunk_size;

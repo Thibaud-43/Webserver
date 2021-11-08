@@ -66,6 +66,7 @@ bool	Unchunker::operator()(std::string & buffer, std::string & body)
 				return true;
 		}
 	}
+
 	return true;
 }
 
@@ -94,6 +95,11 @@ size_t			Unchunker::getChunkSize(void)
 bool const &	Unchunker::getEnd(void) const
 {
 	return m_end;
+}
+
+size_t const &	Unchunker::getTotalSize(void) const
+{
+	return m_total_size;
 }
 
 /*

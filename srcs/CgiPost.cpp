@@ -54,6 +54,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 		if (!_fillBuffer())
 			return false;
 		m_unchunker(m_buff, m_body);
+		m_header["Content-Length"] = m_unchunker.getTotalSize();
 	}
 	return (true);
 }
