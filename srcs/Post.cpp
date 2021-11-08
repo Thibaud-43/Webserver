@@ -1,5 +1,6 @@
 #include "Post.hpp"
-
+#include "CgiPost.hpp"
+#include "Upload.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -104,13 +105,19 @@ bool	Post::execute(ASocket ** ptr)
 		return (false);
 	if (m_cgi_pass)
 	{
-		// check -- convert to CGI -- exec
+		_convert<CgiPost>(ptr);
+		return ((*ptr)->execute(ptr));
 	}
 	else if (m_location->getUpload())
 	{
-		// check -- convert to upload & exec
+		_convert<Upload>(ptr);
+		return ((*ptr)->execute(ptr));
 	}
-	// ?
+	else 
+	{
+		_send(Response::create_error("403", m_location));
+		return (false);
+	}
 	return (true);
 }
 

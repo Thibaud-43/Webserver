@@ -112,6 +112,7 @@ Response	Response::create_index(std::string const & directory, Location const * 
 	rep.append_to_body("</html>\n");
 	rep.append_to_header("Content-Type: text/html");
 	rep.append_to_header("Connection: keep-alive");
+	rep.add_content_length();
 	return (rep);
 }
 
