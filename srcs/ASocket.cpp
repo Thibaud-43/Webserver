@@ -61,14 +61,14 @@ void	ASocket::clean(void)
 
 	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
 	{
-		if (!it->second->alive())
+		if (!(it->second->alive()))
 		{
 			if ((cgi = dynamic_cast<ACgi *>(it->second)))
 				cgi->clear();
 			del = it;
 			it--;
-			close(it->second->getFd());
-			delete it->second;
+			close(del->second->getFd());
+			delete del->second;
 			_list.erase(del);
 		}
 		else if ((cgi = dynamic_cast<ACgi *>(it->second)) && !cgi->checkStatus())
@@ -76,8 +76,8 @@ void	ASocket::clean(void)
 			cgi->clear();
 			del = it;
 			it--;
-			close(it->second->getFd());
-			delete it->second;
+			close(del->second->getFd());
+			delete del->second;
 			_list.erase(del);
 		}
 	}

@@ -112,6 +112,7 @@ bool	Client::_send(Response const & rep) const
 
 bool	Client::_send(std::string const & rep) const
 {
+	std::cout << rep;
 	if (send(getFd(), rep.c_str(), rep.size(), 0) == -1)
 		return (false);
 	return (true);

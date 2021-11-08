@@ -129,7 +129,6 @@ bool	Get::_get(ASocket ** ptr)
 	bool		ret;
 
 	rep.start_header("200");
-	rep.append_to_header("Content-type: text");
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
 	{
 		ret = false;
@@ -179,7 +178,7 @@ bool	Get::_sendChunkedFile(void) const
 			body += "\r\n";
 			if (!_send(body))
 				return (false);
-			fstream.read(buff, READ_SIZE - 1);
+			fstream.read(buff, READ_SIZE);
 		}
 		if (!_send("0\r\n\r\n"))
 			return (false);

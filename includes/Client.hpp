@@ -5,8 +5,6 @@
 # include "ASocket.hpp"
 # include "Response.hpp"
 
-# define LIFETIME 60 // SECONDS
-
 class Client: public ASocket
 {
 

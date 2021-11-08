@@ -288,7 +288,7 @@ void	CgiPost::_setEnv(void)
 	m_env["REQUEST_METHOD"] = "POST";
 	m_env["PATH_INFO"] = m_header.at("uri");
 	m_env["SCRIPT_FILENAME"] = m_path.getPath();
-	//m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
+	m_env["SCRIPT_NAME"] = m_header.at("Host"); // PAS SUR
 	m_env["REMOTE_ADDR"] = std::string(addr);
 	m_env["REDIRECT_STATUS"] = "200";
 }

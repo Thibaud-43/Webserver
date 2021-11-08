@@ -37,5 +37,6 @@
 # define PROTOCOL "HTTP/1.1"
 # define HEADER_SIZE_LIMIT  20000
 # define PROTOCOL "HTTP/1.1"
+# define LIFETIME 60 // SECONDS
 
 #endif

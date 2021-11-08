@@ -16,7 +16,6 @@ class Listener: public ASocket
 		bool	execute(ASocket **ptr);
 		bool	alive(void) const;
 
-
 	private:
 		void							_bind(void);
 		void							_initAddr(port_type const & port, ip_type const & ip);
