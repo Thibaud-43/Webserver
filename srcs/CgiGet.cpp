@@ -51,7 +51,10 @@ bool	CgiGet::manage(ACgi **ptr, int const & fd)
 	(void)ptr;
 	if (fd == m_fd_out)
 	{
-		// SI FD == fd_out -> construct & response -- send rep -- convert to client
+		// SI FD == fd_out -> construct & response -- send rep
+		*ptr = NULL;
+		_convert<Client>(NULL);
+		return (true);
 	}
 	return (true);
 }
