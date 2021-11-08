@@ -2,9 +2,9 @@
 # define UPLOAD_HPP
 
 # include "Headers.hpp"
-# include "Request.hpp"
+# include "Post.hpp"
 
-class Upload: public Request
+class Upload: public Post
 {
 
 	public:

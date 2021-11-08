@@ -101,7 +101,6 @@ bool	CgiGet::_handle(void)
 	{
 		if (!_send(Response::create_redirect("302", header["Location"])))
 			return false;
-		
 	}
 	else
 	{
@@ -113,9 +112,12 @@ bool	CgiGet::_handle(void)
 			else
 				rep.append_to_body(it->second);
 		}
+		rep.add_content_length();
 		_send(rep);
+		close(m_fd_out);
+		m_fd_out = -1;
+		return (true);
 	}
-	FileDescriptor::epollCtlDel(m_fd_out);
 	return (false);
 }
 
@@ -235,8 +237,8 @@ void	CgiGet::_setEnv(void)
 		m_env["QUERY_STRING"] = m_header.at("query_string");
 	m_env["REQUEST_METHOD"] = "POST";
 	m_env["PATH_INFO"] = m_header.at("uri");
-	m_env["SCRIPT_FILENAME"] = "/";
-	m_env["SCRIPT_NAME"] = m_path.getPath();
+	m_env["SCRIPT_FILENAME"] = m_path.getPath();
+	m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
 	m_env["REMOTE_ADDR"] = std::string(addr);
 	m_env["REDIRECT_STATUS"] = "200";
 }

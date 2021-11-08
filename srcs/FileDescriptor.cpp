@@ -26,7 +26,7 @@ void	FileDescriptor::epollCtlDel(int const & fd)
     event.events = EPOLLIN | EPOLLET;
     if(epoll_ctl(fd, EPOLL_CTL_DEL, event.data.fd, &event))
     {
-        fprintf(stderr, "Failed to add file descriptor to epoll\n");
+        std::cerr << "Failed to delete file descriptor to epoll\n";
         close(_epoll_fd);
     }
 }
@@ -106,7 +106,7 @@ void	FileDescriptor::epollCtlDel(void)
     event.events = EPOLLIN | EPOLLET;
     if(epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event))
     {
-        std::cerr << "Failed to add file descriptor to epoll\n";
+        std::cerr << "Failed to delete file descriptor to epoll\n";
         close(_epoll_fd);
     }
 }
