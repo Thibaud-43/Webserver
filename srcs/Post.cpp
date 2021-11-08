@@ -41,12 +41,10 @@ bool	Post::_fillBuffer(void)
 {
 	size_t              bytes_read;
 	char                read_buffer[READ_SIZE + 1];
-	size_t              read_buffer_size = sizeof(read_buffer);
 
 	for (;;)
 	{
-		memset(read_buffer, 0, read_buffer_size);
-		bytes_read = recv(getFd(), read_buffer, read_buffer_size, 0);
+		bytes_read = recv(getFd(), read_buffer, READ_SIZE, 0);
 		if (bytes_read < 0)
 		{
 			close(getFd());
@@ -56,7 +54,7 @@ bool	Post::_fillBuffer(void)
 		{
 			return true;
 		}
-		else if (bytes_read == read_buffer_size)
+		else if (bytes_read == READ_SIZE)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
