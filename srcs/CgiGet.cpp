@@ -101,6 +101,9 @@ bool	CgiGet::_handle(void)
 	{
 		if (!_send(Response::create_redirect("302", header["Location"])))
 			return false;
+		close(m_fd_out);
+		m_fd_out = -1;
+		return true;
 	}
 	else
 	{
@@ -125,12 +128,12 @@ bool	CgiGet::_fillBuffer(void)
 {
 	size_t              bytes_read;
 	char                read_buffer[READ_SIZE + 1];
-	size_t              read_buffer_size = sizeof(read_buffer);
 
 	for (;;)
 	{
-		memset(read_buffer, 0, read_buffer_size);
-		bytes_read = read(m_fd_out, read_buffer, read_buffer_size);
+		memset(read_buffer, 0, READ_SIZE);
+		bytes_read = read(m_fd_out, read_buffer, READ_SIZE);
+		std::cout << "Bytes read: " << bytes_read << std::endl;
 		if (bytes_read < 0)
 		{
 			close(getFd());
@@ -140,7 +143,7 @@ bool	CgiGet::_fillBuffer(void)
 		{
 			return true;
 		}
-		else if (bytes_read == read_buffer_size)
+		else if (bytes_read == READ_SIZE)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
