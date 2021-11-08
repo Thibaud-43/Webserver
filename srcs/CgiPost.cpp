@@ -139,7 +139,6 @@ bool	CgiPost::start(void)
 
 void	CgiPost::_setEnv(void)
 {
-	std::string const & 			method = m_header.at("method");
 	char *addr = inet_ntoa(m_remote_addr.sin_addr);
 
 	if (m_header.find("Authorization") != m_header.end())

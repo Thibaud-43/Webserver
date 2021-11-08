@@ -166,7 +166,7 @@ bool	Request::_checkHeader(void)
 	_linkPath();
 	if (!m_location->isAllowed(m_header["method"]))
 	{
-		_send(Response::create_error("400", &m_server->getParams()));
+		_send(Response::create_error("405", &m_server->getParams()));
 		return (false);
 	}
 	if (!_decrement(m_buff.size()))

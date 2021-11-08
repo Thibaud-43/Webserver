@@ -282,7 +282,7 @@ char **	CgiGet::getArgs(void) const
 	argv[0][m_cgi_pass->size()] = 0;
 	argv[1] = new char[m_path.getPath().size() + 1];
 	m_path.getPath().copy(argv[1], m_path.getPath().size());
-	argv[1][m_path.size()] = 0;
+	argv[1][m_path.getPath().size()] = 0;
 	argv[2] = 0;
 	return (argv);
 }
