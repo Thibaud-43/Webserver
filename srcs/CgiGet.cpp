@@ -125,7 +125,7 @@ bool	CgiGet::_fillBuffer(void)
 	for (;;)
 	{
 		memset(read_buffer, 0, read_buffer_size);
-		bytes_read = read(getFd(), read_buffer, read_buffer_size);
+		bytes_read = read(m_fd_out, read_buffer, read_buffer_size);
 		if (bytes_read < 0)
 		{
 			close(getFd());
@@ -151,7 +151,7 @@ bool	CgiGet::_fillBuffer(void)
 			m_buff += read_buffer;
 			return true;
 		}
-		
+
 	}
 }
 
