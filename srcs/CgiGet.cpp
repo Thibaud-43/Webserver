@@ -231,6 +231,7 @@ void	CgiGet::_setEnv(void)
 	m_env["QUERY_STRING"] = m_header.at("query_string");
 	m_env["REQUEST_METHOD"] = m_header.at("method");
 	m_env["PATH_INFO"] = m_header.at("uri");
+	std::cout << "SCRIPT_FILENAME : " << m_path.getPath();
 	m_env["SCRIPT_FILENAME"] = m_path.getPath();
 	m_env["SCRIPT_NAME"] = "localhost"; // PAS SUR
 	m_env["REMOTE_ADDR"] = std::string(addr);
