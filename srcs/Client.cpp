@@ -23,6 +23,8 @@ Client::Client( const Client & src )
 Client::Client( const int & fd, Server const * server, struct sockaddr_in const & remote_addr)
 : ASocket(fd, server), m_buff(std::string())
 {
+	m_fd.epollCtlAdd();
+	m_fd.makeFdNonBlocking();
 	m_remote_addr.sin_addr.s_addr = remote_addr.sin_addr.s_addr;
 	m_remote_addr.sin_family = remote_addr.sin_family;
 	m_remote_addr.sin_port = remote_addr.sin_port;
@@ -93,10 +95,6 @@ bool	Client::execute(ASocket ** ptr)
 	Request		*request;
 	if (ptr)
 		*ptr = this;
-	if (!_fillBuffer())
-		return false;
-	if (m_buff.empty())
-		return true;
 	request = new Request(*this);
 	if (ptr)
 		*ptr = request;

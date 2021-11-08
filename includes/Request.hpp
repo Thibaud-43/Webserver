@@ -21,7 +21,6 @@ class Request: public Client
 		virtual bool	execute(ASocket **ptr);
 
 	protected:
-		Server const *		m_server;
 		Location const *	m_location;
 		File				m_path;
 		header_type			m_header;
