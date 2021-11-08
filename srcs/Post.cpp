@@ -12,7 +12,7 @@ Post::Post()
 }
 
 Post::Post(Post const & src)
-: Request(src), m_cgi_pass(_cgiPass()), m_body(src.m_body)
+: Request(src), m_cgi_pass(src.m_cgi_pass), m_body(src.m_body)
 {
 }
 
@@ -143,9 +143,9 @@ Location::file_t const *	Post::_cgiPass(void) const
 
 	for (Location::cgi_t::const_iterator it = cgi.begin() ; it != cgi.end(); it++)
 	{
-		if (it->first.size() > static_cast<size_t>(m_path.size()))
+		if (it->first.size() > m_path.getPath().size())
 			break ;
-		else if (m_path.getPath().find(it->first, m_path.size() - it->first.size()) != std::string::npos)
+		else if (m_path.getPath().find(it->first, m_path.getPath().size() - it->first.size()) != std::string::npos)
 			return (&(it->second));
 	}
 	return (NULL);
