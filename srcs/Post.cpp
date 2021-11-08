@@ -87,7 +87,7 @@ bool	Post::_check(void) const
 {
 	Response	rep;
 
-	if (m_header.find("Content-Length") == m_header.end() || m_header.find("transfer-Encoding") == m_header.end())
+	if (m_header.find("Content-Length") == m_header.end() && m_header.find("Transfer-Encoding") == m_header.end())
 		rep = Response::create_error("411", m_location);
 	else
 		return (true);
