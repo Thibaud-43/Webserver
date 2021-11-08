@@ -107,6 +107,7 @@ Location::file_t const *	Get::_cgiPass(void) const
 bool	Get::_start_cgi(ASocket ** ptr)
 {
 	File	f(*m_cgi_pass);
+	CgiGet	*cgi;
 	
 	if (!f.is_executable())
 	{
@@ -114,6 +115,9 @@ bool	Get::_start_cgi(ASocket ** ptr)
 		return (false);
 	}
 	_convert<CgiGet>(ptr);
+	cgi = dynamic_cast<CgiGet *>(*ptr);
+	if (!cgi->start())
+		return (false);
 	return ((*ptr)->execute(ptr));
 }
 

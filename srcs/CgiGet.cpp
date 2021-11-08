@@ -41,8 +41,6 @@ bool	CgiGet::execute(ASocket ** ptr)
 {
 	if (ptr)
 		*ptr = this;
-	// RCV to buffer
-	// UNCHUNK ?
 	return (true);
 }
 
