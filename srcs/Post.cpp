@@ -107,8 +107,10 @@ bool	Post::_start_cgi(ASocket ** ptr)
 		_send(Response::create_error("500", m_location));
 		return (false);
 	}
-	_convert<CgiPost>(ptr);
-	cgi = dynamic_cast<CgiPost *>(*ptr);
+	cgi = new CgiPost(*this);
+	if (ptr)
+		*ptr = cgi;
+	ASocket::addSocket(cgi);
 	if (!cgi->start())
 		return (false);
 	return ((*ptr)->execute(ptr));
