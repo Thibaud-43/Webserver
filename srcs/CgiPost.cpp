@@ -182,7 +182,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 		m_unchunker(m_buff, m_body);
 		if (m_unchunker.getEnd())
 		{
-			m_header["Content-Length"] = m_unchunker.getTotalSize();
+			m_env["Content-Length"] = m_unchunker.getTotalSize();
 			if (!start())
 				return (false);
 		}

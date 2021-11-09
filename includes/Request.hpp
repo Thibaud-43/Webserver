@@ -35,7 +35,7 @@ class Request: public Client
 			ASocket::addSocket(elem);
 		}
 		bool		_decrement(size_t const & n);
-		size_t		_strToSize(std::string const & str);
+		size_t		_strToSize(std::string const & str) const;
 
 	private:
 		void		_bufferToRequestLine(void);
