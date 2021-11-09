@@ -58,15 +58,8 @@ bool	Post::_fillBuffer(void)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
-			if (m_buff.size() > _strToSize(m_header["Content-Length"]))
+			if (m_buff.size() > m_location->getBodySize())
 			{
-				_send(Response::create_error("413", &m_server->getParams()));
-				return (false);		
-			}
-			else if (m_buff.size() >= m_location->getBodySize())
-			{
-				std::cout << "3\n";
-
 				_send(Response::create_error("413", NULL));
 				return false;
 			}
@@ -75,11 +68,8 @@ bool	Post::_fillBuffer(void)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
-			_replace_rn(m_buff);
-			if (m_buff.size() > _strToSize(m_header["Content-Length"]))
+			if (m_buff.size() > m_location->getBodySize())
 			{
-				std::cout << m_buff.size() << "|" << _strToSize(m_header["Content-Length"]) << std::endl;
-				std::cout << m_buff << std::endl;
 				_send(Response::create_error("413", &m_server->getParams()));
 				return (false);		
 			}
@@ -154,12 +144,6 @@ Location::file_t const *	Post::_cgiPass(void) const
 			return (&(it->second));
 	}
 	return (NULL);
-}
-
-void	Post::_replace_rn(std::string & str) const
-{
-	if (str.find("\r\n", str.size() - 2) != std::string::npos)
-		str.erase(str.size() - 2);
 }
 
 /*

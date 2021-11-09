@@ -22,7 +22,6 @@ class Post: public Request
 		Unchunker					m_unchunker;
 
 		bool						_fillBuffer(void);
-		void						_replace_rn(std::string & str) const;
 	
 	private:
 		bool						_check(void) const;

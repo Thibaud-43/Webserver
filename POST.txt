@@ -1,8 +1,12 @@
 POST /test.php HTTP/1.1
 Host: localhost
-Content-Length: 12
+Transfer-Encoding: chunked
 Content-Type: application/x-www-form-urlencoded
 
-name=thibaud
-lol
+5
+name=
+7
+thibaud
+0
+
 

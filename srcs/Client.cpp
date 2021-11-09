@@ -57,6 +57,7 @@ bool	Client::_fillBuffer(void)
 	size_t              bytes_read = 0; 
 	char                read_buffer[READ_SIZE + 1];
 
+
 	for (;;)
 	{
 		bytes_read = recv(getFd(), read_buffer, READ_SIZE, 0);

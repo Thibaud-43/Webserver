@@ -131,7 +131,6 @@ bool	CgiPost::_fillBuffer(void)
 	for (;;)
 	{
 		bytes_read = read(m_fd_out, read_buffer, READ_SIZE);
-		std::cout << bytes_read << std::endl;
 		if (bytes_read < 0)
 		{
 			close(getFd());
@@ -153,6 +152,7 @@ bool	CgiPost::_fillBuffer(void)
 		{ 
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
+
 			return true;
 		}
 	}
@@ -177,12 +177,13 @@ bool	CgiPost::execute(ASocket ** ptr)
 	}
 	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
 	{
-		if (!_fillBuffer())
+		if (!Post::_fillBuffer())
 			return false;
 		m_unchunker(m_buff, m_body);
+
 		if (m_unchunker.getEnd())
 		{
-			m_env["Content-Length"] = m_unchunker.getTotalSize();
+			m_env["CONTENT_LENGTH"] = m_unchunker.getTotalSize();
 			if (!start())
 				return (false);
 		}
@@ -212,7 +213,7 @@ bool	CgiPost::entry(ASocket ** ptr)
 		m_unchunker(m_buff, m_body);
 		if (m_unchunker.getEnd())
 		{
-			m_env["Content-Length"] = m_unchunker.getTotalSize();
+			m_env["CONTENT_LENGTH"] = m_unchunker.getTotalSize();
 			if (!start())
 				return (false);
 		}
@@ -257,7 +258,6 @@ bool	CgiPost::start(void)
 	int		pipefd_out[2];
 	int		pipefd_in[2];
 
-	std::cout << "START CGI" << std::endl;
 	if (pipe(pipefd_out))
 		return (false);
 	m_fd_out = pipefd_out[0];
@@ -304,7 +304,6 @@ bool	CgiPost::start(void)
 		f.epollCtlAdd_w();
 		close(pipefd_in[0]);
 		close(pipefd_out[1]);
-		std::cout << "PID : " << m_pid << " FD_IN : " << m_fd_in << " FD_OUT : " << m_fd_out << std::endl;
 		del_env(envp);
 		del_env(argv);
 	}
@@ -341,7 +340,6 @@ bool	CgiPost::checkStatus(void)
 	int				status;
 	int				ret = waitpid(m_pid, &status, WNOHANG);
 	FileDescriptor	fd_out(m_fd_out);
-	std::cout << "check status : " << m_pid << std::endl;
 	
 	if (ret < 0)
 	{
@@ -350,7 +348,6 @@ bool	CgiPost::checkStatus(void)
 	}
 	else if (!ret)
 	{
-		std::cout << "not terminated\n";
 		return (true);
 	}
 	else
@@ -367,7 +364,6 @@ bool	CgiPost::checkStatus(void)
 			m_fd_in = -1;
 		}
 		fd_out.epollCtlAdd();
-		std::cout << "terminated\n";
 
 		m_pid = -1;
 		return (true);
