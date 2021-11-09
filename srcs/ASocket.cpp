@@ -71,7 +71,7 @@ void	ASocket::clean(void)
 			delete del->second;
 			_list.erase(del);
 		}
-		else if ((cgi = dynamic_cast<ACgi *>(it->second)) && !cgi->checkStatus())
+		else if ((cgi = dynamic_cast<ACgi *>(it->second)) && cgi->getPid() >= 0 && !cgi->checkStatus())
 		{
 			cgi->clear();
 			del = it;
