@@ -89,6 +89,16 @@ bool	Upload::_send_created(void) const
 	bool		ret = true;
 
 	rep.start_header("201");
+	rep.append_to_body("<html>\n");
+	rep.append_to_body("<head><title>201 Created</title></head>\n");
+	rep.append_to_body("<body bgcolor=\"white\">\n");
+	rep.append_to_body("<center><h1>201 Created</h1></center>\n");
+	rep.append_to_body("<hr><center>");
+	rep.append_to_body(SERV_NAME);
+	rep.append_to_body("</center>\n");
+	rep.append_to_body("</body>\n");
+	rep.append_to_body("</html>\n");
+	rep.append_to_header("Content-Type: text/html");
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
 	{
 		ret = false;
@@ -96,6 +106,7 @@ bool	Upload::_send_created(void) const
 	}
 	else
 		rep.append_to_header("Connection: keep-alive");
+	rep.add_content_length();
 	if (!_send(rep))
 		return (false);
 	return (ret);
