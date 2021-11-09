@@ -182,7 +182,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 		m_unchunker(m_buff, m_body);
 		if (m_unchunker.getEnd())
 		{
-			m_header["Content-Length"] = m_unchunker.getTotalSize();
+			m_env["Content-Length"] = m_unchunker.getTotalSize();
 			if (!start())
 				return (false);
 		}
@@ -212,7 +212,7 @@ bool	CgiPost::entry(ASocket ** ptr)
 		m_unchunker(m_buff, m_body);
 		if (m_unchunker.getEnd())
 		{
-			m_header["Content-Length"] = m_unchunker.getTotalSize();
+			m_env["Content-Length"] = m_unchunker.getTotalSize();
 			if (!start())
 				return (false);
 		}
@@ -224,14 +224,14 @@ bool	CgiPost::entry(ASocket ** ptr)
 
 bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 {
-	std::cout << "CGI POST MANAGE with FD: " << fd << std::endl;
 	if (ptr)
 		*ptr = this;
 	if (fd == m_fd_in)
 	{
-		std::cout << "BODY" << m_body << std::endl;
 		write(fd, m_body.data(), m_body.size());
 		m_body.clear();
+		close(m_fd_in);
+		return (true);
 	}
 	else if (fd == m_fd_out)
 	{
@@ -243,7 +243,9 @@ bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 		_convert<Client>(NULL);
 		return (true);
 	}
-	return (false);
+	else
+		return (false);
+
 }
 
 bool	CgiPost::start(void)
@@ -253,6 +255,7 @@ bool	CgiPost::start(void)
 	int		pipefd_out[2];
 	int		pipefd_in[2];
 
+	std::cout << "START CGI" << std::endl;
 	if (pipe(pipefd_out))
 		return (false);
 	m_fd_out = pipefd_out[0];
@@ -299,6 +302,7 @@ bool	CgiPost::start(void)
 		f.epollCtlAdd_w();
 		close(pipefd_in[0]);
 		close(pipefd_out[1]);
+		std::cout << "PID : " << m_pid << " FD_IN : " << m_fd_in << " FD_OUT : " << m_fd_out << std::endl;
 		del_env(envp);
 		del_env(argv);
 	}
@@ -335,6 +339,7 @@ bool	CgiPost::checkStatus(void)
 	int				status;
 	int				ret = waitpid(m_pid, &status, WNOHANG);
 	FileDescriptor	fd_out(m_fd_out);
+	std::cout << "check status : " << m_pid << std::endl;
 	
 	if (ret < 0)
 	{
@@ -342,7 +347,10 @@ bool	CgiPost::checkStatus(void)
 		return (false);
 	}
 	else if (!ret)
+	{
+		std::cout << "not terminated\n";
 		return (true);
+	}
 	else
 	{
 		if (!WIFEXITED(status))
@@ -357,6 +365,8 @@ bool	CgiPost::checkStatus(void)
 			m_fd_in = -1;
 		}
 		fd_out.epollCtlAdd();
+		std::cout << "terminated\n";
+
 		m_pid = -1;
 		return (true);
 	}

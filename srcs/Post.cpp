@@ -65,19 +65,23 @@ bool	Post::_fillBuffer(void)
 			}
 			else if (m_buff.size() >= m_location->getBodySize())
 			{
+				std::cout << "3\n";
+
 				_send(Response::create_error("413", NULL));
 				return false;
 			}
 		}
 		else
 		{
+			read_buffer[bytes_read] = 0;
+			m_buff += read_buffer;
 			if (m_buff.size() > _strToSize(m_header["Content-Length"]))
 			{
+				std::cout << m_buff.size() << "|" << _strToSize(m_header["Content-Length"]) << std::endl;
+				std::cout << m_buff << std::endl;
 				_send(Response::create_error("413", &m_server->getParams()));
 				return (false);		
 			}
-			read_buffer[bytes_read] = 0;
-			m_buff += read_buffer;
 			return true;
 		}
 	}

@@ -175,8 +175,9 @@ bool	Request::_checkHeader(void)
 		_send(Response::create_error("405", &m_server->getParams()));
 		return (false);
 	}
-	if (!_decrement(m_buff.size()))
+	if (m_buff.size() > _strToSize(m_header["Content-Length"]))
 	{
+		std::cout << "1\n";
 		_send(Response::create_error("413", &m_server->getParams()));
 		return (false);		
 	}
