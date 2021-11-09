@@ -125,13 +125,14 @@ bool	CgiPost::_handle(void)
 
 bool	CgiPost::_fillBuffer(void)
 {
-	size_t              bytes_read;
+	size_t              bytes_read = 0;
 	char                read_buffer[READ_SIZE + 1];
 
+	std::cout << "here" << std::endl;
 	for (;;)
 	{
-		memset(read_buffer, 0, READ_SIZE);
 		bytes_read = read(m_fd_out, read_buffer, READ_SIZE);
+		std::cout << bytes_read << std::endl;
 		if (bytes_read < 0)
 		{
 			close(getFd());
@@ -168,12 +169,13 @@ bool	CgiPost::execute(ASocket ** ptr)
 		*ptr = this;
 	if (m_header.find("Content-Length") != m_header.end())
 	{
-		if (!_fillBuffer())
+		if (!Post::_fillBuffer())
 			return false;
-		if (m_header["Content-Length"] == "0")
+		if (m_buff.size() == _strToSize(m_header["Content-Length"]))
 		{
 			m_body = m_buff;
 			m_buff.clear();
+			
 		}
 	}
 	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")

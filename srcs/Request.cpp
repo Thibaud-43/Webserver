@@ -18,6 +18,12 @@ bool	Request::_decrement(size_t const & n)
 	return true;
 }
 
+size_t	Request::_strToSize(std::string const & str)
+{
+	size_t   s_str;
+    std::istringstream( str ) >> s_str;
+	return s_str;
+}
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
