@@ -18,9 +18,11 @@ class Post: public Request
 
 	protected:
 		Location::file_t const *	m_cgi_pass; 
-		bool						_fillBuffer(void);
 		std::string					m_body;
 		Unchunker					m_unchunker;
+
+		bool						_fillBuffer(void);
+		void						_replace_rn(std::string & str) const;
 	
 	private:
 		bool						_check(void) const;
