@@ -174,6 +174,8 @@ bool	CgiPost::execute(ASocket ** ptr)
 		{
 			m_body = m_buff;
 			m_buff.clear();
+			if (!start())
+				return (false);
 		}
 	}
 	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
@@ -183,6 +185,8 @@ bool	CgiPost::execute(ASocket ** ptr)
 		m_unchunker(m_buff, m_body);
 		m_header["Content-Length"] = m_unchunker.getTotalSize();
 	}
+	else
+		return (false);
 	return (true);
 }
 

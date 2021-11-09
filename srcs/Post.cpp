@@ -109,8 +109,6 @@ bool	Post::_start_cgi(ASocket ** ptr)
 	if (ptr)
 		*ptr = cgi;
 	ASocket::addSocket(cgi);
-	if (!cgi->start())
-		return (false);
 	return ((*ptr)->execute(ptr));
 }
 
