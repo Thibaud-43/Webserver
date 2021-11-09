@@ -48,7 +48,7 @@ bool	Upload::execute(ASocket ** ptr)
 	{
 		if (!_fillBuffer())
 			return false;
-		if (m_header["Content-Length"] == "0")
+		if (m_buff.size() == _strToSize(m_header["Content-Length"]))
 		{
 			m_body = m_buff;
 			m_buff.clear();

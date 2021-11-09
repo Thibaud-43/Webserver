@@ -126,7 +126,7 @@ bool	CgiGet::_handle(void)
 
 bool	CgiGet::_fillBuffer(void)
 {
-	size_t              bytes_read;
+	size_t              bytes_read = 0;
 	char                read_buffer[READ_SIZE + 1];
 
 	for (;;)

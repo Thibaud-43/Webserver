@@ -39,7 +39,7 @@ Post::~Post()
 */
 bool	Post::_fillBuffer(void)
 {
-	size_t              bytes_read;
+	size_t              bytes_read = 0;
 	char                read_buffer[READ_SIZE + 1];
 
 	for (;;)
@@ -58,7 +58,7 @@ bool	Post::_fillBuffer(void)
 		{
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
-			if (!_decrement(m_buff.size()))
+			if (m_buff.size() > _strToSize(m_header["Content-Length"]))
 			{
 				_send(Response::create_error("413", &m_server->getParams()));
 				return (false);		
@@ -71,7 +71,8 @@ bool	Post::_fillBuffer(void)
 		}
 		else
 		{
-			if (!_decrement(m_buff.size()))
+
+			if (m_buff.size() > _strToSize(m_header["Content-Length"]))
 			{
 				_send(Response::create_error("413", &m_server->getParams()));
 				return (false);		
