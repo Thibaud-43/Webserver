@@ -212,7 +212,7 @@ bool	CgiPost::entry(ASocket ** ptr)
 		m_unchunker(m_buff, m_body);
 		if (m_unchunker.getEnd())
 		{
-			m_header["Content-Length"] = m_unchunker.getTotalSize();
+			m_env["Content-Length"] = m_unchunker.getTotalSize();
 			if (!start())
 				return (false);
 		}
@@ -230,13 +230,16 @@ bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 	{
 		write(fd, m_body.data(), m_body.size());
 		m_body.clear();
+		close(m_fd_in);
+		m_fd_in = -1;
 	}
 	else if (fd == m_fd_out)
 	{
-		if (!_fillBuffer())
+		if (!_fillBuffer() || !_handle())
+		{
+			close(m_fd_out);
 			return false;
-		if (!_handle())
-			return false;
+		}
 		*ptr = NULL;
 		_convert<Client>(NULL);
 		return (true);
