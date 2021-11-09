@@ -128,7 +128,6 @@ bool	CgiPost::_fillBuffer(void)
 	size_t              bytes_read = 0;
 	char                read_buffer[READ_SIZE + 1];
 
-	std::cout << "here" << std::endl;
 	for (;;)
 	{
 		bytes_read = read(m_fd_out, read_buffer, READ_SIZE);
@@ -139,9 +138,7 @@ bool	CgiPost::_fillBuffer(void)
 			return false;
 		}
 		else if (bytes_read == 0)
-		{
 			return true;
-		}
 		else if (bytes_read == READ_SIZE)
 		{
 			read_buffer[bytes_read] = 0;
@@ -158,10 +155,8 @@ bool	CgiPost::_fillBuffer(void)
 			m_buff += read_buffer;
 			return true;
 		}
-
 	}
 }
-
 
 bool	CgiPost::execute(ASocket ** ptr)
 {
@@ -169,7 +164,7 @@ bool	CgiPost::execute(ASocket ** ptr)
 		*ptr = this;
 	if (m_header.find("Content-Length") != m_header.end())
 	{
-		if (!Post::_fillBuffer())
+		if (m_buff.size() != _strToSize(m_header["Content-Length"]) && !Post::_fillBuffer())
 			return false;
 		if (m_buff.size() == _strToSize(m_header["Content-Length"]))
 		{
@@ -184,6 +179,33 @@ bool	CgiPost::execute(ASocket ** ptr)
 	{
 		if (!_fillBuffer())
 			return false;
+		m_unchunker(m_buff, m_body);
+		if (m_unchunker.getEnd())
+		{
+			m_header["Content-Length"] = m_unchunker.getTotalSize();
+			if (!start())
+				return (false);
+		}
+		return (true);
+	}
+	else
+		return (false);
+}
+
+bool	CgiPost::entry(ASocket ** ptr)
+{	
+	if (ptr)
+		*ptr = this;
+	if (m_header.find("Content-Length") != m_header.end() && m_buff.size() == _strToSize(m_header["Content-Length"]))
+	{
+		m_body = m_buff;
+		m_buff.clear();
+		if (!start())
+			return (false);
+		return (true);
+	}
+	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
+	{
 		m_unchunker(m_buff, m_body);
 		if (m_unchunker.getEnd())
 		{
