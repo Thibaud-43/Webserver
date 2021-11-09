@@ -7,19 +7,19 @@
 Upload::Upload()
 : Post(), m_stream_size(0)
 {
-	m_stream.open(m_path.getPath(), std::fstream::out | std::fstream::trunc);
+	m_stream.open(m_path.getPath().data(), std::fstream::out | std::fstream::trunc);
 }
 
 Upload::Upload(Upload const & src)
 : Post(src), m_stream_size(src.m_stream_size)
 {
-	m_stream.open(m_path.getPath(), std::fstream::out | std::fstream::app);
+	m_stream.open(m_path.getPath().data(), std::fstream::out | std::fstream::app);
 }
 
 Upload::Upload(Post const & src)
 : Post(src), m_stream_size(0)
 {
-	m_stream.open(m_path.getPath(), std::fstream::out | std::fstream::trunc);
+	m_stream.open(m_path.getPath().data(), std::fstream::out | std::fstream::trunc);
 }
 
 /*
