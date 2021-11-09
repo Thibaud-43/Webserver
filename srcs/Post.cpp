@@ -93,6 +93,8 @@ bool	Post::_check(void) const
 
 	if (m_header.find("Content-Length") == m_header.end() && m_header.find("Transfer-Encoding") == m_header.end())
 		rep = Response::create_error("411", m_location);
+	else if (m_header.find("Content-Length") != m_header.end() && _strToSize(m_header.at("Content-Length")) > m_location->getBodySize())
+		rep = Response::create_error("413", m_location);
 	else
 		return (true);
 	_send(rep);
