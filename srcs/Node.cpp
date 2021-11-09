@@ -364,7 +364,7 @@ bool    Node::checkCgi(std::vector<std::string>::iterator it, std::vector<std::s
 {
     if (++it == ite)
         return false;
-    if (*it != ".php" && *it != ".py") // ACCEPTED EXTENSIONS
+    if (*it != ".php" && *it != ".bla") // ACCEPTED EXTENSIONS
         return false;
     if (++it != ite && *it != ";" && *it != "{" && *it != "}" && ++it != ite && *it == ";")
         return true;

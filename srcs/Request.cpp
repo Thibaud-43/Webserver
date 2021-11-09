@@ -207,7 +207,7 @@ bool	Request::_checkRequestLine(void)
 	}
 	if (m_header["method"] != "GET" && m_header["method"] != "POST" && m_header["method"] != "DELETE")
 	{
-		_send(Response::create_error("400", NULL));
+		_send(Response::create_error("405", NULL));
 		return (false);
 	}
 	return (true);
