@@ -160,7 +160,7 @@ void			Request::_printHeader(void)
 	std::cout << std::endl << std::endl << "MAP REQUEST HEADER" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m_header.begin(); it != m_header.end(); it++)
 	{
-		std::cout << "[" << it->first << "]='" << it->second << "'" << std::endl << std::endl; 
+		std::cout << "[" << it->first << "]='" << it->second << "'" << std::endl; 
 	}
 }
 
@@ -175,9 +175,8 @@ bool	Request::_checkHeader(void)
 		_send(Response::create_error("405", &m_server->getParams()));
 		return (false);
 	}
-	if (m_buff.size() > _strToSize(m_header["Content-Length"]))
+	if (m_buff.size() > m_location->getBodySize())
 	{
-		std::cout << "1\n";
 		_send(Response::create_error("413", &m_server->getParams()));
 		return (false);		
 	}

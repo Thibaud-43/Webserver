@@ -217,7 +217,6 @@ void							Cluster::_epollExecute(void)
 
 	for( int i = 0; i < m_eventCount; i++)
 	{
-		std::cout << "event : " << m_events[i].data.fd << std::endl;
 		socket = ASocket::getSocket(m_events[i].data.fd);
 		if (socket)
 		{
