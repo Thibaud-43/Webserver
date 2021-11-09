@@ -158,7 +158,7 @@ Location::file_t const *	Post::_cgiPass(void) const
 
 void	Post::_replace_rn(std::string & str) const
 {
-	while (str.find("\r\n", str.size() - 2) != std::string::npos)
+	if (str.find("\r\n", str.size() - 2) != std::string::npos)
 		str.erase(str.size() - 2);
 }
 
