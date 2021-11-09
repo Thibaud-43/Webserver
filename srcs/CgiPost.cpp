@@ -196,12 +196,15 @@ bool	CgiPost::entry(ASocket ** ptr)
 {	
 	if (ptr)
 		*ptr = this;
-	if (m_header.find("Content-Length") != m_header.end() && m_buff.size() == _strToSize(m_header["Content-Length"]))
+	if (m_header.find("Content-Length") != m_header.end())
 	{
-		m_body = m_buff;
-		m_buff.clear();
-		if (!start())
-			return (false);
+		if (m_buff.size() == _strToSize(m_header["Content-Length"]))
+		{
+			m_body = m_buff;
+			m_buff.clear();
+			if (!start())
+				return (false);
+		}
 		return (true);
 	}
 	else if (m_header.find("Transfer-Encoding") != m_header.end() && m_header["Transfer-Encoding"] == "chunked")
