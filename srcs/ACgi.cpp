@@ -10,7 +10,7 @@ ACgi::ACgi()
 }
 
 ACgi::ACgi( const ACgi & src )
-: m_fd_in(src.m_fd_in), m_fd_out(src.m_fd_out), m_pid(-1), m_env(src.m_env)
+: m_fd_in(src.m_fd_in), m_fd_out(src.m_fd_out), m_pid(src.m_pid), m_env(src.m_env)
 {
 }
 
