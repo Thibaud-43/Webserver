@@ -199,10 +199,12 @@ bool	CgiPost::execute(ASocket ** ptr)
 
 bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 {
+	std::cout << "CGI POST MANAGE with FD: " << fd << std::endl;
 	if (ptr)
 		*ptr = this;
 	if (fd == m_fd_in)
 	{
+		std::cout << "BODY" << m_body << std::endl;
 		write(fd, m_body.data(), m_body.size());
 		m_body.clear();
 	}
@@ -239,7 +241,7 @@ bool	CgiPost::start(void)
 		_close_pipes(pipefd_out);
 		return (false);
 	}
-		m_fd_in = pipefd_in[1];
+	m_fd_in = pipefd_in[1];
 	if (fcntl(m_fd_in, F_SETFL, O_NONBLOCK) == -1)
 	{
 		_close_pipes(pipefd_out, pipefd_in);

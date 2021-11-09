@@ -89,6 +89,7 @@ void	FileDescriptor::epollCtlAdd_w(void)
     memset(&event, 0, sizeof(event));
     event.data.fd = m_fd;
     event.events = EPOLLOUT | EPOLLET;
+    std::cout << "ADD WRITE FD : " << m_fd << std::endl;
     if(epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event))
     {
         std::cerr << "Failed to add write file descriptor " << m_fd << " to epoll\n";
