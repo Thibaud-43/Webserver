@@ -111,8 +111,12 @@ bool	Post::_start_cgi(ASocket ** ptr)
 
 bool	Post::_upload(ASocket ** ptr)
 {
-	_convert<Upload>(ptr);
-	return ((*ptr)->execute(ptr));
+	Upload	*upload = new Upload(*this);
+
+	if (ptr)
+		*ptr = upload;
+	ASocket::addSocket(upload);
+	return (upload->entry(ptr));
 }
 
 bool	Post::execute(ASocket ** ptr)

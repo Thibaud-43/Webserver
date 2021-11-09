@@ -10,13 +10,17 @@ class Upload: public Post
 	public:
 		Upload();
 		Upload( Upload const & src );
-		Upload( Request const & src );
+		Upload( Post const & src );
 		~Upload();
 
 		virtual bool	execute(ASocket ** ptr);
+		virtual bool	entry(ASocket ** ptr);
 
 	private:
 		std::fstream	m_stream;
+		size_t			m_stream_size;
+
+		bool			_send_created(void) const;
 
 };
 

@@ -126,7 +126,7 @@ bool	Get::_start_cgi(ASocket ** ptr)
 bool	Get::_get(ASocket ** ptr)
 {
 	Response	rep;
-	bool		ret;
+	bool		ret = true;
 
 	rep.start_header("200");
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
