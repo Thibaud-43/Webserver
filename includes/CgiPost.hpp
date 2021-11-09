@@ -14,6 +14,7 @@ class CgiPost: public ACgi, public Post
 		~CgiPost();
 
 		virtual bool	execute(ASocket ** ptr);
+		virtual bool	entry(ASocket ** ptr);
 		virtual bool	manage(ACgi ** ptr, int const & fd);
 		virtual bool	start(void);
 		char **			getArgs(void) const;

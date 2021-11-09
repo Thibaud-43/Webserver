@@ -71,7 +71,6 @@ bool	Post::_fillBuffer(void)
 		}
 		else
 		{
-
 			if (m_buff.size() > _strToSize(m_header["Content-Length"]))
 			{
 				_send(Response::create_error("413", &m_server->getParams()));
@@ -110,7 +109,7 @@ bool	Post::_start_cgi(ASocket ** ptr)
 	if (ptr)
 		*ptr = cgi;
 	ASocket::addSocket(cgi);
-	return ((*ptr)->execute(ptr));
+	return (cgi->entry(ptr));
 }
 
 bool	Post::_upload(ASocket ** ptr)
