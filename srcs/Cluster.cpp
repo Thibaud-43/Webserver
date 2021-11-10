@@ -13,7 +13,7 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
         m_tree.parseTokensList();
         this->_fillCluster(m_tree.getRoot());
 		this->_parseServerObject();
-       // std::cout << *this << std::endl;
+       	std::cout << *this << std::endl;
     }
     catch(const Tree::ParserFailException& e)
     {
@@ -202,7 +202,7 @@ void							Cluster::_runServers(void)
 
 void							Cluster::_epollWait(void)
 {
-	m_eventCount = epoll_wait(FileDescriptor::getEpollFd(), m_events, MAX_EVENTS, 0);
+	m_eventCount = epoll_wait(FileDescriptor::getEpollFd(), m_events, MAX_EVENTS, 2000);
 	if (m_eventCount == -1)
 	{
 		perror("failed epoll_wait");

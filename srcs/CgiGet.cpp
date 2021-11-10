@@ -213,6 +213,7 @@ bool	CgiGet::start(void)
 	{
 		if (dup2(pipefd_out[1], STDOUT_FILENO) < 0)
 			exit(1);
+
 		_close_pipes(pipefd_out);
 		if (execve(args[0], args, envp) < 0)
 			exit(1);
@@ -227,21 +228,25 @@ void	CgiGet::_setEnv(void)
 {
 	char *addr = inet_ntoa(m_remote_addr.sin_addr);
 
-	if (m_header.find("Authorization") != m_header.end())
-		m_env["AUTH_TYPE"] = m_header.at("Authorization");
 	m_env["GATEWAY_INTERFACE"] = CGI_VERSION;
+	m_env["PATH_TRANSLATED"] =  m_path.getPath();
+	if (m_header.find("query_string") != m_header.end())
+		m_env["QUERY_STRING"] = m_header.at("query_string");
+	m_env["REQUEST_METHOD"] = "GET";
+	m_env["REQUEST_URI"] = m_header.at("uri");
+	m_env["REMOTE_IDENT"] = "";
+	m_env["REDIRECT_STATUS"] = "200";
+	m_env["REMOTE_ADDR"] = std::string(addr);
+	m_env["SCRIPT_NAME"] = m_header.at("uri");
+	m_env["PATH_INFO"] = m_header.at("uri");
+	m_env["SCRIPT_FILENAME"] = m_path.getPath();
 	m_env["SERVER_NAME"] = m_header.at("Host");
 	m_env["SERVER_PORT"] = m_server->getPort();
 	m_env["SERVER_PROTOCOL"] = PROTOCOL;
 	m_env["SERVER_SOFTWARE"] = SERV_NAME;
-	if (m_header.find("query_string") != m_header.end())
-		m_env["QUERY_STRING"] = m_header.at("query_string");
-	m_env["REQUEST_METHOD"] = "POST";
-	m_env["PATH_INFO"] = m_header.at("uri");
-	m_env["SCRIPT_FILENAME"] = m_path.getPath();
-	m_env["SCRIPT_NAME"] = m_header.at("Host");
-	m_env["REMOTE_ADDR"] = std::string(addr);
-	m_env["REDIRECT_STATUS"] = "200";
+	m_env["CONTENT_LENGTH"] = "0";
+	if (m_header.find("Authorization") != m_header.end())
+		m_env["AUTH_TYPE"] = m_header.at("Authorization");
 }
 
 bool	CgiGet::checkStatus(void)
@@ -256,7 +261,10 @@ bool	CgiGet::checkStatus(void)
 		return (false);
 	}
 	else if (!ret)
+	{	
+		std::cout << " not terminated" << std::endl;
 		return (true);
+	}
 	else
 	{
 		if (!WIFEXITED(status))
@@ -270,6 +278,8 @@ bool	CgiGet::checkStatus(void)
 			close(m_fd_in);
 			m_fd_in = -1;
 		}
+		std::cout << "terminated" << std::endl;
+
 		fd_out.epollCtlAdd();
 		m_pid = -1;
 		return (true);

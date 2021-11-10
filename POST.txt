@@ -10,3 +10,13 @@ thibaud
 0
 
 
+PATH_TRANSLATED: /var/www/youpi.bla
+REQUEST_URI: /test/youpi.bla
+SCRIPT_NAME: /test//youpi.bla
+PATH_INFO: /test/youpi.bla
+SCRIPT_FILENAME: /var/www/youpi.bla
+
+
+PATH_INFO/test/youpi.bla
+SCRIPT_NAME/test/youpi.bla
+SCRIPT_FILENAME/var/www/youpi.bla
