@@ -169,7 +169,93 @@ bool	CgiGet::execute(ASocket ** ptr)
 	return (true);
 }
 
-bool	CgiGet::manage(ACgi **ptr, int const & fd)
+bool	CgiGet::manage(ACgi ** ptr, int const & fd)
+{
+	if (ptr)
+		*ptr = this;
+	if (fd == m_fd_in)
+	{
+		write(fd, "\0", 1);
+		close(m_fd_in);
+		m_fd_in = -1;
+		return (true);
+	}
+	else if (fd == m_fd_out)
+	{
+		if (!_fillBuffer() || !_handle())
+		{
+			close(m_fd_out);
+			return false;
+		}
+		*ptr = NULL;
+		_convert<Client>(NULL);
+		return (true);
+	}
+	else
+		return (false);
+
+}
+
+bool	CgiGet::start(void)
+{
+	char	**envp;
+	char	**argv;
+	int		pipefd_out[2];
+	int		pipefd_in[2];
+
+	if (pipe(pipefd_out))
+		return (false);
+	m_fd_out = pipefd_out[0];
+	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
+	{
+		_close_pipes(pipefd_out);
+		return (false);
+	}
+	if (pipe(pipefd_in))
+	{
+		_close_pipes(pipefd_out);
+		return (false);
+	}
+	m_fd_in = pipefd_in[1];
+	if (fcntl(m_fd_in, F_SETFL, O_NONBLOCK) == -1)
+	{
+		_close_pipes(pipefd_out, pipefd_in);
+		return (false);
+	}
+	envp = getEnv();
+	argv = getArgs();
+	m_pid = fork();
+	if (m_pid < 0)
+	{
+		_close_pipes(pipefd_out, pipefd_in);
+		del_env(envp);
+		del_env(argv);
+		return (false);
+	}
+	else if (!m_pid)
+	{
+		if (dup2(pipefd_out[1], STDOUT_FILENO) < 0)
+			exit(1);
+		if (dup2(pipefd_in[0], STDIN_FILENO) < 0)
+			exit(1);
+		_close_pipes(pipefd_out, pipefd_in);
+		if (execve(argv[0], argv, envp) < 0)
+			exit(1);
+	}
+	else
+	{
+		FileDescriptor	f(m_fd_in);
+
+		f.epollCtlAdd_w();
+		close(pipefd_in[0]);
+		close(pipefd_out[1]);
+		del_env(envp);
+		del_env(argv);
+	}
+	return (true);
+}
+
+/*bool	CgiGet::manage(ACgi **ptr, int const & fd)
 {
 	(void)ptr;
 	if (fd == m_fd_out)
@@ -183,9 +269,9 @@ bool	CgiGet::manage(ACgi **ptr, int const & fd)
 		return (true);
 	}
 	return (true);
-}
+}*/
 
-bool	CgiGet::start(void)
+/*bool	CgiGet::start(void)
 {
 	char	**envp;
 	char	**args;
@@ -222,7 +308,7 @@ bool	CgiGet::start(void)
 	del_env(envp);
 	del_env(args);
 	return (true);
-}
+}*/
 
 void	CgiGet::_setEnv(void)
 {
