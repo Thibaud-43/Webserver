@@ -215,7 +215,9 @@ bool	Request::_checkRequestLine(void)
 
 bool	Request::execute(ASocket **ptr)
 {
-	std::string		method;
+	std::string										method;
+	std::pair<Location::redirect_t, std::string>	redirect;
+	Response										rep;
 
 	if (!_fillBuffer())
 		return false;
@@ -227,8 +229,16 @@ bool	Request::execute(ASocket **ptr)
 	if(!_checkHeader())
 		return false;
 	method = m_header.at("method");
-	// REDIRECT ??
-	if (method == "GET")
+	redirect = m_location->getRedirect();
+	if (!redirect.first.empty())
+	{
+		rep = Response::create_redirect(redirect.first, redirect.second);
+		if (!_send(rep))
+			return (false);
+		_convert<Client>(ptr);
+		return (true);
+	}
+	else if (method == "GET")
 		_convert<Get>(ptr);
 	else if (method == "POST")
 		_convert<Post>(ptr);
