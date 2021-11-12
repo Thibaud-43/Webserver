@@ -53,7 +53,7 @@ bool	Delete::_check(void) const
 		rep = Response::create_error("413", m_location);
 	else if (!m_path.exist())
 		rep = Response::create_error("404", m_location);
-	else if (!m_path.is_writable())
+	else if (m_path.is_directory() || !m_path.is_writable())
 		rep = Response::create_error("403", m_location);
 	else
 		return (true);

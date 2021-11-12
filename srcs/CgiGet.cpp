@@ -171,13 +171,20 @@ bool	CgiGet::execute(ASocket ** ptr)
 
 bool	CgiGet::manage(ACgi ** ptr, int const & fd)
 {
+	int	ret;
+
 	if (ptr)
 		*ptr = this;
 	if (fd == m_fd_in)
 	{
-		write(fd, "\0", 1);
+		ret = write(fd, "\0", 1);
 		close(m_fd_in);
 		m_fd_in = -1;
+		if (ret <= 0 )
+		{
+			_send(Response::create_error("500", m_location));
+			return (false);
+		}
 		return (true);
 	}
 	else if (fd == m_fd_out)

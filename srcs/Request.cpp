@@ -215,21 +215,19 @@ bool	Request::_checkRequestLine(void)
 
 bool	Request::execute(ASocket **ptr)
 {
-	std::string		method = "";
+	std::string		method;
+
 	if (!_fillBuffer())
-	{
 		return false;
-	}
 	if (m_buff.find("\r\n\r\n") == std::string::npos)
-	{
 		return true;
-	}
 	_bufferToRequestLine();
 	_bufferToHeader();
 	_printHeader();
 	if(!_checkHeader())
 		return false;
-	method = m_header["method"];
+	method = m_header.at("method");
+	// REDIRECT ??
 	if (method == "GET")
 		_convert<Get>(ptr);
 	else if (method == "POST")

@@ -197,14 +197,21 @@ bool	CgiPost::entry(ASocket ** ptr)
 
 bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 {
+	int	ret;
+
 	if (ptr)
 		*ptr = this;
 	if (fd == m_fd_in)
 	{
-		write(fd, m_body.data(), m_body.size());
+		ret = write(fd, m_body.data(), m_body.size());
 		m_body.clear();
 		close(m_fd_in);
 		m_fd_in = -1;
+		if (ret <= 0 )
+		{
+			_send(Response::create_error("500", m_location));
+			return (false);
+		}
 		return (true);
 	}
 	else if (fd == m_fd_out)
