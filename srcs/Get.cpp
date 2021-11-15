@@ -73,6 +73,7 @@ bool	Get::_check(void) const
 bool	Get::_manageDir(ASocket ** ptr)
 {
 	Response	rep;
+	bool		ret = true;
 
 	if (*(m_path.getPath().end() - 1) != '/')
 		rep = Response::create_redirect("302", m_header.at("uri") + "/");
@@ -84,10 +85,15 @@ bool	Get::_manageDir(ASocket ** ptr)
 		_send(rep);
 		return (false);
 	}
+	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
+	{
+		ret = false;
+		rep.append_to_header("Connection: close");
+	}
 	if (!_send(rep))
 		return (false);
 	_convert<Client>(ptr);
-	return (true);
+	return (ret);
 }
 
 Location::file_t const *	Get::_cgiPass(void) const

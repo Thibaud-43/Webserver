@@ -230,7 +230,7 @@ void							Cluster::_epollExecute(void)
 				ASocket::removeCgi(cgi);
 		}
 		else
-			std::cerr << "Y'A UN SOUCIS LA\n";
+			close(m_events[i].data.fd);
 	}
 }
 
