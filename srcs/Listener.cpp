@@ -62,7 +62,6 @@ bool	Listener::execute(ASocket ** ptr)
 	{
 		struct sockaddr_in their_addr;
 		socklen_t size = sizeof(struct sockaddr);
-
 		int fd = accept(getFd(), (struct sockaddr*)&their_addr, &size);
 		if (fd == -1) 
 		{
@@ -73,7 +72,7 @@ bool	Listener::execute(ASocket ** ptr)
 			else 
 			{
 				perror("accept()");
-				return (false);
+				return (true);
 			}
 		}
 		else

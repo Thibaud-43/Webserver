@@ -355,7 +355,6 @@ bool	CgiGet::checkStatus(void)
 	}
 	else if (!ret)
 	{	
-		std::cout << " not terminated" << std::endl;
 		return (true);
 	}
 	else
@@ -371,7 +370,6 @@ bool	CgiGet::checkStatus(void)
 			close(m_fd_in);
 			m_fd_in = -1;
 		}
-		std::cout << "terminated" << std::endl;
 
 		fd_out.epollCtlAdd();
 		m_pid = -1;
