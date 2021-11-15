@@ -47,6 +47,7 @@ class Request: public Client
 		bool		_checkHost(void);
 		void		_linkLocation(void);
 		void		_linkPath(void);
+		bool		_redirect(std::pair<Location::redirect_t, std::string>	const & redirect, ASocket **ptr);
 };
 
 #endif /* ********************************************************* REQUEST_H */

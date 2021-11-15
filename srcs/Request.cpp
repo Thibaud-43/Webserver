@@ -217,7 +217,6 @@ bool	Request::execute(ASocket **ptr)
 {
 	std::string										method;
 	std::pair<Location::redirect_t, std::string>	redirect;
-	Response										rep;
 
 	if (!_fillBuffer())
 		return false;
@@ -231,13 +230,7 @@ bool	Request::execute(ASocket **ptr)
 	method = m_header.at("method");
 	redirect = m_location->getRedirect();
 	if (!redirect.first.empty())
-	{
-		rep = Response::create_redirect(redirect.first, redirect.second);
-		if (!_send(rep))
-			return (false);
-		_convert<Client>(ptr);
-		return (true);
-	}
+		return (_redirect(redirect, ptr));
 	else if (method == "GET")
 		_convert<Get>(ptr);
 	else if (method == "POST")
@@ -245,6 +238,22 @@ bool	Request::execute(ASocket **ptr)
 	else if (method == "DELETE")
 		_convert<Delete>(ptr);
 	return (*ptr)->execute(ptr);
+}
+
+bool	Request::_redirect(std::pair<Location::redirect_t, std::string>	const & redirect, ASocket **ptr)
+{
+	bool 		ret = true;
+	Response	rep = Response::create_redirect(redirect.first, redirect.second);
+
+	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
+	{
+		ret = false;
+		rep.append_to_header("Connection: close");
+	}
+	if (!_send(rep))
+			return (false);
+	_convert<Client>(ptr);
+	return (ret);
 }
 
 /*
