@@ -33,6 +33,7 @@ class ASocket
 		static void			removeSocket(ASocket * socket);
 		static void			removeCgi(ACgi * cgi);
 		static void			clean(void);
+		static void			clear(void);
 
 	protected:
 		fd_type			m_fd;

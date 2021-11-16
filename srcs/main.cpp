@@ -1,5 +1,6 @@
 #include "Cluster.hpp"
 #include "Tree.hpp"
+#include "Response.hpp"
 
 // void printBT(const std::string& prefix, const Node* node, bool isLeft)
 // {
@@ -23,8 +24,20 @@
 //     printBT("", node, false);    
 // }
 
+void    leave(int sig)
+{
+    (void)sig;
+    ASocket::clear();
+    std::cout << "[" << HTTPDate() << "]" << ": server shutdown\n";
+    exit(0);
+}
+
 int main(int argc, char const *argv[])
 {
+    signal(SIGINT, leave);
+    signal(SIGKILL, leave);
+    signal(SIGTERM, leave);
+    signal(SIGSTOP, leave);
     if (argc == 1)
     {
         Cluster cluster;
