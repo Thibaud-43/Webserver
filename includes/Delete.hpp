@@ -16,8 +16,8 @@ class Delete: public Request
 		virtual bool execute(ASocket ** ptr);
 
 	private:
-		bool	_check(void) const;
-		bool	_delete(void) const;
+		bool	_check(void);
+		bool	_delete(void);
 
 };
 

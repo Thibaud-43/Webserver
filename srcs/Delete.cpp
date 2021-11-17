@@ -39,50 +39,41 @@ bool	Delete::execute(ASocket ** ptr)
 {
 	if (ptr)
 		*ptr = this;
-	if (!_check() || !_delete())
-		return (false);
-	_convert<Client>(ptr);
-	return (true);
+	if (!_check())
+		return (m_fd.epollCtlAdd_w());
+	_delete();
+	return (m_fd.epollCtlAdd_w());
 }
 
-bool	Delete::_check(void) const
+bool	Delete::_check(void)
 {
-	Response	rep;
-
 	if (m_header.find("Content-Length") != m_header.end() || m_header.find("Transfer-encoding") != m_header.end())
-		rep = Response::create_error("413", m_location);
+		m_rep = Response::create_error("413", m_location);
 	else if (!m_path.exist())
-		rep = Response::create_error("404", m_location);
+		m_rep = Response::create_error("404", m_location);
 	else if (m_path.is_directory() || !m_path.is_writable())
-		rep = Response::create_error("403", m_location);
+		m_rep = Response::create_error("403", m_location);
 	else
 		return (true);
-	_send(rep);
 	return (false);
 }
 
-bool	Delete::_delete(void) const
+bool	Delete::_delete(void)
 {
-	Response	rep;
-
 	if (remove(m_path.getPath().c_str()))
 	{
-		rep = Response::create_error("500", m_location);
-		_send(rep);
+		m_rep = Response::create_error("500", m_location);
 		return (false);
 	}
-	rep.start_header("200");
-	rep.append_to_body("<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n<html>\n");
-	rep.add_content_length();
+	m_rep.start_header("200");
+	m_rep.append_to_body("<html>\n<body>\n<h1>File deleted.</h1>\n</body>\n<html>\n");
+	m_rep.add_content_length();
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
 	{
-		rep.append_to_header("Connection: close");
-		_send(rep);
+		m_rep.append_to_header("Connection: close");
 		return (false);
 	}
-	rep.append_to_header("Connection: keep-alive");
-	if (!_send(rep))
-		return (false);
+	m_rep.append_to_header("Connection: keep-alive");
 	return (true);
 }
 

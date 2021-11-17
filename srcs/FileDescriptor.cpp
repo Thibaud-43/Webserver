@@ -17,7 +17,7 @@ int const & FileDescriptor::getEpollFd(void)
     return _epoll_fd;
 }
 
-void	FileDescriptor::epollCtlDel(int const & fd)
+bool	FileDescriptor::epollCtlDel(int const & fd)
 {
 	FileDescriptor::event_type	event;
 
@@ -28,7 +28,9 @@ void	FileDescriptor::epollCtlDel(int const & fd)
     {
         std::cerr << "Failed to delete file descriptor to epoll\n";
         close(_epoll_fd);
+        return (false);
     }
+    return (true);
 }
 
 /*
@@ -68,7 +70,7 @@ FileDescriptor::~FileDescriptor()
 */
 
 
-void	FileDescriptor::epollCtlAdd(void)
+bool	FileDescriptor::epollCtlAdd(void)
 {
 	FileDescriptor::event_type	event;
 
@@ -79,10 +81,12 @@ void	FileDescriptor::epollCtlAdd(void)
     {
         std::cerr << "Failed to add read file descriptor " << m_fd << " to epoll\n";
         close(_epoll_fd);
+        return (false);
     }
+    return (true);
 }
 
-void	FileDescriptor::epollCtlAdd_w(void)
+bool	FileDescriptor::epollCtlAdd_w(void)
 {
 	FileDescriptor::event_type	event;
 
@@ -93,11 +97,13 @@ void	FileDescriptor::epollCtlAdd_w(void)
     {
         std::cerr << "Failed to add write file descriptor " << m_fd << " to epoll\n";
         close(_epoll_fd);
+        return (false);
     }
+    return (true);
 }
 
 
-void	FileDescriptor::epollCtlDel(void)
+bool	FileDescriptor::epollCtlDel(void)
 {
 	FileDescriptor::event_type	event;
 
@@ -108,17 +114,20 @@ void	FileDescriptor::epollCtlDel(void)
     {
         std::cerr << "Failed to delete file descriptor to epoll\n";
         close(_epoll_fd);
+        return (false);
     }
+    return (true);
 }
 
-void			FileDescriptor::makeFdNonBlocking(void)
+bool			FileDescriptor::makeFdNonBlocking(void)
 {
 	if (fcntl(m_fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		perror("fcntl");
 		exit(1);
+        return (false);
 	}
-    
+    return (true);
 }
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

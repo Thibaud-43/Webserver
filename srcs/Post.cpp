@@ -60,7 +60,7 @@ bool	Post::_fillBuffer(void)
 			m_buff += read_buffer;
 			if (m_buff.size() > m_location->getBodySize())
 			{
-				_send(Response::create_error("413", NULL));
+				m_rep = Response::create_error("413", NULL);
 				return false;
 			}
 		}
@@ -70,7 +70,7 @@ bool	Post::_fillBuffer(void)
 			m_buff += read_buffer;
 			if (m_buff.size() > m_location->getBodySize())
 			{
-				_send(Response::create_error("413", &m_server->getParams()));
+				m_rep = Response::create_error("413", &m_server->getParams());
 				return (false);		
 			}
 			return true;
@@ -78,17 +78,14 @@ bool	Post::_fillBuffer(void)
 	}
 }
 
-bool	Post::_check(void) const
+bool	Post::_check(void)
 {
-	Response	rep;
-
 	if (m_header.find("Content-Length") == m_header.end() && m_header.find("Transfer-Encoding") == m_header.end())
-		rep = Response::create_error("411", m_location);
+		m_rep = Response::create_error("411", m_location);
 	else if (m_header.find("Content-Length") != m_header.end() && _strToSize(m_header.at("Content-Length")) > m_location->getBodySize())
-		rep = Response::create_error("413", m_location);
+		m_rep = Response::create_error("413", m_location);
 	else
 		return (true);
-	_send(rep);
 	return (false);
 }
 
@@ -99,7 +96,7 @@ bool	Post::_start_cgi(ASocket ** ptr)
 	
 	if (!f.is_executable())
 	{
-		_send(Response::create_error("500", m_location));
+		m_rep = Response::create_error("500", m_location);
 		return (false);
 	}
 	cgi = new CgiPost(*this);
@@ -124,15 +121,15 @@ bool	Post::execute(ASocket ** ptr)
 	if (ptr)
 		*ptr = this;
 	if (!_check())
-		return (false);
+		return (m_fd.epollCtlAdd_w());
 	if (m_cgi_pass)
 		return (_start_cgi(ptr));
 	else if (m_location->getUpload())
 		return (_upload(ptr));
 	else 
 	{
-		_send(Response::create_error("403", m_location));
-		return (false);
+		m_rep = Response::create_error("403", m_location);
+		return (m_fd.epollCtlAdd_w());
 	}
 }
 

@@ -173,12 +173,12 @@ bool	Request::_checkHeader(void)
 	_linkPath();
 	if (!m_location->isAllowed(m_header["method"]))
 	{
-		_send(Response::create_error("405", &m_server->getParams()));
+		m_rep = Response::create_error("405", &m_server->getParams());
 		return (false);
 	}
 	if (m_buff.size() > m_location->getBodySize())
 	{
-		_send(Response::create_error("413", &m_server->getParams()));
+		m_rep = Response::create_error("413", &m_server->getParams());
 		return (false);		
 	}
 	return (true);
@@ -188,7 +188,7 @@ bool	Request::_checkHost(void)
 {
 	if (m_header["Host"].empty())
 	{
-		_send(Response::create_error("400", NULL));
+		m_rep = Response::create_error("400", NULL);
 		return (false);
 	}
 	return (true);
@@ -198,17 +198,17 @@ bool	Request::_checkRequestLine(void)
 {
 	if (m_header.empty() || m_header["protocol"].empty() || m_header["method"].empty() || m_header["uri"].empty())
 	{
-		_send(Response::create_error("400", NULL));
+		m_rep = Response::create_error("400", NULL);
 		return (false);
 	}
 	if (m_header["protocol"] != PROTOCOL)
 	{
-		_send(Response::create_error("505", NULL));
+		m_rep = Response::create_error("505", NULL);
 		return (false);
 	}
 	if (m_header["method"] != "GET" && m_header["method"] != "POST" && m_header["method"] != "DELETE")
 	{
-		_send(Response::create_error("405", NULL));
+		m_rep = Response::create_error("405", NULL);
 		return (false);
 	}
 	return (true);
@@ -220,18 +220,18 @@ bool	Request::execute(ASocket **ptr)
 	std::pair<Location::redirect_t, std::string>	redirect;
 
 	if (!_fillBuffer())
-		return false;
+		return (m_fd.epollCtlAdd_w());
 	if (m_buff.find("\r\n\r\n") == std::string::npos)
 		return true;
 	_bufferToRequestLine();
 	_bufferToHeader();
 	//_printHeader();
 	if(!_checkHeader())
-		return false;
+		return (m_fd.epollCtlAdd_w());
 	method = m_header.at("method");
 	redirect = m_location->getRedirect();
 	if (!redirect.first.empty())
-		return (_redirect(redirect, ptr));
+		return (_redirect(redirect));
 	else if (method == "GET")
 		_convert<Get>(ptr);
 	else if (method == "POST")
@@ -241,20 +241,12 @@ bool	Request::execute(ASocket **ptr)
 	return (*ptr)->execute(ptr);
 }
 
-bool	Request::_redirect(std::pair<Location::redirect_t, std::string>	const & redirect, ASocket **ptr)
+bool	Request::_redirect(std::pair<Location::redirect_t, std::string>	const & redirect)
 {
-	bool 		ret = true;
-	Response	rep = Response::create_redirect(redirect.first, redirect.second);
-
+	m_rep = Response::create_redirect(redirect.first, redirect.second);
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
-	{
-		ret = false;
-		rep.append_to_header("Connection: close");
-	}
-	if (!_send(rep))
-			return (false);
-	_convert<Client>(ptr);
-	return (ret);
+		m_rep.append_to_header("Connection: close");
+	return (m_fd.epollCtlAdd_w());
 }
 
 /*

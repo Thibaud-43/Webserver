@@ -120,6 +120,13 @@ void            Listener::_listen(void)
 
 }
 
+bool	Listener::send_rep(ASocket ** ptr)
+{
+	if (ptr)
+		*ptr = this;
+	return (true);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

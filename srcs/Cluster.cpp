@@ -216,14 +216,14 @@ void							Cluster::_epollExecute(void)
 
 	for( int i = 0; i < m_eventCount; i++)
 	{
-	
 		socket = ASocket::getSocket(m_events[i].data.fd);
 		if (socket)
 		{
 			socket->resetClock();
-			if (m_events[i].data.fd & EPOLLOUT)
+			if (m_events[i].data.fd & EPOLLOUT) // MAUVAISE CONDITION ?
 			{
-
+				if (!socket->send_rep(&socket))
+					ASocket::removeSocket(socket);
 			}
 			else
 			{

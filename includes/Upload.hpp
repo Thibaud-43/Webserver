@@ -20,7 +20,7 @@ class Upload: public Post
 		std::fstream	m_stream;
 		size_t			m_stream_size;
 
-		bool			_send_created(void) const;
+		void			_created(void);
 
 };
 

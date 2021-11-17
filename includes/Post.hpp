@@ -24,7 +24,7 @@ class Post: public Request
 		bool						_fillBuffer(void);
 	
 	private:
-		bool						_check(void) const;
+		bool						_check(void);
 		Location::file_t const *	_cgiPass(void) const;
 		bool						_start_cgi(ASocket ** ptr);
 		bool						_upload(ASocket ** ptr);

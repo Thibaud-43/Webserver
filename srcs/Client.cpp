@@ -76,7 +76,7 @@ bool	Client::_fillBuffer(void)
 			m_buff += read_buffer;
 			if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
 			{
-				_send(Response::create_error("431", NULL));
+				m_rep = Response::create_error("431", NULL);
 				return false;
 			}
 		}
@@ -101,27 +101,18 @@ bool	Client::execute(ASocket ** ptr)
 	return request->execute(ptr);
 }
 
-bool	Client::_send(Response const & rep) const
+bool	Client::send_rep(ASocket ** ptr)
 {
-	std::string	content = rep.getContent();
+	std::string	content = m_rep.getContent();
 	int ret;
 
-	std::cout << content + "\n";
 	ret = send(getFd(), content.c_str(), content.size(), 0);
-	if (ret == 0 || ret == -1)
+	if (ret == 0 || ret == -1 || m_rep.close())
 		return (false);
-	return (true);
-}
-
-bool	Client::_send(std::string const & rep) const
-{
-	int ret;
-
-	std::cout << rep + "\n";
-	ret = send(getFd(), rep.c_str(), rep.size(), 0);
-	if (ret == 0 || ret == -1)
-		return (false);
-	return (true);
+	ret = m_fd.epollCtlAdd();
+	if (ret)
+		_convert<Client>(ptr);
+	return (ret);
 }
 
 /*

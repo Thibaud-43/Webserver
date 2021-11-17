@@ -19,6 +19,7 @@ class Response
 		~Response();
 
 		std::string		getContent(void) const;
+		bool			close(void) const;
 		void			start_header(status_code_t const & status);
 		void			append_to_header(std::string const & str);
 		void			append_to_body(std::string const & str);

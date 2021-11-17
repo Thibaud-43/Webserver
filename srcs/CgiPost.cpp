@@ -86,36 +86,33 @@ void			CgiPost::_bufferToHeader(std::map<std::string, std::string> & header)
 bool	CgiPost::_handle(void)
 {
 	std::map<std::string, std::string>	header;
-	Response							rep;
 	std::string							status;
 
 	_bufferToHeader(header);
 	_checkStatus(header, status);
 	if (header["body"].empty() && status != "200" && status != "302")
 	{
-		_send(Response::create_error(status, m_location));
-		return false;
+		m_rep = Response::create_error(status, m_location);
+		return (false);
 	}
 	else if (header["body"].empty() && status == "302")
 	{
-		if (!_send(Response::create_redirect("302", header["Location"])))
-			return false;
+		m_rep = Response::create_redirect("302", header["Location"]);
 		close(m_fd_out);
 		m_fd_out = -1;
-		return true;
+		return (true);
 	}
 	else
 	{
-		rep.start_header(status);
+		m_rep.start_header(status);
 		for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); it++)
 		{
 			if (it->first != "body")
-				rep.append_to_header(it->first + ": " + it->second);
+				m_rep.append_to_header(it->first + ": " + it->second);
 			else
-				rep.append_to_body(it->second);
+				m_rep.append_to_body(it->second);
 		}
-		rep.add_content_length();
-		_send(rep);
+		m_rep.add_content_length();
 		close(m_fd_out);
 		m_fd_out = -1;
 		return (true);
@@ -144,7 +141,7 @@ bool	CgiPost::_fillBuffer(void)
 			m_buff += read_buffer;
 			if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
 			{
-				_send(Response::create_error("431", NULL));
+				m_rep = Response::create_error("431", NULL);
 				return false;
 			}
 		}
@@ -152,7 +149,6 @@ bool	CgiPost::_fillBuffer(void)
 		{ 
 			read_buffer[bytes_read] = 0;
 			m_buff += read_buffer;
-
 			return true;
 		}
 	}
@@ -161,7 +157,7 @@ bool	CgiPost::_fillBuffer(void)
 bool	CgiPost::execute(ASocket ** ptr)
 {
 	if (!Post::_fillBuffer())
-		return false;
+		return (m_fd.epollCtlAdd_w());
 	return (entry(ptr));
 }
 
@@ -176,7 +172,10 @@ bool	CgiPost::entry(ASocket ** ptr)
 			m_body = m_buff;
 			m_buff.clear();
 			if (!start())
-				return (false);
+			{
+				m_rep = Response::create_error("500", m_location);
+				return (m_fd.epollCtlAdd_w());
+			}
 		}
 		return (true);
 	}
@@ -187,12 +186,18 @@ bool	CgiPost::entry(ASocket ** ptr)
 		{
 			m_env["CONTENT_LENGTH"] = m_unchunker.getTotalSize();
 			if (!start())
-				return (false);
+			{
+				m_rep = Response::create_error("500", m_location);
+				return (m_fd.epollCtlAdd_w());
+			}
 		}
 		return (true);
 	}
 	else
-		return (false);
+	{
+		m_rep = Response::create_error("411", m_location);
+		return (m_fd.epollCtlAdd_w());
+	}
 }
 
 bool	CgiPost::manage(ACgi ** ptr, int const & fd)
@@ -209,25 +214,19 @@ bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 		m_fd_in = -1;
 		if (ret <= 0 )
 		{
-			_send(Response::create_error("500", m_location));
-			return (false);
+			m_rep = Response::create_error("500", m_location);
+			return (m_fd.epollCtlAdd_w());
 		}
 		return (true);
 	}
 	else if (fd == m_fd_out)
 	{
 		if (!_fillBuffer() || !_handle())
-		{
 			close(m_fd_out);
-			return false;
-		}
-		*ptr = NULL;
-		_convert<Client>(NULL);
-		return (true);
+		return (m_fd.epollCtlAdd_w());
 	}
 	else
-		return (false);
-
+		throw std::exception();
 }
 
 bool	CgiPost::start(void)
@@ -322,20 +321,20 @@ bool	CgiPost::checkStatus(void)
 	
 	if (ret < 0)
 	{
-		_send(Response::create_error("500", m_location));
-		return (false);
+		m_rep = Response::create_error("500", m_location);
+		ACgi::clear();
+		return (m_fd.epollCtlAdd_w());
 	}
 	else if (!ret)
-	{
 		return (true);
-	}
 	else
 	{
 		if (!WIFEXITED(status))
 		{
-			_send(Response::create_error("500", m_location));
+			m_rep = Response::create_error("500", m_location);
 			m_pid = -1;
-			return (false);
+			ACgi::clear();
+			return (m_fd.epollCtlAdd_w());
 		}
 		else if (m_fd_in > 0)
 		{
@@ -343,7 +342,6 @@ bool	CgiPost::checkStatus(void)
 			m_fd_in = -1;
 		}
 		fd_out.epollCtlAdd();
-
 		m_pid = -1;
 		return (true);
 	}

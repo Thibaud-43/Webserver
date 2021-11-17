@@ -16,13 +16,23 @@ class Client: public ASocket
 
 		bool			alive(void) const;
 		virtual bool	execute(ASocket ** ptr);
+		virtual bool	send_rep(ASocket ** ptr);
 
 	protected:
 		std::string			m_buff;
 		struct sockaddr_in	m_remote_addr;
+		Response			m_rep;
 
-		bool			_send(Response const & rep) const;
-		bool			_send(std::string const & rep) const;
+		template<typename T>
+		void		_convert(ASocket ** ptr)
+		{
+			T	*elem = new T(*this);
+
+			if (ptr)
+				*ptr = elem;
+			ASocket::addSocket(elem);
+		}
+
 		virtual bool	_fillBuffer(void);
 
 

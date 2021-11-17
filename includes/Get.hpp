@@ -18,16 +18,14 @@ class Get: public Request
 		Location::file_t const *	m_cgi_pass; 
 		
 		std::string					_ltostr(size_t const & len) const;
-		bool						_chunk_size_to_client(std::streamsize const & size) const;
 
 	private:
-		bool						_check(void) const;
+		bool						_check(void);
 		Location::file_t const *	_cgiPass(void) const; 
-		bool						_manageDir(ASocket ** ptr);
+		bool						_manageDir();
 		bool						_start_cgi(ASocket ** ptr);
 		bool						_get(ASocket ** ptr);
-		bool						_sendChunkedFile(void) const;
-		bool						_sendFile(void) const;
+		bool						_addFile(void);
 
 	
 };

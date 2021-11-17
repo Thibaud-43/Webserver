@@ -40,7 +40,7 @@ Upload::~Upload()
 bool	Upload::execute(ASocket ** ptr)
 {
 	if (!Post::_fillBuffer())
-		return (false);
+		return (m_fd.epollCtlAdd_w());
 	return (entry(ptr));
 }
 
@@ -49,7 +49,10 @@ bool	Upload::entry(ASocket ** ptr)
 	if (ptr)
 		*ptr = this;
 	if (!m_stream.is_open())
-		return (_send(Response::create_error("403", m_location)));
+	{
+		m_rep = Response::create_error("403", m_location);
+		return (m_fd.epollCtlAdd_w());
+	}
 	if (m_header.find("Content-Length") != m_header.end())
 	{
 		m_stream << m_buff;
@@ -58,9 +61,8 @@ bool	Upload::entry(ASocket ** ptr)
 		if (m_stream_size >= _strToSize(m_header["Content-Length"]))
 		{
 			m_stream.close();
-			if (!_send_created())
-				return (false);
-			_convert<Client>(ptr);
+			_created();
+			return (m_fd.epollCtlAdd_w());
 		}
 		return (true);
 	}
@@ -73,43 +75,36 @@ bool	Upload::entry(ASocket ** ptr)
 		if (m_unchunker.getEnd())
 		{
 			m_stream.close();
-			if (!_send_created())
-				return (false);
-			_convert<Client>(ptr);
+			_created();
+			return (m_fd.epollCtlAdd_w());
 		}
 		return (true);
 	}
 	else
-		return (false);
+	{
+		m_rep = Response::create_error("411", m_location);
+		return (m_fd.epollCtlAdd_w());
+	}
 }
 
-bool	Upload::_send_created(void) const
+void	Upload::_created(void)
 {
-	Response	rep;
-	bool		ret = true;
-
-	rep.start_header("201");
-	rep.append_to_body("<html>\n");
-	rep.append_to_body("<head><title>201 Created</title></head>\n");
-	rep.append_to_body("<body bgcolor=\"white\">\n");
-	rep.append_to_body("<center><h1>201 Created</h1></center>\n");
-	rep.append_to_body("<hr><center>");
-	rep.append_to_body(SERV_NAME);
-	rep.append_to_body("</center>\n");
-	rep.append_to_body("</body>\n");
-	rep.append_to_body("</html>\n");
-	rep.append_to_header("Content-Type: text/html");
+	m_rep.start_header("201");
+	m_rep.append_to_body("<html>\n");
+	m_rep.append_to_body("<head><title>201 Created</title></head>\n");
+	m_rep.append_to_body("<body bgcolor=\"white\">\n");
+	m_rep.append_to_body("<center><h1>201 Created</h1></center>\n");
+	m_rep.append_to_body("<hr><center>");
+	m_rep.append_to_body(SERV_NAME);
+	m_rep.append_to_body("</center>\n");
+	m_rep.append_to_body("</body>\n");
+	m_rep.append_to_body("</html>\n");
+	m_rep.append_to_header("Content-Type: text/html");
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
-	{
-		ret = false;
-		rep.append_to_header("Connection: close");
-	}
+		m_rep.append_to_header("Connection: close");
 	else
-		rep.append_to_header("Connection: keep-alive");
-	rep.add_content_length();
-	if (!_send(rep))
-		return (false);
-	return (ret);
+		m_rep.append_to_header("Connection: keep-alive");
+	m_rep.add_content_length();
 }
 
 /*

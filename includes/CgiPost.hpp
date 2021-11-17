@@ -9,8 +9,8 @@ class CgiPost: public ACgi, public Post
 {
 	public:
 		CgiPost();
-		CgiPost(CgiPost const & src );
-		CgiPost(Post const & src );
+		CgiPost(CgiPost const & src);
+		CgiPost(Post const & src);
 		~CgiPost();
 
 		virtual bool	execute(ASocket ** ptr);

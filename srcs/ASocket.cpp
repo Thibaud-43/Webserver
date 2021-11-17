@@ -73,7 +73,6 @@ void	ASocket::clean(void)
 		}
 		else if ((cgi = dynamic_cast<ACgi *>(it->second)) && cgi->getPid() >= 0 && !cgi->checkStatus())
 		{
-			cgi->clear();
 			del = it;
 			it--;
 			close(del->second->getFd());

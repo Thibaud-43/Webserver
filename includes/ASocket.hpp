@@ -24,6 +24,7 @@ class ASocket
 		
 		int				getFd(void) const;
 		virtual bool	execute(ASocket **ptr) = 0;
+		virtual bool	send_rep(ASocket ** ptr) = 0;
 		virtual bool	alive(void) const = 0;
 		void			resetClock(void);
 		

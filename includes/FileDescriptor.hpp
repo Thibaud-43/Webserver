@@ -19,11 +19,11 @@ class FileDescriptor
 		static void				setEpollFd(void);
 		static int const & 		getEpollFd(void);
 		
-		void					epollCtlAdd(void);
-		void					epollCtlAdd_w(void);
-		void					epollCtlDel(void);
-		static void				epollCtlDel(int const & fd);
-		void					makeFdNonBlocking(void);
+		bool					epollCtlAdd(void);
+		bool					epollCtlAdd_w(void);
+		bool					epollCtlDel(void);
+		static bool				epollCtlDel(int const & fd);
+		bool					makeFdNonBlocking(void);
 
 	private:
 		int const	m_fd;

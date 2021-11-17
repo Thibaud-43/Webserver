@@ -87,36 +87,33 @@ void			CgiGet::_bufferToHeader(std::map<std::string, std::string> & header)
 bool	CgiGet::_handle(void)
 {
 	std::map<std::string, std::string>	header;
-	Response							rep;
 	std::string							status;
 
 	_bufferToHeader(header);
 	_checkStatus(header, status);
 	if (header["body"].empty() && status != "200" && status != "302")
 	{
-		_send(Response::create_error(status, m_location));
+		m_rep = Response::create_error(status, m_location);
 		return false;
 	}
 	else if (header["body"].empty() && status == "302")
 	{
-		if (!_send(Response::create_redirect("302", header["Location"])))
-			return false;
+		m_rep = Response::create_redirect("302", header["Location"]);
 		close(m_fd_out);
 		m_fd_out = -1;
 		return true;
 	}
 	else
 	{
-		rep.start_header(status);
+		m_rep.start_header(status);
 		for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); it++)
 		{
 			if (it->first != "body")
-				rep.append_to_header(it->first + ": " + it->second);
+				m_rep.append_to_header(it->first + ": " + it->second);
 			else
-				rep.append_to_body(it->second);
+				m_rep.append_to_body(it->second);
 		}
-		rep.add_content_length();
-		_send(rep);
+		m_rep.add_content_length();
 		close(m_fd_out);
 		m_fd_out = -1;
 		return (true);
@@ -148,7 +145,7 @@ bool	CgiGet::_fillBuffer(void)
 			m_buff += read_buffer;
 			if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
 			{
-				_send(Response::create_error("431", NULL));
+				m_rep = Response::create_error("431", NULL);
 				return false;
 			}
 		}
@@ -182,25 +179,19 @@ bool	CgiGet::manage(ACgi ** ptr, int const & fd)
 		m_fd_in = -1;
 		if (ret <= 0 )
 		{
-			_send(Response::create_error("500", m_location));
-			return (false);
+			m_rep = Response::create_error("500", m_location);
+			return (m_fd.epollCtlAdd_w());
 		}
 		return (true);
 	}
 	else if (fd == m_fd_out)
 	{
 		if (!_fillBuffer() || !_handle())
-		{
 			close(m_fd_out);
-			return false;
-		}
-		*ptr = NULL;
-		_convert<Client>(NULL);
-		return (true);
+		return (m_fd.epollCtlAdd_w());
 	}
 	else
-		return (false);
-
+		throw std::exception();
 }
 
 bool	CgiGet::start(void)
@@ -262,61 +253,6 @@ bool	CgiGet::start(void)
 	return (true);
 }
 
-/*bool	CgiGet::manage(ACgi **ptr, int const & fd)
-{
-	(void)ptr;
-	if (fd == m_fd_out)
-	{
-		if (!_fillBuffer())
-			return false;
-		if (!_handle())
-			return false;
-		*ptr = NULL;
-		_convert<Client>(NULL);
-		return (true);
-	}
-	return (true);
-}*/
-
-/*bool	CgiGet::start(void)
-{
-	char	**envp;
-	char	**args;
-	int		pipefd_out[2];
-
-	if (pipe(pipefd_out))
-		return (false);
-	m_fd_out = pipefd_out[0];
-	if (fcntl(m_fd_out, F_SETFL, O_NONBLOCK) == -1)
-	{
-		_close_pipes(pipefd_out);
-		return (false);
-	}
-	envp = getEnv();
-	args = getArgs();
-	m_pid = fork();
-	if (m_pid < 0)
-	{
-		_close_pipes(pipefd_out);
-		del_env(envp);
-		del_env(args);
-		return (false);
-	}
-	else if (!m_pid)
-	{
-		if (dup2(pipefd_out[1], STDOUT_FILENO) < 0)
-			exit(1);
-
-		_close_pipes(pipefd_out);
-		if (execve(args[0], args, envp) < 0)
-			exit(1);
-	}
-	close(pipefd_out[1]);
-	del_env(envp);
-	del_env(args);
-	return (true);
-}*/
-
 void	CgiGet::_setEnv(void)
 {
 	char *addr = inet_ntoa(m_remote_addr.sin_addr);
@@ -350,20 +286,20 @@ bool	CgiGet::checkStatus(void)
 	
 	if (ret < 0)
 	{
-		_send(Response::create_error("500", m_location));
-		return (false);
+		m_rep = Response::create_error("500", m_location);
+		ACgi::clear();
+		return (m_fd.epollCtlAdd_w());
 	}
 	else if (!ret)
-	{	
 		return (true);
-	}
 	else
 	{
 		if (!WIFEXITED(status))
 		{
-			_send(Response::create_error("500", m_location));
+			m_rep = Response::create_error("500", m_location);
 			m_pid = -1;
-			return (false);
+			ACgi::clear();
+			return (m_fd.epollCtlAdd_w());
 		}
 		else if (m_fd_in > 0)
 		{

@@ -25,15 +25,6 @@ class Request: public Client
 		File				m_path;
 		header_type			m_header;
 
-		template<typename T>
-		void		_convert(ASocket ** ptr)
-		{
-			T	*elem = new T(*this);
-
-			if (ptr)
-				*ptr = elem;
-			ASocket::addSocket(elem);
-		}
 		bool		_decrement(size_t const & n);
 		size_t		_strToSize(std::string const & str) const;
 
@@ -47,7 +38,7 @@ class Request: public Client
 		bool		_checkHost(void);
 		void		_linkLocation(void);
 		void		_linkPath(void);
-		bool		_redirect(std::pair<Location::redirect_t, std::string>	const & redirect, ASocket **ptr);
+		bool		_redirect(std::pair<Location::redirect_t, std::string>	const & redirect);
 };
 
 #endif /* ********************************************************* REQUEST_H */

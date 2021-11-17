@@ -161,6 +161,11 @@ std::ostream &			operator<<( std::ostream & o, Response const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool	Response::close(void) const
+{
+	return (m_header.find("Connection: close") != std::string::npos);
+}
+
 void	Response::append_to_header(std::string const & str)
 {
 	m_header.append(str + "\r\n");
@@ -181,7 +186,10 @@ void	Response::add_content_length(void)
 
 std::string Response::getContent(void) const
 {
-	return (m_header + "\r\n" + m_body);
+	if (!m_header.empty())
+		return (m_header + "\r\n" + m_body);
+	else
+		return (m_body);
 }
 
 void	Response::start_header(Response::status_code_t const & status)
