@@ -104,15 +104,20 @@ bool	Client::execute(ASocket ** ptr)
 bool	Client::_send(Response const & rep) const
 {
 	std::string	content = rep.getContent();
+	int ret;
 
-	if (send(getFd(), content.c_str(), content.size(), 0) == -1)
+	ret = send(getFd(), content.c_str(), content.size(), 0);
+	if (ret == 0 || ret == -1)
 		return (false);
 	return (true);
 }
 
 bool	Client::_send(std::string const & rep) const
 {
-	if (send(getFd(), rep.c_str(), rep.size(), 0) == -1)
+	int ret;
+
+	ret = send(getFd(), rep.c_str(), rep.size(), 0);
+	if (ret == 0 || ret == -1)
 		return (false);
 	return (true);
 }

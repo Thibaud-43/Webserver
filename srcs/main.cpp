@@ -2,33 +2,12 @@
 #include "Tree.hpp"
 #include "Response.hpp"
 
-// void printBT(const std::string& prefix, const Node* node, bool isLeft)
-// {
-//     if( node != NULL )
-//     {
-//         std::cout << prefix;
-
-//         std::cout << (isLeft ? "├──" : "└──" );
-
-//         // print the value of the node
-//         std::cout << node->getType() << std::endl;
-
-//         // enter the next tree level - left and right branch
-//         printBT( prefix + (isLeft ? "│   " : "    "), node->getRight(), true);
-//         printBT( prefix + (isLeft ? "│   " : "    "), node->getLeft(), false);
-//     }
-// }
-
-// void printBT(const Node* node)
-// {
-//     printBT("", node, false);    
-// }
-
 void    leave(int sig)
 {
     (void)sig;
     ASocket::clear();
     std::cout << "[" << HTTPDate() << "]" << ": server shutdown\n";
+    close(FileDescriptor::getEpollFd());
     exit(0);
 }
 
