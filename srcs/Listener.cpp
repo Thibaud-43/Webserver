@@ -77,6 +77,7 @@ bool	Listener::execute(ASocket ** ptr)
 		}
 		else
 		{
+			std::cout << "[" << HTTPDate() << "]: server " << getFd() << " new client connection " << std::endl;
             Client	*client = new Client(fd, m_server, their_addr);
 			if (ptr)
 				*ptr = client;
@@ -94,6 +95,7 @@ void            Listener::_bind(void)
         perror("bind");
         exit(1);
     }
+
 }
 
 void            Listener::_initAddr(port_type const & port, ip_type const & ip)

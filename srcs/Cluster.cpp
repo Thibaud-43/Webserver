@@ -13,7 +13,6 @@ Cluster::Cluster(char const * configFilePath): m_tree(configFilePath), m_eventCo
         m_tree.parseTokensList();
         this->_fillCluster(m_tree.getRoot());
 		this->_parseServerObject();
-       	std::cout << *this << std::endl;
     }
     catch(const Tree::ParserFailException& e)
     {

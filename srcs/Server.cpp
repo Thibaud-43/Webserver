@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Response.hpp"
 # include "Listener.hpp"
 
 /*
@@ -123,6 +124,7 @@ int				Server::run()
         perror("setsockopt");
         exit(1);
     }
+	std::cout << "[" << HTTPDate() << "]: server " << fd << " created" << std::endl;
     Listener	*socket = new Listener(fd, this, m_port, m_ip);
 	ASocket::addSocket(socket);
     return 1;
