@@ -27,7 +27,7 @@ Listener::Listener(int const & fd, Server const * server, port_type const & port
     _bind();
     m_fd.makeFdNonBlocking();
     _listen();
-    m_fd.epollCtlAdd();
+    m_fd.epollCtlAdd_r();
 }
 
 /*

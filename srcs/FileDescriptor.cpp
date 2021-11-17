@@ -2,6 +2,8 @@
 
 int	FileDescriptor::_epoll_fd = -1;
 
+void    leave(int sig);
+
 void	FileDescriptor::setEpollFd(void)
 {
 	_epoll_fd = epoll_create1(0);
@@ -70,7 +72,7 @@ FileDescriptor::~FileDescriptor()
 */
 
 
-bool	FileDescriptor::epollCtlAdd(void)
+bool	FileDescriptor::epollCtlAdd_r(void)
 {
 	FileDescriptor::event_type	event;
 
@@ -102,6 +104,19 @@ bool	FileDescriptor::epollCtlAdd_w(void)
     return (true);
 }
 
+bool    FileDescriptor::epollCtlSwitch_w(void)
+{
+    if (!epollCtlDel() || !epollCtlAdd_w())
+        return (false);
+    return (true);
+}
+
+bool    FileDescriptor::epollCtlSwitch_r(void)
+{
+    if (!epollCtlDel() || !epollCtlAdd_r())
+        return (false);
+    return (true);
+}
 
 bool	FileDescriptor::epollCtlDel(void)
 {
@@ -124,8 +139,7 @@ bool			FileDescriptor::makeFdNonBlocking(void)
 	if (fcntl(m_fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		perror("fcntl");
-		exit(1);
-        return (false);
+        leave(0);
 	}
     return (true);
 }

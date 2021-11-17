@@ -157,7 +157,7 @@ bool	CgiPost::_fillBuffer(void)
 bool	CgiPost::execute(ASocket ** ptr)
 {
 	if (!Post::_fillBuffer())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	return (entry(ptr));
 }
 
@@ -174,7 +174,7 @@ bool	CgiPost::entry(ASocket ** ptr)
 			if (!start())
 			{
 				m_rep = Response::create_error("500", m_location);
-				return (m_fd.epollCtlAdd_w());
+				return (m_fd.epollCtlSwitch_w());
 			}
 		}
 		return (true);
@@ -188,7 +188,7 @@ bool	CgiPost::entry(ASocket ** ptr)
 			if (!start())
 			{
 				m_rep = Response::create_error("500", m_location);
-				return (m_fd.epollCtlAdd_w());
+				return (m_fd.epollCtlSwitch_w());
 			}
 		}
 		return (true);
@@ -196,7 +196,7 @@ bool	CgiPost::entry(ASocket ** ptr)
 	else
 	{
 		m_rep = Response::create_error("411", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 }
 
@@ -215,7 +215,7 @@ bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 		if (ret <= 0 )
 		{
 			m_rep = Response::create_error("500", m_location);
-			return (m_fd.epollCtlAdd_w());
+			return (m_fd.epollCtlSwitch_w());
 		}
 		return (true);
 	}
@@ -223,7 +223,7 @@ bool	CgiPost::manage(ACgi ** ptr, int const & fd)
 	{
 		if (!_fillBuffer() || !_handle())
 			close(m_fd_out);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	else
 		throw std::exception();
@@ -323,7 +323,7 @@ bool	CgiPost::checkStatus(void)
 	{
 		m_rep = Response::create_error("500", m_location);
 		ACgi::clear();
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	else if (!ret)
 		return (true);
@@ -334,14 +334,14 @@ bool	CgiPost::checkStatus(void)
 			m_rep = Response::create_error("500", m_location);
 			m_pid = -1;
 			ACgi::clear();
-			return (m_fd.epollCtlAdd_w());
+			return (m_fd.epollCtlSwitch_w());
 		}
 		else if (m_fd_in > 0)
 		{
 			close(m_fd_in);
 			m_fd_in = -1;
 		}
-		fd_out.epollCtlAdd();
+		fd_out.epollCtlSwitch_w();
 		m_pid = -1;
 		return (true);
 	}

@@ -121,7 +121,7 @@ bool	Post::execute(ASocket ** ptr)
 	if (ptr)
 		*ptr = this;
 	if (!_check())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	if (m_cgi_pass)
 		return (_start_cgi(ptr));
 	else if (m_location->getUpload())
@@ -129,7 +129,7 @@ bool	Post::execute(ASocket ** ptr)
 	else 
 	{
 		m_rep = Response::create_error("403", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 }
 

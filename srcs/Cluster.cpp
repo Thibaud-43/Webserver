@@ -220,7 +220,7 @@ void							Cluster::_epollExecute(void)
 		if (socket)
 		{
 			socket->resetClock();
-			if (m_events[i].data.fd & EPOLLOUT) // MAUVAISE CONDITION ?
+			if (m_events[i].events & EPOLLOUT)
 			{
 				if (!socket->send_rep(&socket))
 					ASocket::removeSocket(socket);

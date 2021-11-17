@@ -40,7 +40,7 @@ Upload::~Upload()
 bool	Upload::execute(ASocket ** ptr)
 {
 	if (!Post::_fillBuffer())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	return (entry(ptr));
 }
 
@@ -51,7 +51,7 @@ bool	Upload::entry(ASocket ** ptr)
 	if (!m_stream.is_open())
 	{
 		m_rep = Response::create_error("403", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	if (m_header.find("Content-Length") != m_header.end())
 	{
@@ -62,7 +62,7 @@ bool	Upload::entry(ASocket ** ptr)
 		{
 			m_stream.close();
 			_created();
-			return (m_fd.epollCtlAdd_w());
+			return (m_fd.epollCtlSwitch_w());
 		}
 		return (true);
 	}
@@ -76,14 +76,14 @@ bool	Upload::entry(ASocket ** ptr)
 		{
 			m_stream.close();
 			_created();
-			return (m_fd.epollCtlAdd_w());
+			return (m_fd.epollCtlSwitch_w());
 		}
 		return (true);
 	}
 	else
 	{
 		m_rep = Response::create_error("411", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 }
 

@@ -220,24 +220,30 @@ bool	Request::execute(ASocket **ptr)
 	std::pair<Location::redirect_t, std::string>	redirect;
 
 	if (!_fillBuffer())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	if (m_buff.find("\r\n\r\n") == std::string::npos)
 		return true;
 	_bufferToRequestLine();
 	_bufferToHeader();
 	//_printHeader();
 	if(!_checkHeader())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	method = m_header.at("method");
 	redirect = m_location->getRedirect();
 	if (!redirect.first.empty())
 		return (_redirect(redirect));
 	else if (method == "GET")
-		_convert<Get>(ptr);
+		*ptr = new Get(*this);
 	else if (method == "POST")
-		_convert<Post>(ptr);
+		*ptr = new Post(*this);
 	else if (method == "DELETE")
-		_convert<Delete>(ptr);
+		*ptr = new Delete(*this);
+	else
+	{
+		m_rep = Response::create_error("405", m_location);
+		return (m_fd.epollCtlSwitch_w());
+	}
+	ASocket::addSocket(*ptr);
 	return (*ptr)->execute(ptr);
 }
 
@@ -246,7 +252,7 @@ bool	Request::_redirect(std::pair<Location::redirect_t, std::string>	const & red
 	m_rep = Response::create_redirect(redirect.first, redirect.second);
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
 		m_rep.append_to_header("Connection: close");
-	return (m_fd.epollCtlAdd_w());
+	return (m_fd.epollCtlSwitch_w());
 }
 
 /*

@@ -40,9 +40,9 @@ bool	Delete::execute(ASocket ** ptr)
 	if (ptr)
 		*ptr = this;
 	if (!_check())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	_delete();
-	return (m_fd.epollCtlAdd_w());
+	return (m_fd.epollCtlSwitch_w());
 }
 
 bool	Delete::_check(void)

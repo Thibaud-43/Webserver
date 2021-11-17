@@ -44,7 +44,7 @@ bool	ChunkGet::execute(ASocket ** ptr)
 	if (!m_stream.is_open())
 	{
 		m_rep = Response::create_error("500", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	m_rep.start_header("200");
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
@@ -53,7 +53,7 @@ bool	ChunkGet::execute(ASocket ** ptr)
 		m_rep.append_to_header("Connection: keep-alive");
 	m_rep.append_to_header("Transfer-Encoding: chunked");
 	_add_read();
-	return (m_fd.epollCtlAdd_w());
+	return (m_fd.epollCtlSwitch_w());
 }
 
 bool	ChunkGet::_add_read(void)
@@ -95,7 +95,7 @@ bool	ChunkGet::send_rep(ASocket ** ptr)
 	if (!m_stream.gcount())
 	{
 		m_stream.close();
-		ret = m_fd.epollCtlAdd();
+		ret = m_fd.epollCtlSwitch_r();
 		if (ret)
 			_convert<Client>(ptr);
 		return (ret);

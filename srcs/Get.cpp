@@ -44,7 +44,7 @@ bool	Get::execute(ASocket ** ptr)
 	if (ptr)
 		*ptr = this;
 	if (!_check())
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	if (m_path.is_directory())
 		return (_manageDir());
 	else if (m_cgi_pass)
@@ -81,11 +81,11 @@ bool	Get::_manageDir(void)
 	else
 	{
 		m_rep = Response::create_error("403", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	if (m_header.find("Connection") != m_header.end() && m_header.at("Connection") == "close")
 		m_rep.append_to_header("Connection: close");
-	return (m_fd.epollCtlAdd_w());
+	return (m_fd.epollCtlSwitch_w());
 }
 
 Location::file_t const *	Get::_cgiPass(void) const
@@ -110,7 +110,7 @@ bool	Get::_start_cgi(ASocket ** ptr)
 	if (!f.is_executable())
 	{
 		m_rep = Response::create_error("500", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	cgi = new CgiGet(*this);
 	if (ptr)
@@ -119,7 +119,7 @@ bool	Get::_start_cgi(ASocket ** ptr)
 	if (!cgi->start())
 	{
 		m_rep = Response::create_error("500", m_location);
-		return (m_fd.epollCtlAdd_w());
+		return (m_fd.epollCtlSwitch_w());
 	}
 	return ((*ptr)->execute(ptr));
 }
@@ -142,7 +142,7 @@ bool	Get::_get(ASocket ** ptr)
 		m_rep.append_to_header("Connection: keep-alive");
 	m_rep.append_to_header("Content-length: " + _ltostr(m_path.size()));
 	_addFile();
-	return (m_fd.epollCtlAdd_w());
+	return (m_fd.epollCtlSwitch_w());
 }
 
 bool	Get::_addFile(void)
