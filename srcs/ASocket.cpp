@@ -95,6 +95,16 @@ ACgi *	ASocket::getCgi(int const & fd)
 	return (NULL);
 }
 
+void	ASocket::clear()
+{
+	for (list_type::iterator it = _list.begin(); it != _list.end(); it++)
+	{
+		close(it->second->getFd());
+		delete it->second;
+	}
+	_list.clear();
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
