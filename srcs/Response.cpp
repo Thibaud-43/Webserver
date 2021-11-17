@@ -24,6 +24,7 @@ Response::status_t	Response::_createStatus(void)
 	status["411"] = "Length Required";
 	status["412"] = "Precondition Failed";
 	status["413"] = "Payload Too Large";
+	status["415"] = "Unsupported Media Type";
 	status["416"] = "Range Not Satisfiable";
 	status["431"] = "Request Header Fields Too Large",
 	status["500"] = "Internal Server Error";
@@ -73,7 +74,6 @@ Response	Response::create_redirect(Response::status_code_t const & red, std::str
 	rep.append_to_body("</html>\n");
 	rep.append_to_header("Content-Type: text/html");
 	rep.add_content_length();
-	rep.append_to_header("Connection: keep-alive");
 	rep.append_to_header("Location: " + location);
 	return (rep);
 }
@@ -111,7 +111,6 @@ Response	Response::create_index(std::string const & directory, Location const * 
 	rep.append_to_body("</pre><hr></body>\n");
 	rep.append_to_body("</html>\n");
 	rep.append_to_header("Content-Type: text/html");
-	rep.append_to_header("Connection: keep-alive");
 	rep.add_content_length();
 	return (rep);
 }
