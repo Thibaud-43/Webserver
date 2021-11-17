@@ -216,15 +216,24 @@ void							Cluster::_epollExecute(void)
 
 	for( int i = 0; i < m_eventCount; i++)
 	{
+	
 		socket = ASocket::getSocket(m_events[i].data.fd);
 		if (socket)
 		{
 			socket->resetClock();
-			if (!socket->execute(&socket))
-				ASocket::removeSocket(socket);
+			if (m_events[i].data.fd & EPOLLOUT)
+			{
+
+			}
+			else
+			{
+				if (!socket->execute(&socket))
+					ASocket::removeSocket(socket);
+			}
 		}
 		else if ((cgi = ASocket::getCgi(m_events[i].data.fd)))
 		{
+
 			if (!cgi->manage(&cgi, m_events[i].data.fd))
 				ASocket::removeCgi(cgi);
 		}

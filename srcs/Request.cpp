@@ -157,11 +157,12 @@ void			Request::_bufferToHeader(void)
 
 void			Request::_printHeader(void)
 {
-	std::cout << std::endl << std::endl << "MAP REQUEST HEADER" << std::endl;
+	std::cout << std::endl << std::endl << "\t\tMAP REQUEST HEADER" << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m_header.begin(); it != m_header.end(); it++)
 	{
-		std::cout << "[" << it->first << "]='" << it->second << "'" << std::endl; 
+		std::cout << "\t\t[" << it->first << "]='" << it->second << "'" << std::endl; 
 	}
+	std::cout << std::endl << std::endl;
 }
 
 bool	Request::_checkHeader(void)
@@ -224,6 +225,7 @@ bool	Request::execute(ASocket **ptr)
 		return true;
 	_bufferToRequestLine();
 	_bufferToHeader();
+	_printHeader();
 	if(!_checkHeader())
 		return false;
 	method = m_header.at("method");
