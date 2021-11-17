@@ -14,7 +14,7 @@ class Cluster
 		typedef int						fd_type;
 		typedef struct epoll_event		event_type;
 
-		Cluster( char const * configFilePath = "confFiles/default.conf" );
+		Cluster( char const * configFilePath = "confFiles/webserv.conf" );
 		Cluster( Cluster const & src );
 		~Cluster();
 

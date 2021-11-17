@@ -106,6 +106,7 @@ bool	Client::_send(Response const & rep) const
 	std::string	content = rep.getContent();
 	int ret;
 
+	std::cout << content + "\n";
 	ret = send(getFd(), content.c_str(), content.size(), 0);
 	if (ret == 0 || ret == -1)
 		return (false);
@@ -116,6 +117,7 @@ bool	Client::_send(std::string const & rep) const
 {
 	int ret;
 
+	std::cout << rep + "\n";
 	ret = send(getFd(), rep.c_str(), rep.size(), 0);
 	if (ret == 0 || ret == -1)
 		return (false);

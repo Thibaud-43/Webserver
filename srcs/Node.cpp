@@ -42,7 +42,9 @@ Node::Node(Node const &src) : m_left(src.m_left), m_right(src.m_right), m_type(s
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 Node::~Node()
-{}
+{
+	// std::cout << "Node destructor called" << std::endl;
+}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------

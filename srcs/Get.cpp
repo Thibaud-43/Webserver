@@ -64,6 +64,10 @@ bool	Get::_check(void) const
 		rep = Response::create_error("403", m_location);
 	else if (m_header.find("Range") != m_header.end())
 		rep = Response::create_error("416", m_location);
+	else if (!m_path.is_directory() && !m_path.is_regular())
+		rep = Response::create_error("415", m_location);
+	else if (m_path.size() > MAX_SERVER_BODY_SIZE)
+		rep = Response::create_error("415", m_location);
 	else
 		return (true);	
 	_send(rep);
@@ -163,7 +167,7 @@ bool	Get::_get(ASocket ** ptr)
 
 bool	Get::_sendChunkedFile(void) const
 {
-	std::ifstream	fstream(m_path.getPath().data());
+	std::ifstream	fstream(m_path.getPath().data(), std::ios_base::in | std::ios_base::binary);
 	char			buff[READ_SIZE + 1];
 	std::string		body;
 

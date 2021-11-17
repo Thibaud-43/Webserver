@@ -225,7 +225,7 @@ bool	Request::execute(ASocket **ptr)
 		return true;
 	_bufferToRequestLine();
 	_bufferToHeader();
-	_printHeader();
+	//_printHeader();
 	if(!_checkHeader())
 		return false;
 	method = m_header.at("method");

@@ -117,12 +117,12 @@ int				Server::run()
 	if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
 	{
         perror("socket");
-        exit(1);
+        throw std::exception();
     }
     if (setsockopt(fd, SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) 
 	{
         perror("setsockopt");
-        exit(1);
+        throw std::exception();
     }
 	std::cout << "[" << HTTPDate() << "]: server " << fd << " created" << std::endl;
     Listener	*socket = new Listener(fd, this, m_port, m_ip);
