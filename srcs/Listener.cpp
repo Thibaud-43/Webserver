@@ -93,7 +93,8 @@ void            Listener::_bind(void)
     if (bind(getFd(), (struct sockaddr *)&m_addr, sizeof(address_type)) == -1) 
 	{
         perror("bind");
-        exit(1);
+			// COULD BE HERE
+        throw std::exception();
     }
 
 }
@@ -114,7 +115,7 @@ void            Listener::_listen(void)
     if (listen(getFd(), 10) == -1) 
 	{
         perror("listen");
-        exit(1);
+        throw std::exception();
     }
 
 }

@@ -8,7 +8,7 @@ void    leave(int sig)
     ASocket::clear();
     std::cout << "[" << HTTPDate() << "]" << ": server shutdown\n";
     close(FileDescriptor::getEpollFd());
-    exit(0);
+    throw std::exception();
 }
 
 int main(int argc, char const *argv[])
@@ -22,14 +22,28 @@ int main(int argc, char const *argv[])
         Cluster cluster;
         if (cluster.getServers().size() == 0)
             return 0;
-        cluster.run();
+        try
+        {
+            cluster.run();
+        }
+        catch(const std::exception& e)
+        {
+            return 0;
+        }
     }
     else if (argc == 2)
     {
         Cluster cluster(argv[1]);
         if (cluster.getServers().size() == 0)
             return 0;
-        cluster.run();
+        try
+        {
+            cluster.run();
+        }
+        catch(const std::exception& e)
+        {
+            return 0;
+        }
     }
     else
     {

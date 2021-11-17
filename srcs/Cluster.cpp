@@ -205,7 +205,7 @@ void							Cluster::_epollWait(void)
 	if (m_eventCount == -1)
 	{
 		perror("failed epoll_wait");
-		exit(0) ;
+		throw std::exception();
 	}
 }
 
