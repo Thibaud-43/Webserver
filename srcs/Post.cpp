@@ -40,42 +40,42 @@ Post::~Post()
 bool	Post::_fillBuffer(void)
 {
 	size_t              bytes_read = 0;
-	char                read_buffer[READ_SIZE + 1];
+	char                read_buffer[READ_SIZE_RECV + 1];
 
-	for (;;)
+
+	bytes_read = recv(getFd(), read_buffer, READ_SIZE_RECV, 0);
+	if (bytes_read < 0)
 	{
-		bytes_read = recv(getFd(), read_buffer, READ_SIZE, 0);
-		if (bytes_read < 0)
+		close(getFd());
+		return false;
+	}
+	else if (bytes_read == 0)
+	{
+		return true;
+	}
+	else if (bytes_read == READ_SIZE_RECV)
+	{
+		read_buffer[bytes_read] = 0;
+		m_buff += read_buffer;
+		if (m_buff.size() > m_location->getBodySize())
 		{
-			close(getFd());
+			m_rep = Response::create_error("413", NULL);
 			return false;
 		}
-		else if (bytes_read == 0)
-		{
-			return true;
-		}
-		else if (bytes_read == READ_SIZE)
-		{
-			read_buffer[bytes_read] = 0;
-			m_buff += read_buffer;
-			if (m_buff.size() > m_location->getBodySize())
-			{
-				m_rep = Response::create_error("413", NULL);
-				return false;
-			}
-		}
-		else
-		{
-			read_buffer[bytes_read] = 0;
-			m_buff += read_buffer;
-			if (m_buff.size() > m_location->getBodySize())
-			{
-				m_rep = Response::create_error("413", &m_server->getParams());
-				return (false);		
-			}
-			return true;
-		}
 	}
+	else
+	{
+		read_buffer[bytes_read] = 0;
+		m_buff += read_buffer;
+		if (m_buff.size() > m_location->getBodySize())
+		{
+			m_rep = Response::create_error("413", &m_server->getParams());
+			return (false);		
+		}
+		return true;
+	}
+	return true;
+
 }
 
 bool	Post::_check(void)

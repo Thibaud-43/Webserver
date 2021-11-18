@@ -32,6 +32,7 @@
 # define SERV_NAME "Webserv/1.0.0"
 # define CGI_VERSION "CGI/1.1"
 # define READ_SIZE 1024
+# define READ_SIZE_RECV 1024000
 # define MAX_EVENTS 10
 # define MYPORT 3490
 # define PROTOCOL "HTTP/1.1"

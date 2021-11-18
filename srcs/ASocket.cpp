@@ -1,3 +1,4 @@
+#include "Response.hpp"
 #include "ASocket.hpp"
 #include "ACgi.hpp"
 
@@ -63,6 +64,7 @@ void	ASocket::clean(void)
 	{
 		if (!(it->second->alive()))
 		{
+			std::cout << "[" << HTTPDate() << "]: Delay over connection with client " << it->second->getFd() << " is closed" << std::endl;
 			if ((cgi = dynamic_cast<ACgi *>(it->second)))
 				cgi->clear();
 			del = it;

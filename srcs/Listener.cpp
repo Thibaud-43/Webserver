@@ -77,7 +77,7 @@ bool	Listener::execute(ASocket ** ptr)
 		}
 		else
 		{
-			std::cout << "[" << HTTPDate() << "]: server " << getFd() << " new client connection " << std::endl;
+			std::cout << "[" << HTTPDate() << "]: server " << getFd() << " new client " << fd <<" connection " << std::endl;
             Client	*client = new Client(fd, m_server, their_addr);
 			if (ptr)
 				*ptr = client;

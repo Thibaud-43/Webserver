@@ -1,6 +1,6 @@
 NAME		=	webserv
 CC			=	clang++
-CFLAGS		=	-g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+CFLAGS		=	-g -Wall -Wextra -Werror -std=c++98
 RM			=	rm -rf
 SRC_DIR 	= 	srcs
 SRC		 	=	$(notdir $(shell find $(SRC_DIR) -type f -name *.cpp))

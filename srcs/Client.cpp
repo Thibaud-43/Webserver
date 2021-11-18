@@ -55,38 +55,35 @@ bool	Client::alive(void) const
 bool	Client::_fillBuffer(void)
 {
 	size_t              bytes_read = 0; 
-	char                read_buffer[READ_SIZE + 1];
+	char                read_buffer[READ_SIZE_RECV + 1];
 
-
-	for (;;)
+	bytes_read = recv(getFd(), read_buffer, READ_SIZE_RECV, 0);
+	if (bytes_read < 0)
 	{
-		bytes_read = recv(getFd(), read_buffer, READ_SIZE, 0);
-		if (bytes_read < 0)
+		close(getFd());
+		return false;
+	}
+	else if (bytes_read == 0)
+	{
+		return true;
+	}
+	else if (bytes_read == READ_SIZE_RECV)
+	{
+		read_buffer[bytes_read] = 0;
+		m_buff += read_buffer;
+		if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
 		{
-			close(getFd());
+			m_rep = Response::create_error("431", NULL);
 			return false;
 		}
-		else if (bytes_read == 0)
-		{
-			return true;
-		}
-		else if (bytes_read == READ_SIZE)
-		{
-			read_buffer[bytes_read] = 0;
-			m_buff += read_buffer;
-			if (m_buff.size() >= HEADER_SIZE_LIMIT && m_buff.find("\r\n\r\n") == std::string::npos)
-			{
-				m_rep = Response::create_error("431", NULL);
-				return false;
-			}
-		}
-		else
-		{ 
-			read_buffer[bytes_read] = 0;
-			m_buff += read_buffer;
-			return true;
-		}
 	}
+	else
+	{ 
+		read_buffer[bytes_read] = 0;
+		m_buff += read_buffer;
+		return true;
+	}
+	return (true);
 }
 
 bool	Client::execute(ASocket ** ptr)
