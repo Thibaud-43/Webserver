@@ -89,12 +89,14 @@ int    Tree::parseCluster(void)
             {
                 m_root = new Node("Server");
                 tmpNode = m_root;
-                tmpNode->parseServer(it, ite);
+                if (tmpNode->parseServer(it, ite) < 0)
+                    return -1;
             }
             else
             {
                 tmpNode = tmpNode->createNode("Server");
-                tmpNode->parseServer(it, ite);
+                if (tmpNode->parseServer(it, ite) < 0)
+                    return -1;
             }
         }
         else

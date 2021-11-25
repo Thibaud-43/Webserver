@@ -122,12 +122,18 @@ int     Node::parseLocation(std::vector<std::string>::iterator &it, std::vector<
             it++;
         }
         else
+        {
+            errorMessage = "wrong directive name";
             return -1;
+        }
     }
-    if (*it == "}")
+    if (it != ite && *it == "}")
         ++it;
     else
+    {
+        errorMessage = "missing curly brackets";
         return -1;
+    }
     return 0;
 }
 
@@ -142,13 +148,14 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
         {
             tmpNode = tmpNode->createNode("location");
             tmpNode->m_content.push_back(*(it + 1));
-            if (*(it + 3) == "}")
+            if (*(it + 3) == "}") // CAREFUL
             {
                 tmpNode->createNode("emptyLocation");
                 it += 4;
             }
             else
-                tmpNode->parseLocation(it, ite);
+                if (tmpNode->parseLocation(it, ite) < 0)
+                    return -1;
         }
         else if (Node::isDirectiveServer(it, ite, type) == true) // CHECK the FORMAT // No ref
         {
@@ -162,7 +169,7 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
         {
             if (it != ite && *it == ";")
                 errorMessage = "too much semicolon.";
-            if (errorMessage.empty())
+            if (errorMessage.empty() == true)
                 errorMessage = "location scope is wrong.";
             return -1;
         }
@@ -170,7 +177,10 @@ int     Node::parseServer(std::vector<std::string>::iterator &it, std::vector<st
     if (it != ite && *it == "}")
         ++it;
     else
+    {
+        errorMessage = "missing curly brackets";
         return -1;
+    }
     return 0;
 }
 
@@ -221,15 +231,11 @@ bool    Node::isDirectiveServer(std::vector<std::string>::iterator it, std::vect
             if (*it == directives[i])
             {
                 type = directives[i];
-                if (Node::checkDirectiveFormat(it, ite, directives[i]) == false)
-                {
-                    errorMessage = directives[i] + " directive is wrong.";
-                    return false;
-                }
-                else
-                    return true;            }
+                return true;
+            }
         }
     }
+    errorMessage = *it + " directive is wrong.";
     return false;
 }
 
@@ -551,4 +557,16 @@ std::vector<std::string>&    Node::getContent(void)
 {
     return m_content;
 }
+
+// /*
+// ** --------------------------------- EXCEPTIONS ---------------------------------
+// */
+
+// const char* Node::ParserFailException::what() const throw()
+// {
+//     return ("Parsing error - Missing curly brackets");
+// }
+
+// /* ************************************************************************** */
+
 /* ************************************************************************** */
