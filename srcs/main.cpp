@@ -28,6 +28,7 @@ int main(int argc, char const *argv[])
         }
         catch(const std::exception& e)
         {
+		ASocket::clear();
             return 0;
         }
     }
@@ -42,6 +43,7 @@ int main(int argc, char const *argv[])
         }
         catch(const std::exception& e)
         {
+		ASocket::clear();
             return 0;
         }
     }
