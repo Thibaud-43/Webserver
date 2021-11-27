@@ -65,8 +65,6 @@ bool	Get::_check(void)
 		m_rep = Response::create_error("416", m_location);
 	else if (!m_path.is_directory() && !m_path.is_regular())
 		m_rep = Response::create_error("415", m_location);
-	else if (m_path.size() > MAX_SERVER_BODY_SIZE)
-		m_rep = Response::create_error("415", m_location);
 	else
 		return (true);	
 	return (false);

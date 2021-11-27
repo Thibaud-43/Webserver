@@ -21,14 +21,14 @@ int main(int argc, char const *argv[])
     {
         Cluster cluster;
         if (cluster.getServers().size() == 0)
-            return 0;
+            return 1;
         try
         {
             cluster.run();
         }
         catch(const std::exception& e)
         {
-		ASocket::clear();
+		    ASocket::clear();
             return 0;
         }
     }
@@ -36,20 +36,21 @@ int main(int argc, char const *argv[])
     {
         Cluster cluster(argv[1]);
         if (cluster.getServers().size() == 0)
-            return 0;
+            return 1;
         try
         {
             cluster.run();
         }
         catch(const std::exception& e)
         {
-		ASocket::clear();
+		    ASocket::clear();
             return 0;
         }
     }
     else
     {
         std::cerr << "ERROR - Wrong arguments number." << std::endl;
+        return 2;
     }
     return 0;
 }
